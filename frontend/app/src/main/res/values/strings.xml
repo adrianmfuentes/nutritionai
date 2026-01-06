@@ -1,4 +1,96 @@
 <resources>
     <string name="app_name">Nutrition AI</string>
     <string name="app_description">Análisis nutricional con IA</string>
+
+    <!-- Auth Screens -->
+    <string name="login_title">NutritionAI</string>
+    <string name="login_subtitle">Analiza tu comida con IA</string>
+    <string name="email_label">Correo electrónico</string>
+    <string name="password_label">Contraseña</string>
+    <string name="show_password">Mostrar</string>
+    <string name="hide_password">Ocultar</string>
+    <string name="login_button">Iniciar Sesión</string>
+    <string name="no_account">¿No tienes cuenta?</string>
+    <string name="register_link">Regístrate</string>
+
+    <string name="register_title">Crear Cuenta</string>
+    <string name="register_subtitle">Comienza tu viaje nutricional</string>
+    <string name="name_label">Nombre</string>
+    <string name="confirm_password_label">Confirmar contraseña</string>
+    <string name="passwords_dont_match">Las contraseñas no coinciden</string>
+    <string name="register_button">Registrarse</string>
+    <string name="have_account">¿Ya tienes cuenta?</string>
+    <string name="login_link">Inicia sesión</string>
+
+    <!-- Dashboard -->
+    <string name="add_meal">Agregar comida</string>
+    <string name="macronutrients">Macronutrientes</string>
+    <string name="protein">Proteína</string>
+    <string name="carbs">Carbos</string>
+    <string name="fat">Grasas</string>
+    <string name="meals_today">Comidas de hoy</string>
+    <string name="no_meals_registered">No hay comidas registradas</string>
+    <string name="add_first_meal">Toca el botón + para agregar tu primera comida</string>
+    <string name="calories_of_day">Calorías del Día</string>
+
+    <!-- Settings -->
+    <string name="nutrition_goals">Objetivos Nutricionales</string>
+    <string name="preferences">Preferencias</string>
+    <string name="account">Cuenta</string>
+    <string name="daily_goals">Objetivos Diarios</string>
+    <string name="edit_goals">Editar objetivos</string>
+    <string name="calories">Calorías</string>
+    <string name="no_goals_configured">No has configurado tus objetivos aún</string>
+
+    <string name="notifications">Notificaciones</string>
+    <string name="notifications_enabled">Activadas</string>
+    <string name="notifications_disabled">Desactivadas</string>
+    <string name="language">Idioma</string>
+    <string name="units">Unidades</string>
+
+    <string name="change_password">Cambiar contraseña</string>
+    <string name="update_password">Actualiza tu contraseña</string>
+    <string name="logout">Cerrar sesión</string>
+    <string name="logout_subtitle">Salir de tu cuenta</string>
+
+    <!-- Dialogs -->
+    <string name="edit_nutrition_goals">Editar Objetivos Nutricionales</string>
+    <string name="calories_kcal">Calorías (kcal)</string>
+    <string name="protein_g">Proteína (g)</string>
+    <string name="carbs_g">Carbohidratos (g)</string>
+    <string name="fat_g">Grasas (g)</string>
+    <string name="save">Guardar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="close">Cerrar</string>
+
+    <string name="notifications_config">Configuración de Notificaciones</string>
+    <string name="meal_reminders">Recibe recordatorios para registrar tus comidas</string>
+
+    <string name="select_language">Seleccionar Idioma</string>
+    <string name="language_spanish">Español</string>
+    <string name="language_english">English</string>
+    <string name="language_french">Français</string>
+    <string name="language_german">Deutsch</string>
+
+    <string name="select_units">Seleccionar Unidades</string>
+    <string name="units_metric">Métrico (g, kg)</string>
+    <string name="units_imperial">Imperial (oz, lb)</string>
+
+    <string name="current_password">Contraseña actual</string>
+    <string name="new_password">Nueva contraseña</string>
+    <string name="confirm_new_password">Confirmar nueva contraseña</string>
+
+    <!-- Camera -->
+    <string name="capture_food">Capturar Comida</string>
+    <string name="back">Volver</string>
+    <string name="analyzing_food">Analizando comida…</string>
+    <string name="capture">Capturar</string>
+
+    <!-- History -->
+    <string name="delete">Eliminar</string>
+    <string name="retry">Reintentar</string>
+
+    <!-- Common -->
+    <string name="kcal">kcal</string>
+    <string name="g">g</string>
 </resources>

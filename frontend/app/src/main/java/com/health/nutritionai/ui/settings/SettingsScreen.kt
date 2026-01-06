@@ -309,7 +309,7 @@ private fun NutritionGoalsCard(
                 GoalItem(label = "Calorías", value = "${goals.calories} kcal", icon = Icons.Default.Star)
                 GoalItem(label = "Proteína", value = "${goals.protein.toInt()} g", icon = Icons.Default.FavoriteBorder)
                 GoalItem(label = "Carbohidratos", value = "${goals.carbs.toInt()} g", icon = Icons.Default.CheckCircle)
-                GoalItem(label = "Grasas", value = "${goals.fat.toInt()} g", icon = Icons.Default.AccountCircle)
+                GoalItem(label = "Grasas", value = "${goals.fat.toInt()} g", icon = Icons.Default.Info)
             } else {
                 Text(
                     text = "No has configurado tus objetivos aún",
@@ -511,7 +511,7 @@ private fun EditGoalsDialog(
                     value = fat,
                     onValueChange = { fat = it },
                     label = { Text("Grasas (g)") },
-                    leadingIcon = { Icon(Icons.Default.AccountCircle, contentDescription = null) },
+                    leadingIcon = { Icon(Icons.Default.Info, contentDescription = null) },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -721,7 +721,6 @@ private fun ChangePasswordDialog(
                     if (newPassword == confirmPassword && newPassword.isNotEmpty()) {
                         onSave(currentPassword, newPassword)
                     } else {
-                        showError = true
                     }
                 }
             ) {

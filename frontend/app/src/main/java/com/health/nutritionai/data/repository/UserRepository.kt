@@ -46,7 +46,8 @@ class UserRepository(
 
             NetworkResult.Success(authResponse)
         } catch (e: Exception) {
-            NetworkResult.Error(e.message ?: "Error en el registro")
+            val userFriendlyMessage = ErrorMapper.mapErrorToMessage(e, ErrorContext.AUTH_REGISTER)
+            NetworkResult.Error(userFriendlyMessage)
         }
     }
 
@@ -77,7 +78,8 @@ class UserRepository(
 
             NetworkResult.Success(authResponse)
         } catch (e: Exception) {
-            NetworkResult.Error(e.message ?: "Error en el login")
+            val userFriendlyMessage = ErrorMapper.mapErrorToMessage(e, ErrorContext.AUTH_LOGIN)
+            NetworkResult.Error(userFriendlyMessage)
         }
     }
 
@@ -141,6 +143,14 @@ class UserRepository(
 
     fun getUserId(): String {
         return prefs.getString(Constants.KEY_USER_ID, null) ?: ""
+    }
+
+    fun getAuthToken(): String? {
+        return prefs.getString(Constants.KEY_AUTH_TOKEN, null)
+    }
+
+    fun isLoggedIn(): Boolean {
+        return getAuthToken() != null
     }
 
     // Preferences management

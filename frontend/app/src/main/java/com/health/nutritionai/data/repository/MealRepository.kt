@@ -83,7 +83,11 @@ class MealRepository(
 
             NetworkResult.Success(meal)
         } catch (e: Exception) {
-            NetworkResult.Error(e.message ?: "Error al analizar la comida")
+            val userFriendlyMessage = com.health.nutritionai.util.ErrorMapper.mapErrorToMessage(
+                e,
+                com.health.nutritionai.util.ErrorContext.MEAL_ANALYSIS
+            )
+            NetworkResult.Error(userFriendlyMessage)
         }
     }
 

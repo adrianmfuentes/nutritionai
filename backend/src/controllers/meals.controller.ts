@@ -8,7 +8,7 @@ import { z } from 'zod';
 
 const AnalyzeMealSchema = z.object({
   mealType: z.enum(['breakfast', 'lunch', 'dinner', 'snack']).optional(),
-  timestamp: z.string().datetime().optional(),
+  timestamp: z.string().optional(),
 });
 
 export class MealsController {
@@ -44,7 +44,22 @@ export class MealsController {
       // Iniciar transacción
       await client.query('BEGIN');
 
-      const consumedAt = timestamp ? new Date(timestamp) : new Date();
+      let consumedAt = new Date();
+      if (timestamp) {
+        // Si es solo dígitos, asumimos milisegundos
+        if (/^\d+$/.test(timestamp)) {
+          consumedAt = new Date(parseInt(timestamp));
+        } else {
+          consumedAt = new Date(timestamp);
+        }
+      }
+      
+      // Verificamos si la fecha es inválida
+      if (isNaN(consumedAt.getTime())) {
+        logger.warn(`Timestamp inválido recibido: ${timestamp}, usando fecha actual`);
+        consumedAt = new Date();
+      }
+
       const mealDate = consumedAt.toISOString().split('T')[0];
 
       // Insertar meal
@@ -71,6 +86,14 @@ export class MealsController {
 
       const meal = mealResult.rows[0];
 
+
+      // Helper function to validate category
+      const validCategories = ['protein', 'carb', 'vegetable', 'fruit', 'dairy', 'fat', 'mixed'];
+      const sanitizeCategory = (category: string) => {
+        const lowerCat = category.toLowerCase();
+        return validCategories.includes(lowerCat) ? lowerCat : 'mixed';
+      };
+
       // Insertar detected foods
       const foodInsertPromises = analysis.foods.map((food) =>
         client.query(
@@ -90,7 +113,7 @@ export class MealsController {
             food.nutrition.carbs,
             food.nutrition.fat,
             food.nutrition.fiber || null,
-            food.category,
+            sanitizeCategory(food.category),
           ]
         )
       );

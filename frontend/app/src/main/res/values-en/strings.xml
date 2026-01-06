@@ -1,0 +1,97 @@
+<resources>
+    <string name="app_name">Nutrition AI</string>
+    <string name="app_description">AI-powered nutrition analysis</string>
+
+    <!-- Auth Screens -->
+    <string name="login_title">NutritionAI</string>
+    <string name="login_subtitle">Analyze your food with AI</string>
+    <string name="email_label">Email</string>
+    <string name="password_label">Password</string>
+    <string name="show_password">Show</string>
+    <string name="hide_password">Hide</string>
+    <string name="login_button">Login</string>
+    <string name="no_account">Don\'t have an account?</string>
+    <string name="register_link">Sign up</string>
+
+    <string name="register_title">Create Account</string>
+    <string name="register_subtitle">Start your nutrition journey</string>
+    <string name="name_label">Name</string>
+    <string name="confirm_password_label">Confirm password</string>
+    <string name="passwords_dont_match">Passwords don\'t match</string>
+    <string name="register_button">Sign Up</string>
+    <string name="have_account">Already have an account?</string>
+    <string name="login_link">Login</string>
+
+    <!-- Dashboard -->
+    <string name="add_meal">Add meal</string>
+    <string name="macronutrients">Macronutrients</string>
+    <string name="protein">Protein</string>
+    <string name="carbs">Carbs</string>
+    <string name="fat">Fat</string>
+    <string name="meals_today">Today\'s meals</string>
+    <string name="no_meals_registered">No meals registered</string>
+    <string name="add_first_meal">Tap the + button to add your first meal</string>
+    <string name="calories_of_day">Daily Calories</string>
+
+    <!-- Settings -->
+    <string name="nutrition_goals">Nutrition Goals</string>
+    <string name="preferences">Preferences</string>
+    <string name="account">Account</string>
+    <string name="daily_goals">Daily Goals</string>
+    <string name="edit_goals">Edit goals</string>
+    <string name="calories">Calories</string>
+    <string name="no_goals_configured">You haven\'t configured your goals yet</string>
+
+    <string name="notifications">Notifications</string>
+    <string name="notifications_enabled">Enabled</string>
+    <string name="notifications_disabled">Disabled</string>
+    <string name="language">Language</string>
+    <string name="units">Units</string>
+
+    <string name="change_password">Change password</string>
+    <string name="update_password">Update your password</string>
+    <string name="logout">Logout</string>
+    <string name="logout_subtitle">Sign out of your account</string>
+
+    <!-- Dialogs -->
+    <string name="edit_nutrition_goals">Edit Nutrition Goals</string>
+    <string name="calories_kcal">Calories (kcal)</string>
+    <string name="protein_g">Protein (g)</string>
+    <string name="carbs_g">Carbohydrates (g)</string>
+    <string name="fat_g">Fat (g)</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="close">Close</string>
+
+    <string name="notifications_config">Notification Settings</string>
+    <string name="meal_reminders">Get reminders to log your meals</string>
+
+    <string name="select_language">Select Language</string>
+    <string name="language_spanish">Español</string>
+    <string name="language_english">English</string>
+    <string name="language_french">Français</string>
+    <string name="language_german">Deutsch</string>
+
+    <string name="select_units">Select Units</string>
+    <string name="units_metric">Metric (g, kg)</string>
+    <string name="units_imperial">Imperial (oz, lb)</string>
+
+    <string name="current_password">Current password</string>
+    <string name="new_password">New password</string>
+    <string name="confirm_new_password">Confirm new password</string>
+
+    <!-- Camera -->
+    <string name="capture_food">Capture Food</string>
+    <string name="back">Back</string>
+    <string name="analyzing_food">Analyzing food…</string>
+    <string name="capture">Capture</string>
+
+    <!-- History -->
+    <string name="delete">Delete</string>
+    <string name="retry">Retry</string>
+
+    <!-- Common -->
+    <string name="kcal">kcal</string>
+    <string name="g">g</string>
+</resources>
+

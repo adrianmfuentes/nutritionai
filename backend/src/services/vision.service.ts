@@ -50,6 +50,7 @@ FORMATO DE SALIDA (JSON estricto):
 }
 
 REGLAS:
+- IMPORTANTE: El campo 'category' DEBE ser uno de: 'protein', 'carb', 'vegetable', 'fruit', 'dairy', 'fat', 'mixed'.
 - Devuelve SOLO JSON válido, sin texto adicional
 - Todos los valores nutricionales en gramos excepto calorías (kcal)
 - Rango de confianza: 0.0 a 1.0
@@ -87,7 +88,7 @@ export class VisionService {
       const mediaType = ext === '.png' ? 'image/png' : 'image/jpeg';
 
       const completion = await this.client.chat.completions.create({
-        model: 'llama-3.2-90b-vision-preview',
+        model: 'meta-llama/llama-4-scout-17b-16e-instruct',
         messages: [
           {
             role: 'system',

@@ -29,7 +29,11 @@ const storage = multer.diskStorage({
 const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
   const allowedMimes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
   
-  if (allowedMimes.includes(file.mimetype)) {
+  // Debug log
+  console.log(`[Upload] Processing file: ${file.originalname}, mimetype: ${file.mimetype}`);
+
+  // Permitimos cualquier tipo de imagen para mayor compatibilidad (ej. image/* enviado por algunos clientes)
+  if (allowedMimes.includes(file.mimetype) || file.mimetype.startsWith('image/')) {
     cb(null, true);
   } else {
     cb(new Error('Tipo de archivo no permitido. Solo se aceptan imágenes (JPEG, PNG, WebP)'));

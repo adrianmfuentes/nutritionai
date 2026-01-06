@@ -45,8 +45,8 @@ fun MainScreen() {
 
     // Check if user is logged in
     val context = androidx.compose.ui.platform.LocalContext.current
-    val prefs = context.getSharedPreferences("nutrition_prefs", Context.MODE_PRIVATE)
-    val isLoggedIn = prefs.getString("auth_token", null) != null
+    val prefs = context.getSharedPreferences(com.health.nutritionai.util.Constants.PREFERENCES_NAME, Context.MODE_PRIVATE)
+    val isLoggedIn = prefs.getString(com.health.nutritionai.util.Constants.KEY_AUTH_TOKEN, null) != null
 
     // Determine start destination
     val startDestination = if (isLoggedIn) Screen.Dashboard.route else Screen.Login.route
