@@ -26,19 +26,22 @@ class AuthViewModel(
         viewModelScope.launch {
             _uiState.value = AuthUiState.Loading
 
+            val cleanEmail = email.trim()
+            val cleanPassword = password.trim()
+
             // Validar entrada
-            if (email.isBlank() || password.isBlank()) {
+            if (cleanEmail.isBlank() || cleanPassword.isBlank()) {
                 _uiState.value = AuthUiState.Error("Por favor, completa todos los campos")
                 return@launch
             }
 
-            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(cleanEmail).matches()) {
                 _uiState.value = AuthUiState.Error("Correo electrónico inválido")
                 return@launch
             }
 
             // Llamar al backend
-            when (val result = userRepository.login(email, password)) {
+            when (val result = userRepository.login(cleanEmail, cleanPassword)) {
                 is com.health.nutritionai.util.NetworkResult.Success -> {
                     val userId = result.data?.userId ?: result.data?.user?.userId ?: "unknown"
                     _uiState.value = AuthUiState.Success(userId)
@@ -57,24 +60,33 @@ class AuthViewModel(
         viewModelScope.launch {
             _uiState.value = AuthUiState.Loading
 
+            val cleanName = name.trim()
+            val cleanEmail = email.trim()
+            val cleanPassword = password.trim()
+
             // Validar entrada
-            if (name.isBlank() || email.isBlank() || password.isBlank()) {
+            if (cleanName.isBlank() || cleanEmail.isBlank() || cleanPassword.isBlank()) {
                 _uiState.value = AuthUiState.Error("Por favor, completa todos los campos")
                 return@launch
             }
 
-            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(cleanEmail).matches()) {
                 _uiState.value = AuthUiState.Error("Correo electrónico inválido")
                 return@launch
             }
 
-            if (password.length < 6) {
-                _uiState.value = AuthUiState.Error("La contraseña debe tener al menos 6 caracteres")
+            if (cleanName.length < 2) {
+                _uiState.value = AuthUiState.Error("El nombre debe tener al menos 2 caracteres")
+                return@launch
+            }
+
+            if (cleanPassword.length < 8) {
+                _uiState.value = AuthUiState.Error("La contraseña debe tener al menos 8 caracteres")
                 return@launch
             }
 
             // Llamar al backend
-            when (val result = userRepository.register(email, password, name)) {
+            when (val result = userRepository.register(cleanEmail, cleanPassword, cleanName)) {
                 is com.health.nutritionai.util.NetworkResult.Success -> {
                     val userId = result.data?.userId ?: result.data?.user?.userId ?: "unknown"
                     _uiState.value = AuthUiState.Success(userId)

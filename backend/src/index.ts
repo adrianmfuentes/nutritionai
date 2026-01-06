@@ -6,7 +6,7 @@ import { createApp } from './app';
 import { pool } from './config/database';
 import { logger } from './utils/logger';
 
-const PORT = process.env.PORT || 3000;
+const PORT = parseInt(process.env.PORT || '3000', 10);
 
 async function startServer() {
   try {

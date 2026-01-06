@@ -95,6 +95,7 @@ export class AuthController {
       );
 
       if (result.rows.length === 0) {
+        logger.warn(`Intento de login fallido: Usuario no encontrado (${email})`);
         return res.status(401).json({ error: 'Credenciales inválidas' });
       }
 
@@ -104,6 +105,7 @@ export class AuthController {
       const isValidPassword = await bcrypt.compare(password, user.password_hash);
 
       if (!isValidPassword) {
+        logger.warn(`Intento de login fallido: Contraseña incorrecta para ${email}`);
         return res.status(401).json({ error: 'Credenciales inválidas' });
       }
 
