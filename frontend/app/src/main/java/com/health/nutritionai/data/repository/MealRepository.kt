@@ -10,19 +10,20 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.io.File
 
+import com.health.nutritionai.data.remote.api.NutritionApiService
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+
 class MealRepository(
     private val mealDao: MealDao,
-    private val foodDao: FoodDao
+    private val foodDao: FoodDao,
+    private val apiService: NutritionApiService
 ) {
 
-    // Mock goals for offline mode
-    private val mockGoals = NutritionGoals(
-        calories = 2000,
-        protein = 150.0,
-        carbs = 200.0,
-        fat = 65.0
-    )
-
+    // Mock goals for offline mode (removed mock data)
+    
     fun getAllMeals(userId: String): Flow<List<Meal>> {
         return mealDao.getAllMeals(userId).map { entities ->
             entities.map { it.toMeal() }
@@ -37,43 +38,49 @@ class MealRepository(
 
     suspend fun analyzeMeal(imageFile: File, mealType: String? = null): NetworkResult<Meal> {
         return try {
-            // TODO: Call backend API when available
-            // For now, return mock data
-            val mockMeal = Meal(
-                mealId = System.currentTimeMillis().toString(),
-                detectedFoods = listOf(
+            val requestFile = imageFile.asRequestBody("image/*".toMediaTypeOrNull())
+            val imagePart = MultipartBody.Part.createFormData("image", imageFile.name, requestFile)
+            val mealTypePart = mealType?.toRequestBody("text/plain".toMediaTypeOrNull())
+            val timestampPart = System.currentTimeMillis().toString().toRequestBody("text/plain".toMediaTypeOrNull())
+
+            val response = apiService.analyzeMeal(imagePart, mealTypePart, timestampPart)
+
+            val meal = Meal(
+                mealId = response.mealId,
+                detectedFoods = response.detectedFoods.map { food ->
                     Food(
-                        name = "Pollo a la plancha",
-                        confidence = 0.95,
-                        portion = Portion(150.0, "g"),
-                        nutrition = Nutrition(165, 31.0, 0.0, 3.6, 0.0),
-                        category = "protein"
-                    ),
-                    Food(
-                        name = "Arroz blanco",
-                        confidence = 0.90,
-                        portion = Portion(100.0, "g"),
-                        nutrition = Nutrition(130, 2.7, 28.0, 0.3, 0.5),
-                        category = "carb"
+                        name = food.name,
+                        confidence = food.confidence,
+                        portion = Portion(food.portion.amount, food.portion.unit),
+                        nutrition = Nutrition(
+                            calories = food.nutrition.calories,
+                            protein = food.nutrition.protein,
+                            carbs = food.nutrition.carbs,
+                            fat = food.nutrition.fat,
+                            fiber = food.nutrition.fiber ?: 0.0
+                        ),
+                        category = food.category
                     )
-                ),
+                },
                 totalNutrition = Nutrition(
-                    calories = 295,
-                    protein = 33.7,
-                    carbs = 28.0,
-                    fat = 3.9,
-                    fiber = 0.5
+                    calories = response.totalNutrition.calories,
+                    protein = response.totalNutrition.protein,
+                    carbs = response.totalNutrition.carbs,
+                    fat = response.totalNutrition.fat,
+                    fiber = response.totalNutrition.fiber ?: 0.0
                 ),
-                imageUrl = imageFile.absolutePath,
-                timestamp = System.currentTimeMillis().toString(),
-                mealType = mealType ?: "lunch",
-                healthScore = 8.5
+                imageUrl = response.imageUrl,
+                timestamp = response.timestamp,
+                mealType = response.mealContext?.estimatedMealType ?: mealType ?: "unknown", // Prioritize detected, then requested, then default
+                healthScore = response.mealContext?.healthScore ?: 0.0,
+                notes = null // Inicialmente sin notas
             )
 
             // Save locally
-            saveMealLocally(mockMeal, "mock_user")
+            // TODO: Obtain real userId from User Repository/Preferences
+            saveMealLocally(meal, "current_user") 
 
-            NetworkResult.Success(mockMeal)
+            NetworkResult.Success(meal)
         } catch (e: Exception) {
             NetworkResult.Error(e.message ?: "Error al analizar la comida")
         }
@@ -81,22 +88,92 @@ class MealRepository(
 
     suspend fun getMealById(mealId: String): NetworkResult<Meal> {
         return try {
-            val localMeal = mealDao.getMealById(mealId)
-            if (localMeal != null) {
-                return NetworkResult.Success(localMeal.toMeal())
-            }
-            NetworkResult.Error("Comida no encontrada")
+            // Try network first for fresh data
+            val response = apiService.getMealById(mealId)
+            val analyzeResponse = response.meal
+            
+            val meal = Meal(
+                mealId = analyzeResponse.mealId,
+                detectedFoods = analyzeResponse.detectedFoods.map { food ->
+                    Food(
+                        name = food.name,
+                        confidence = food.confidence,
+                        portion = Portion(food.portion.amount, food.portion.unit),
+                        nutrition = Nutrition(
+                            calories = food.nutrition.calories,
+                            protein = food.nutrition.protein,
+                            carbs = food.nutrition.carbs,
+                            fat = food.nutrition.fat,
+                            fiber = food.nutrition.fiber ?: 0.0
+                        ),
+                        category = food.category
+                    )
+                },
+                totalNutrition = Nutrition(
+                    calories = analyzeResponse.totalNutrition.calories,
+                    protein = analyzeResponse.totalNutrition.protein,
+                    carbs = analyzeResponse.totalNutrition.carbs,
+                    fat = analyzeResponse.totalNutrition.fat,
+                    fiber = analyzeResponse.totalNutrition.fiber ?: 0.0
+                ),
+                imageUrl = analyzeResponse.imageUrl,
+                timestamp = analyzeResponse.timestamp,
+                mealType = analyzeResponse.mealContext?.estimatedMealType ?: "unknown",
+                healthScore = analyzeResponse.mealContext?.healthScore ?: 0.0,
+                notes = null
+            )
+            
+            // Update local cache
+            saveMealLocally(meal, "current_user") // Replace with real userId
+            
+            NetworkResult.Success(meal)
         } catch (e: Exception) {
+            // Fallback to local
+            try {
+               val localMeal = mealDao.getMealById(mealId)
+               if (localMeal != null) {
+                   return NetworkResult.Success(localMeal.toMeal())
+               }
+            } catch (localEx: Exception) {
+               // Ignore
+            }
             NetworkResult.Error(e.message ?: "Error al obtener la comida")
         }
     }
 
     suspend fun deleteMeal(mealId: String): NetworkResult<Boolean> {
         return try {
+            apiService.deleteMeal(mealId)
             mealDao.deleteMealById(mealId)
             NetworkResult.Success(true)
         } catch (e: Exception) {
             NetworkResult.Error(e.message ?: "Error al eliminar la comida")
+        }
+    }
+    
+    suspend fun refreshMeals(userId: String) {
+        try {
+            val response = apiService.getMeals()
+            // Note: This only fetches summaries. Detailed macros might be missing in list view.
+            val meals = response.meals.map { summary ->
+                MealEntity(
+                    mealId = summary.mealId,
+                    userId = userId,
+                    mealType = summary.mealType,
+                    imageUrl = summary.imageUrl,
+                    notes = null,
+                    totalCalories = summary.totalCalories,
+                    totalProtein = 0.0, 
+                    totalCarbs = 0.0,
+                    totalFat = 0.0,
+                    totalFiber = 0.0,
+                    healthScore = 0.0,
+                    timestamp = summary.timestamp
+                )
+            }
+            mealDao.insertMeals(meals)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

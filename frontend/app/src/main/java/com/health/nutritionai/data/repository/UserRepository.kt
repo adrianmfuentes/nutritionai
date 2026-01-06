@@ -86,14 +86,20 @@ class UserRepository(
 
     suspend fun getProfile(): NetworkResult<UserProfile> {
         return try {
-            // TODO: Call backend API when available
-            val mockProfile = UserProfile(
-                userId = "mock_user_id",
-                email = "mock@example.com",
-                name = "Mock User",
-                goals = NutritionGoals(2000, 150.0, 200.0, 65.0)
+            val response = apiService.getProfile()
+            val userDto = response.user
+            val goalsDto = response.goals
+
+            val userProfile = UserProfile(
+                userId = userDto.id,
+                email = userDto.email,
+                name = userDto.name,
+                goals = goalsDto?.let {
+                    NutritionGoals(it.calories, it.protein, it.carbs, it.fat)
+                } ?: NutritionGoals(2000, 150.0, 200.0, 65.0) // Default goals if null
             )
-            NetworkResult.Success(mockProfile)
+            
+            NetworkResult.Success(userProfile)
         } catch (e: Exception) {
             NetworkResult.Error(e.message ?: "Error al obtener el perfil")
         }
@@ -101,9 +107,24 @@ class UserRepository(
 
     suspend fun updateGoals(goals: NutritionGoals): NetworkResult<NutritionGoals> {
         return try {
-            // TODO: Call backend API when available
-            // For now, just return the goals back
-            NetworkResult.Success(goals)
+            val request = com.health.nutritionai.data.remote.dto.UpdateGoalsRequest(
+                dailyCalories = goals.calories,
+                proteinGrams = goals.protein,
+                carbsGrams = goals.carbs,
+                fatGrams = goals.fat
+            )
+            
+            val response = apiService.updateGoals(request)
+            
+            // Map response back to NutritionGoals
+            val updatedGoals = NutritionGoals(
+                calories = response.goals.calories,
+                protein = response.goals.protein,
+                carbs = response.goals.carbs,
+                fat = response.goals.fat
+            )
+            
+            NetworkResult.Success(updatedGoals)
         } catch (e: Exception) {
             NetworkResult.Error(e.message ?: "Error al actualizar los objetivos")
         }

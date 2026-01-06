@@ -6,6 +6,7 @@ import com.health.nutritionai.data.remote.ApiClient
 import com.health.nutritionai.data.remote.api.NutritionApiService
 import com.health.nutritionai.data.remote.interceptor.AuthInterceptor
 import com.health.nutritionai.data.repository.MealRepository
+import com.health.nutritionai.data.repository.NutritionRepository
 import com.health.nutritionai.data.repository.UserRepository
 import com.health.nutritionai.ui.auth.AuthViewModel
 import com.health.nutritionai.ui.camera.CameraViewModel
@@ -48,7 +49,8 @@ val appModule = module {
     }
 
     // Repositories
-    single { MealRepository(get(), get()) }
+    single { MealRepository(get(), get(), get()) }
+    single { NutritionRepository(get()) }
     single { UserRepository(androidContext(), get()) }
 
     // ViewModels

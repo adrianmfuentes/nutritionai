@@ -28,6 +28,13 @@ class HistoryViewModel(
 
     private fun loadMeals() {
         viewModelScope.launch {
+            try {
+                // Sync with server
+                mealRepository.refreshMeals("current_user")
+            } catch (e: Exception) {
+                // Continue to load local data even if sync fails
+            }
+            
             mealRepository.getAllMeals("current_user").collect { meals ->
                 _uiState.value = HistoryUiState.Success(meals)
             }
