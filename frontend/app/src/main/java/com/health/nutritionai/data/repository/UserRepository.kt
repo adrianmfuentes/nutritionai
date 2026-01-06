@@ -9,11 +9,10 @@ import com.health.nutritionai.data.remote.dto.LoginRequest
 import com.health.nutritionai.data.remote.dto.RegisterRequest
 import com.health.nutritionai.util.Constants
 import com.health.nutritionai.util.NetworkResult
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import androidx.core.content.edit
 
 class UserRepository(
-    private val context: Context,
+    context: Context,
     private val apiService: NutritionApiService
 ) {
     private val prefs = context.getSharedPreferences(Constants.PREFERENCES_NAME, Context.MODE_PRIVATE)
@@ -126,34 +125,59 @@ class UserRepository(
         }
     }
 
-    suspend fun logout() {
-        prefs.edit().clear().apply()
+    fun logout() {
+        prefs.edit { clear() }
     }
 
-    fun getAuthToken(): Flow<String?> {
-        // SharedPreferences doesn't emit updates natively as Flow, but for login check just returning current state in flow is okay
-        // For a more robust solution we could use callbackFlow, but this suffices for "check persistence on init"
-        return flow {
-             emit(prefs.getString(Constants.KEY_AUTH_TOKEN, null))
+    fun saveAuthToken(token: String) {
+        prefs.edit { putString(Constants.KEY_AUTH_TOKEN, token) }
+    }
+
+    fun saveUserId(userId: String) {
+        prefs.edit { putString(Constants.KEY_USER_ID, userId) }
+    }
+
+    fun getUserId(): String {
+        return prefs.getString(Constants.KEY_USER_ID, null) ?: ""
+    }
+
+    // Preferences management
+    fun getNotificationsEnabled(): Boolean {
+        return prefs.getBoolean(Constants.KEY_NOTIFICATIONS_ENABLED, true)
+    }
+
+    fun saveNotificationsEnabled(enabled: Boolean) {
+        prefs.edit { putBoolean(Constants.KEY_NOTIFICATIONS_ENABLED, enabled) }
+    }
+
+    fun getLanguage(): String {
+        return prefs.getString(Constants.KEY_LANGUAGE, "Español") ?: "Español"
+    }
+
+    fun saveLanguage(language: String) {
+        prefs.edit { putString(Constants.KEY_LANGUAGE, language) }
+    }
+
+    fun getUnits(): String {
+        return prefs.getString(Constants.KEY_UNITS, "Métrico (g, kg)") ?: "Métrico (g, kg)"
+    }
+
+    fun saveUnits(units: String) {
+        prefs.edit { putString(Constants.KEY_UNITS, units) }
+    }
+
+    // Change password
+    suspend fun changePassword(currentPassword: String, newPassword: String): NetworkResult<Unit> {
+        return try {
+            val request = com.health.nutritionai.data.remote.dto.ChangePasswordRequest(
+                currentPassword = currentPassword,
+                newPassword = newPassword
+            )
+            apiService.changePassword(request)
+            NetworkResult.Success(Unit)
+        } catch (e: Exception) {
+            NetworkResult.Error(e.message ?: "Error al cambiar la contraseña")
         }
-    }
-
-    fun isLoggedIn(): Flow<Boolean> {
-        return flow {
-            emit(prefs.getString(Constants.KEY_AUTH_TOKEN, null) != null)
-        }
-    }
-
-    suspend fun saveAuthToken(token: String) {
-        prefs.edit().putString(Constants.KEY_AUTH_TOKEN, token).apply()
-    }
-
-    suspend fun saveUserId(userId: String) {
-        prefs.edit().putString(Constants.KEY_USER_ID, userId).apply()
-    }
-
-    suspend fun getUserId(): String {
-        return prefs.getString(Constants.KEY_USER_ID, "demo_user") ?: "demo_user"
     }
 }
 

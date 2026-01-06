@@ -5,15 +5,22 @@
 -->
 <data-extraction-rules>
     <cloud-backup>
-        <!-- TODO: Use <include> and <exclude> to control what is backed up.
-        <include .../>
-        <exclude .../>
-        -->
+        <!-- Include user preferences and app data -->
+        <include domain="sharedpref" path="nutrition_ai_prefs.xml"/>
+        <include domain="database" path="nutrition_ai_db"/>
+
+        <!-- Exclude sensitive data like auth tokens -->
+        <exclude domain="sharedpref" path="nutrition_ai_prefs.xml">
+            <value key="auth_token"/>
+        </exclude>
     </cloud-backup>
-    <!--
     <device-transfer>
-        <include .../>
-        <exclude .../>
+        <!-- Same rules for device transfer -->
+        <include domain="sharedpref" path="nutrition_ai_prefs.xml"/>
+        <include domain="database" path="nutrition_ai_db"/>
+
+        <exclude domain="sharedpref" path="nutrition_ai_prefs.xml">
+            <value key="auth_token"/>
+        </exclude>
     </device-transfer>
-    -->
 </data-extraction-rules>

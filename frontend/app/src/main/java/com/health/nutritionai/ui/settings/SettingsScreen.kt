@@ -1,5 +1,6 @@
 package com.health.nutritionai.ui.settings
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -27,6 +28,13 @@ fun SettingsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val showGoalsDialog by viewModel.showGoalsDialog.collectAsState()
+    val showNotificationsDialog by viewModel.showNotificationsDialog.collectAsState()
+    val showLanguageDialog by viewModel.showLanguageDialog.collectAsState()
+    val showUnitsDialog by viewModel.showUnitsDialog.collectAsState()
+    val showChangePasswordDialog by viewModel.showChangePasswordDialog.collectAsState()
+    val notificationsEnabled by viewModel.notificationsEnabled.collectAsState()
+    val selectedLanguage by viewModel.selectedLanguage.collectAsState()
+    val selectedUnits by viewModel.selectedUnits.collectAsState()
 
     Scaffold(
     ) { padding ->
@@ -108,7 +116,14 @@ fun SettingsScreen(
                     }
 
                     item {
-                        PreferencesSection()
+                        PreferencesSection(
+                            notificationsEnabled = notificationsEnabled,
+                            selectedLanguage = selectedLanguage,
+                            selectedUnits = selectedUnits,
+                            onNotificationsClick = { viewModel.showNotificationsDialog() },
+                            onLanguageClick = { viewModel.showLanguageDialog() },
+                            onUnitsClick = { viewModel.showUnitsDialog() }
+                        )
                     }
 
                     // Account Section
@@ -123,25 +138,12 @@ fun SettingsScreen(
 
                     item {
                         AccountSection(
+                            onChangePassword = { viewModel.showChangePasswordDialog() },
                             onLogout = {
                                 viewModel.logout()
                                 onLogout()
                             }
                         )
-                    }
-
-                    // App Info
-                    item {
-                        Text(
-                            text = "Sobre la App",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(vertical = 8.dp)
-                        )
-                    }
-
-                    item {
-                        AppInfoSection()
                     }
                 }
 
@@ -151,6 +153,39 @@ fun SettingsScreen(
                         onDismiss = { viewModel.hideGoalsDialog() },
                         onSave = { goals ->
                             viewModel.updateGoals(goals)
+                        }
+                    )
+                }
+
+                if (showNotificationsDialog) {
+                    NotificationsDialog(
+                        enabled = notificationsEnabled,
+                        onDismiss = { viewModel.hideNotificationsDialog() },
+                        onToggle = { viewModel.updateNotifications(it) }
+                    )
+                }
+
+                if (showLanguageDialog) {
+                    LanguageDialog(
+                        selectedLanguage = selectedLanguage,
+                        onDismiss = { viewModel.hideLanguageDialog() },
+                        onSelect = { viewModel.updateLanguage(it) }
+                    )
+                }
+
+                if (showUnitsDialog) {
+                    UnitsDialog(
+                        selectedUnits = selectedUnits,
+                        onDismiss = { viewModel.hideUnitsDialog() },
+                        onSelect = { viewModel.updateUnits(it) }
+                    )
+                }
+
+                if (showChangePasswordDialog) {
+                    ChangePasswordDialog(
+                        onDismiss = { viewModel.hideChangePasswordDialog() },
+                        onSave = { current, new ->
+                            viewModel.changePassword(current, new)
                         }
                     )
                 }
@@ -295,7 +330,14 @@ private fun GoalItem(
 }
 
 @Composable
-private fun PreferencesSection() {
+private fun PreferencesSection(
+    notificationsEnabled: Boolean,
+    selectedLanguage: String,
+    selectedUnits: String,
+    onNotificationsClick: () -> Unit,
+    onLanguageClick: () -> Unit,
+    onUnitsClick: () -> Unit
+) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier
@@ -305,29 +347,32 @@ private fun PreferencesSection() {
             SettingsItem(
                 icon = Icons.Default.Notifications,
                 title = "Notificaciones",
-                subtitle = "Recordatorios de comidas",
-                onClick = { /* TODO: Implement notifications settings */ }
+                subtitle = if (notificationsEnabled) "Activadas" else "Desactivadas",
+                onClick = onNotificationsClick
             )
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
             SettingsItem(
                 icon = Icons.Default.Settings,
                 title = "Idioma",
-                subtitle = "Español",
-                onClick = { /* TODO: Implement language settings */ }
+                subtitle = selectedLanguage,
+                onClick = onLanguageClick
             )
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
             SettingsItem(
                 icon = Icons.Default.Build,
                 title = "Unidades",
-                subtitle = "Métrico (g, kg)",
-                onClick = { /* TODO: Implement units settings */ }
+                subtitle = selectedUnits,
+                onClick = onUnitsClick
             )
         }
     }
 }
 
 @Composable
-private fun AccountSection(onLogout: () -> Unit) {
+private fun AccountSection(
+    onChangePassword: () -> Unit,
+    onLogout: () -> Unit
+) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier
@@ -338,7 +383,7 @@ private fun AccountSection(onLogout: () -> Unit) {
                 icon = Icons.Default.Lock,
                 title = "Cambiar contraseña",
                 subtitle = "Actualiza tu contraseña",
-                onClick = { /* TODO: Implement change password */ }
+                onClick = onChangePassword
             )
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
             SettingsItem(
@@ -347,38 +392,6 @@ private fun AccountSection(onLogout: () -> Unit) {
                 subtitle = "Salir de tu cuenta",
                 onClick = onLogout,
                 isDestructive = true
-            )
-        }
-    }
-}
-
-@Composable
-private fun AppInfoSection() {
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            SettingsItem(
-                icon = Icons.Default.Info,
-                title = "Versión",
-                subtitle = "1.0.0",
-                onClick = { }
-            )
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-            SettingsItem(
-                icon = Icons.Default.Info,
-                title = "Política de privacidad",
-                subtitle = "Lee nuestra política",
-                onClick = { /* TODO: Open privacy policy */ }
-            )
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-            SettingsItem(
-                icon = Icons.Default.Info,
-                title = "Términos de servicio",
-                subtitle = "Lee nuestros términos",
-                onClick = { /* TODO: Open terms */ }
             )
         }
     }
@@ -488,6 +501,203 @@ private fun EditGoalsDialog(
                         fat = fat.toDoubleOrNull() ?: 65.0
                     )
                     onSave(goals)
+                }
+            ) {
+                Text("Guardar")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar")
+            }
+        }
+    )
+}
+
+@Composable
+private fun NotificationsDialog(
+    enabled: Boolean,
+    onDismiss: () -> Unit,
+    onToggle: (Boolean) -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Configuración de Notificaciones") },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text("Recibe recordatorios para registrar tus comidas")
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Notificaciones")
+                    Switch(
+                        checked = enabled,
+                        onCheckedChange = onToggle
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cerrar")
+            }
+        }
+    )
+}
+
+@Composable
+private fun LanguageDialog(
+    selectedLanguage: String,
+    onDismiss: () -> Unit,
+    onSelect: (String) -> Unit
+) {
+    val languages = listOf("Español", "English", "Français", "Deutsch")
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Seleccionar Idioma") },
+        text = {
+            Column {
+                languages.forEach { language ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onSelect(language) }
+                            .padding(vertical = 12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(language)
+                        if (language == selectedLanguage) {
+                            Icon(
+                                Icons.Default.Check,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar")
+            }
+        }
+    )
+}
+
+@Composable
+private fun UnitsDialog(
+    selectedUnits: String,
+    onDismiss: () -> Unit,
+    onSelect: (String) -> Unit
+) {
+    val unitOptions = listOf("Métrico (g, kg)", "Imperial (oz, lb)")
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Seleccionar Unidades") },
+        text = {
+            Column {
+                unitOptions.forEach { unit ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onSelect(unit) }
+                            .padding(vertical = 12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(unit)
+                        if (unit == selectedUnits) {
+                            Icon(
+                                Icons.Default.Check,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar")
+            }
+        }
+    )
+}
+
+@Composable
+private fun ChangePasswordDialog(
+    onDismiss: () -> Unit,
+    onSave: (String, String) -> Unit
+) {
+    var currentPassword by remember { mutableStateOf("") }
+    var newPassword by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    var showError by remember { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Cambiar Contraseña") },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                OutlinedTextField(
+                    value = currentPassword,
+                    onValueChange = {
+                        currentPassword = it
+                        showError = false
+                    },
+                    label = { Text("Contraseña actual") },
+                    visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = newPassword,
+                    onValueChange = {
+                        newPassword = it
+                        showError = false
+                    },
+                    label = { Text("Nueva contraseña") },
+                    visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = confirmPassword,
+                    onValueChange = {
+                        confirmPassword = it
+                        showError = false
+                    },
+                    label = { Text("Confirmar nueva contraseña") },
+                    visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = showError
+                )
+                if (showError) {
+                    Text(
+                        text = "Las contraseñas no coinciden",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    if (newPassword == confirmPassword && newPassword.isNotEmpty()) {
+                        onSave(currentPassword, newPassword)
+                    } else {
+                        showError = true
+                    }
                 }
             ) {
                 Text("Guardar")

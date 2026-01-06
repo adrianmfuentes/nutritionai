@@ -56,6 +56,9 @@ interface NutritionApiService {
 
     @PUT("nutrition/goals")
     suspend fun updateGoals(@Body request: UpdateGoalsRequest): GoalsResponse
+
+    @POST("auth/change-password")
+    suspend fun changePassword(@Body request: ChangePasswordRequest)
 }
 
 data class MealsListResponse(

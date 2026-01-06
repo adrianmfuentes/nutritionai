@@ -30,8 +30,30 @@ class SettingsViewModel(
     private val _showGoalsDialog = MutableStateFlow(false)
     val showGoalsDialog: StateFlow<Boolean> = _showGoalsDialog.asStateFlow()
 
+    private val _showNotificationsDialog = MutableStateFlow(false)
+    val showNotificationsDialog: StateFlow<Boolean> = _showNotificationsDialog.asStateFlow()
+
+    private val _showLanguageDialog = MutableStateFlow(false)
+    val showLanguageDialog: StateFlow<Boolean> = _showLanguageDialog.asStateFlow()
+
+    private val _showUnitsDialog = MutableStateFlow(false)
+    val showUnitsDialog: StateFlow<Boolean> = _showUnitsDialog.asStateFlow()
+
+    private val _showChangePasswordDialog = MutableStateFlow(false)
+    val showChangePasswordDialog: StateFlow<Boolean> = _showChangePasswordDialog.asStateFlow()
+
+    private val _notificationsEnabled = MutableStateFlow(true)
+    val notificationsEnabled: StateFlow<Boolean> = _notificationsEnabled.asStateFlow()
+
+    private val _selectedLanguage = MutableStateFlow("Español")
+    val selectedLanguage: StateFlow<String> = _selectedLanguage.asStateFlow()
+
+    private val _selectedUnits = MutableStateFlow("Métrico (g, kg)")
+    val selectedUnits: StateFlow<String> = _selectedUnits.asStateFlow()
+
     init {
         loadUserProfile()
+        loadPreferences()
     }
 
     fun loadUserProfile() {
@@ -87,6 +109,87 @@ class SettingsViewModel(
     fun logout() {
         viewModelScope.launch {
             userRepository.logout()
+        }
+    }
+
+    private fun loadPreferences() {
+        viewModelScope.launch {
+            // Load preferences from SharedPreferences or repository
+            _notificationsEnabled.value = userRepository.getNotificationsEnabled()
+            _selectedLanguage.value = userRepository.getLanguage()
+            _selectedUnits.value = userRepository.getUnits()
+        }
+    }
+
+    fun showNotificationsDialog() {
+        _showNotificationsDialog.value = true
+    }
+
+    fun hideNotificationsDialog() {
+        _showNotificationsDialog.value = false
+    }
+
+    fun showLanguageDialog() {
+        _showLanguageDialog.value = true
+    }
+
+    fun hideLanguageDialog() {
+        _showLanguageDialog.value = false
+    }
+
+    fun showUnitsDialog() {
+        _showUnitsDialog.value = true
+    }
+
+    fun hideUnitsDialog() {
+        _showUnitsDialog.value = false
+    }
+
+    fun showChangePasswordDialog() {
+        _showChangePasswordDialog.value = true
+    }
+
+    fun hideChangePasswordDialog() {
+        _showChangePasswordDialog.value = false
+    }
+
+    fun updateNotifications(enabled: Boolean) {
+        viewModelScope.launch {
+            _notificationsEnabled.value = enabled
+            userRepository.saveNotificationsEnabled(enabled)
+        }
+    }
+
+    fun updateLanguage(language: String) {
+        viewModelScope.launch {
+            _selectedLanguage.value = language
+            userRepository.saveLanguage(language)
+            _showLanguageDialog.value = false
+        }
+    }
+
+    fun updateUnits(units: String) {
+        viewModelScope.launch {
+            _selectedUnits.value = units
+            userRepository.saveUnits(units)
+            _showUnitsDialog.value = false
+        }
+    }
+
+    fun changePassword(currentPassword: String, newPassword: String) {
+        viewModelScope.launch {
+            when (val result = userRepository.changePassword(currentPassword, newPassword)) {
+                is NetworkResult.Success -> {
+                    _showChangePasswordDialog.value = false
+                    // Show success message
+                }
+                is NetworkResult.Error -> {
+                    _uiState.value = SettingsUiState.Error(result.message ?: "Error al cambiar contraseña")
+                }
+                else -> {
+                    _uiState.value = SettingsUiState.Error("Error al cambiar contraseña")
+                }
+            }
         }
     }
 }

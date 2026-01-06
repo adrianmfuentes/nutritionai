@@ -47,3 +47,10 @@ data class UpdateGoalsRequest(
     val fatGrams: Double
 )
 
+data class ChangePasswordRequest(
+    @SerializedName("currentPassword")
+    val currentPassword: String,
+    @SerializedName("newPassword")
+    val newPassword: String
+)
+

@@ -2,6 +2,7 @@
 import { Router } from 'express';
 import { AuthController } from '../controllers/auth.controller';
 import { authLimiter } from '../middleware/rateLimiter';
+import { authenticate } from '../middleware/auth';
 
 const router: Router = Router();
 const authController = new AuthController();
@@ -12,6 +13,10 @@ router.post('/register', authLimiter, (req, res, next) =>
 
 router.post('/login', authLimiter, (req, res, next) => 
   authController.login(req, res, next)
+);
+
+router.post('/change-password', authenticate, (req, res, next) =>
+  authController.changePassword(req, res, next)
 );
 
 export default router;
