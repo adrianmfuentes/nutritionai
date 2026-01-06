@@ -21,8 +21,7 @@ export const config = {
   },
   
   ai: {
-    anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
-    openaiApiKey: process.env.OPENAI_API_KEY || '',
+    groqApiKey: process.env.GROQ_API_KEY || '',
   },
   
   storage: {

@@ -1,9 +1,10 @@
 // src/services/vision.service.ts
-import Anthropic from '@anthropic-ai/sdk';
+import Groq from 'groq-sdk';
 import fs from 'fs/promises';
 import path from 'path';
 import { logger } from '../utils/logger';
 import { VisionAnalysisResult } from '../types';
+import { config } from '../config/env';
 
 const VISION_SYSTEM_PROMPT = `Eres un nutricionista profesional especializado en reconocimiento de alimentos y análisis nutricional.
 
@@ -68,11 +69,11 @@ BASE DE DATOS DE ALIMENTOS COMUNES (referencia):
 - Plátano (1 mediano ~120g): 105 cal, 1.3g proteína, 27g carbos, 0.4g grasa`;
 
 export class VisionService {
-  private client: Anthropic;
+  private client: Groq;
 
   constructor() {
-    this.client = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY,
+    this.client = new Groq({
+      apiKey: config.ai.groqApiKey,
     });
   }
 
@@ -85,40 +86,43 @@ export class VisionService {
       const ext = path.extname(imagePath).toLowerCase();
       const mediaType = ext === '.png' ? 'image/png' : 'image/jpeg';
 
-      const message = await this.client.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 2000,
+      const completion = await this.client.chat.completions.create({
+        model: 'llama-3.2-90b-vision-preview',
         messages: [
+          {
+            role: 'system',
+            content: VISION_SYSTEM_PROMPT,
+          },
           {
             role: 'user',
             content: [
               {
-                type: 'image',
-                source: {
-                  type: 'base64',
-                  media_type: mediaType,
-                  data: base64Image,
-                },
-              },
-              {
                 type: 'text',
                 text: 'Analiza esta imagen de comida y proporciona información nutricional siguiendo el formato especificado.',
+              },
+              {
+                type: 'image_url',
+                image_url: {
+                  url: `data:${mediaType};base64,${base64Image}`,
+                },
               },
             ],
           },
         ],
-        system: VISION_SYSTEM_PROMPT,
+        temperature: 0.3,
+        max_tokens: 2000,
+        top_p: 1,
       });
 
-      const textContent = message.content.find((block) => block.type === 'text');
-      if (!textContent || textContent.type !== 'text') {
-        throw new Error('No se recibió respuesta de texto del modelo');
+      const responseText = completion.choices[0]?.message?.content;
+      if (!responseText) {
+        throw new Error('No se recibió respuesta del modelo');
       }
 
       // Parsear JSON
-      const jsonMatch = textContent.text.match(/\{[\s\S]*\}/);
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
-        logger.error('No se encontró JSON en la respuesta:', textContent.text);
+        logger.error('No se encontró JSON en la respuesta:', responseText);
         throw new Error('Formato de respuesta inválido');
       }
 

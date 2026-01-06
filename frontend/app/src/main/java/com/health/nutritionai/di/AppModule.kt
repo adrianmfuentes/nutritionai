@@ -2,6 +2,9 @@ package com.health.nutritionai.di
 
 import androidx.room.Room
 import com.health.nutritionai.data.local.database.AppDatabase
+import com.health.nutritionai.data.remote.ApiClient
+import com.health.nutritionai.data.remote.api.NutritionApiService
+import com.health.nutritionai.data.remote.interceptor.AuthInterceptor
 import com.health.nutritionai.data.repository.MealRepository
 import com.health.nutritionai.data.repository.UserRepository
 import com.health.nutritionai.ui.camera.CameraViewModel
@@ -28,7 +31,21 @@ val appModule = module {
     single { get<AppDatabase>().mealDao() }
     single { get<AppDatabase>().foodDao() }
 
-    // Repositories (offline mode - no API)
+    // Network - Auth Interceptor
+    single {
+        AuthInterceptor {
+            // Token provider - obtiene el token guardado
+            val prefs = androidContext().getSharedPreferences("nutrition_prefs", android.content.Context.MODE_PRIVATE)
+            prefs.getString("auth_token", null)
+        }
+    }
+
+    // Network - API Service
+    single<NutritionApiService> {
+        ApiClient.create(get())
+    }
+
+    // Repositories (ahora con API)
     single { MealRepository(get(), get()) }
     single { UserRepository(androidContext()) }
 

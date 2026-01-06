@@ -1,15 +1,19 @@
 # 🍽️ Nutrition AI - Aplicación de Seguimiento Nutricional con IA
 
-Aplicación completa de seguimiento nutricional que utiliza Inteligencia Artificial (Claude 3.5 Sonnet) para analizar imágenes de comidas y proporcionar información nutricional detallada.
+> **🚀 ¿Primera vez?** Lee **[START.md](START.md)** para empezar en 15 minutos  
+> **📱 ¿Probar en local?** Ve a **[QUICKSTART_WINDOWS.md](QUICKSTART_WINDOWS.md)**  
+> **📖 ¿Necesitas ayuda?** Consulta **[backend/LOCAL_TESTING.md](backend/LOCAL_TESTING.md)**
+
+Aplicación completa de seguimiento nutricional que utiliza Inteligencia Artificial **gratuita (Groq)** para analizar imágenes de comidas y proporcionar información nutricional detallada.
 
 ## 📱 Arquitectura
 
 - **Frontend**: Android nativo con Kotlin (Jetpack Compose)
 - **Backend**: Node.js + TypeScript + Express
 - **Base de Datos**: PostgreSQL
-- **IA**: Claude 3.5 Sonnet (Anthropic) para análisis de imágenes
+- **IA**: Groq (LLaMA 3.2 90B Vision) - **100% GRATUITO** 🎉
 - **Infraestructura**: Docker + Docker Compose
-- **Servidor**: Oracle Ampere A1 (ARM64)
+- **Servidor**: Oracle Ampere A1 (ARM64) o cualquier servidor local
 
 ## ✨ Características Principales
 
@@ -26,7 +30,7 @@ Aplicación completa de seguimiento nutricional que utiliza Inteligencia Artific
 
 ### Backend API
 
-- 🧠 Análisis de imágenes con Claude 3.5 Sonnet
+- 🧠 Análisis de imágenes con Groq (LLaMA Vision) - **GRATIS**
 - 🍎 Detección automática de alimentos
 - 📏 Estimación de porciones
 - 🔢 Cálculo preciso de macronutrientes
@@ -42,9 +46,45 @@ Aplicación completa de seguimiento nutricional que utiliza Inteligencia Artific
 
 - Docker y Docker Compose
 - Android Studio (para frontend)
-- API Key de Anthropic
+- API Key de Groq (gratis en https://console.groq.com/)
 
-### Configuración Backend
+### 📱 Opción 1: Pruebas Locales (Recomendado)
+
+**Para probar en tu móvil antes de subir a producción:**
+
+```bash
+# 1. Obtén tu API key gratuita de Groq
+# Visita: https://console.groq.com/
+
+# 2. Obtén tu IP local
+# Windows:
+get-local-ip.bat
+
+# Linux/Mac:
+chmod +x get-local-ip.sh
+./get-local-ip.sh
+
+# 3. Configura el backend
+cd backend
+nano .env  # Añade tu GROQ_API_KEY
+
+# 4. Levanta los servicios
+docker-compose up -d --build
+
+# 5. Configura la app Android con tu IP local
+# Edita: frontend/app/src/main/.../ApiConfig.kt
+# Cambia BASE_URL a: http://TU_IP:3000/v1/
+
+# 6. Compila e instala en tu móvil
+cd ../frontend
+./gradlew installDebug
+```
+
+📖 **Guía completa:** [LOCAL_TESTING.md](backend/LOCAL_TESTING.md)
+
+---
+
+### 🌐 Opción 2: Configuración en Servidor (Producción)
 
 ```bash
 cd backend
@@ -128,11 +168,12 @@ PUT    /v1/nutrition/goals  - Actualizar objetivos
 
 ## 📖 Documentación
 
+- **[LOCAL_TESTING.md](backend/LOCAL_TESTING.md)** - **⭐ EMPIEZA AQUÍ** - Pruebas locales en tu móvil
 - [Backend README](backend/README.md) - Guía completa del backend
 - [API Documentation](backend/API.md) - Referencia de endpoints
-- [Deployment Guide](backend/DEPLOYMENT.md) - Guía de deployment
+- [Deployment Guide](backend/DEPLOYMENT.md) - Guía de deployment en producción
 - [Android Integration](backend/ANDROID_INTEGRATION.md) - Integración con Android
-- [Testing Guide](backend/TESTING.md) - Guía de testing
+- [Testing Guide](backend/TESTING.md) - Guía de testing con cURL
 
 ## 🛠️ Tecnologías Utilizadas
 
@@ -152,7 +193,7 @@ PUT    /v1/nutrition/goals  - Actualizar objetivos
 - TypeScript
 - Express.js
 - PostgreSQL
-- Anthropic Claude API
+- **Groq API (LLaMA 3.2 90B Vision)** - 100% Gratis
 - Docker
 - Nginx
 - JWT
@@ -250,7 +291,8 @@ cd frontend
 ### Variables de Entorno Backend
 
 ```env
-ANTHROPIC_API_KEY=tu-api-key
+# Obtén tu API key gratis en: https://console.groq.com/
+GROQ_API_KEY=gsk_tu_api_key_aqui
 DB_PASSWORD=password-seguro
 JWT_SECRET=secret-seguro
 CORS_ORIGIN=https://tu-dominio.com
@@ -281,7 +323,7 @@ Tu Nombre - [GitHub](https://github.com/tu-usuario)
 
 ## 🙏 Agradecimientos
 
-- Anthropic por Claude 3.5 Sonnet
+- **Groq** por proporcionar LLaMA Vision API **gratis** 🎉
 - Oracle Cloud por Ampere A1
 - Comunidad open source
 
