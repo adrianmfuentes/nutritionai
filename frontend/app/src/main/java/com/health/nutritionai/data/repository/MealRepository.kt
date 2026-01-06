@@ -149,7 +149,11 @@ class MealRepository(
             mealDao.deleteMealById(mealId)
             NetworkResult.Success(true)
         } catch (e: Exception) {
-            NetworkResult.Error(e.message ?: "Error al eliminar la comida")
+            val userFriendlyMessage = com.health.nutritionai.util.ErrorMapper.mapErrorToMessage(
+                e,
+                com.health.nutritionai.util.ErrorContext.MEAL_DELETE
+            )
+            NetworkResult.Error(userFriendlyMessage)
         }
     }
     

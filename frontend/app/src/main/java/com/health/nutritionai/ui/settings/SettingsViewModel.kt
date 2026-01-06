@@ -5,7 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.health.nutritionai.data.model.NutritionGoals
 import com.health.nutritionai.data.model.UserProfile
 import com.health.nutritionai.data.repository.UserRepository
+import com.health.nutritionai.util.ErrorMapper
 import com.health.nutritionai.util.NetworkResult
+import com.health.nutritionai.util.SuccessAction
+import com.health.nutritionai.util.UserFeedback
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,6 +26,9 @@ class SettingsViewModel(
 
     private val _uiState = MutableStateFlow<SettingsUiState>(SettingsUiState.Loading)
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
+
+    private val _feedback = MutableStateFlow<UserFeedback>(UserFeedback.None)
+    val feedback: StateFlow<UserFeedback> = _feedback.asStateFlow()
 
     private val _isDarkTheme = MutableStateFlow(false)
     val isDarkTheme: StateFlow<Boolean> = _isDarkTheme.asStateFlow()
@@ -181,16 +187,22 @@ class SettingsViewModel(
             when (val result = userRepository.changePassword(currentPassword, newPassword)) {
                 is NetworkResult.Success -> {
                     _showChangePasswordDialog.value = false
-                    // Show success message
+                    _feedback.value = UserFeedback.Success(
+                        ErrorMapper.getSuccessMessage(SuccessAction.PASSWORD_CHANGED)
+                    )
                 }
                 is NetworkResult.Error -> {
-                    _uiState.value = SettingsUiState.Error(result.message ?: "Error al cambiar contraseña")
+                    _feedback.value = UserFeedback.Error(result.message ?: "Error al cambiar contraseña")
                 }
                 else -> {
-                    _uiState.value = SettingsUiState.Error("Error al cambiar contraseña")
+                    _feedback.value = UserFeedback.Error("Error al cambiar contraseña")
                 }
             }
         }
+    }
+
+    fun clearFeedback() {
+        _feedback.value = UserFeedback.None
     }
 }
 

@@ -151,6 +151,6 @@ fun LoginScreen(
                 }
             }
         }
+        }
     }
-}
 

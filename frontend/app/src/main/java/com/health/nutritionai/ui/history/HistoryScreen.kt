@@ -6,14 +6,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.health.nutritionai.ui.dashboard.components.MealCard
+import com.health.nutritionai.util.UserFeedback
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -22,8 +21,32 @@ fun HistoryScreen(
     viewModel: HistoryViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val feedback by viewModel.feedback.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // Show feedback messages
+    LaunchedEffect(feedback) {
+        when (feedback) {
+            is UserFeedback.Success -> {
+                snackbarHostState.showSnackbar(
+                    message = (feedback as UserFeedback.Success).message,
+                    duration = SnackbarDuration.Short
+                )
+                viewModel.clearFeedback()
+            }
+            is UserFeedback.Error -> {
+                snackbarHostState.showSnackbar(
+                    message = (feedback as UserFeedback.Error).message,
+                    duration = SnackbarDuration.Long
+                )
+                viewModel.clearFeedback()
+            }
+            else -> {}
+        }
+    }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         when (uiState) {
             is HistoryUiState.Loading -> {

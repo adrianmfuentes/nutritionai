@@ -51,7 +51,11 @@ class NutritionRepository(
             )
             NetworkResult.Success(weekly)
         } catch (e: Exception) {
-            NetworkResult.Error(e.message ?: "Error al obtener la nutrición semanal")
+            val userFriendlyMessage = com.health.nutritionai.util.ErrorMapper.mapErrorToMessage(
+                e,
+                com.health.nutritionai.util.ErrorContext.GENERAL
+            )
+            NetworkResult.Error(userFriendlyMessage)
         }
     }
 

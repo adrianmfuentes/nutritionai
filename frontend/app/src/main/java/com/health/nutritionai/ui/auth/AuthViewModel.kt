@@ -3,6 +3,8 @@ package com.health.nutritionai.ui.auth
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.health.nutritionai.data.repository.UserRepository
+import com.health.nutritionai.util.ErrorMapper
+import com.health.nutritionai.util.SuccessAction
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,7 +13,7 @@ import kotlinx.coroutines.launch
 sealed class AuthUiState {
     data object Idle : AuthUiState()
     data object Loading : AuthUiState()
-    data class Success(val userId: String) : AuthUiState()
+    data class Success(val userId: String, val successMessage: String) : AuthUiState()
     data class Error(val message: String) : AuthUiState()
 }
 
@@ -44,7 +46,8 @@ class AuthViewModel(
             when (val result = userRepository.login(cleanEmail, cleanPassword)) {
                 is com.health.nutritionai.util.NetworkResult.Success -> {
                     val userId = result.data?.userId ?: result.data?.user?.userId ?: "unknown"
-                    _uiState.value = AuthUiState.Success(userId)
+                    val successMessage = ErrorMapper.getSuccessMessage(SuccessAction.LOGIN)
+                    _uiState.value = AuthUiState.Success(userId, successMessage)
                 }
                 is com.health.nutritionai.util.NetworkResult.Error -> {
                     _uiState.value = AuthUiState.Error(result.message ?: "Error al iniciar sesión")
@@ -89,7 +92,8 @@ class AuthViewModel(
             when (val result = userRepository.register(cleanEmail, cleanPassword, cleanName)) {
                 is com.health.nutritionai.util.NetworkResult.Success -> {
                     val userId = result.data?.userId ?: result.data?.user?.userId ?: "unknown"
-                    _uiState.value = AuthUiState.Success(userId)
+                    val successMessage = ErrorMapper.getSuccessMessage(SuccessAction.REGISTER)
+                    _uiState.value = AuthUiState.Success(userId, successMessage)
                 }
                 is com.health.nutritionai.util.NetworkResult.Error -> {
                     _uiState.value = AuthUiState.Error(result.message ?: "Error al registrarse")

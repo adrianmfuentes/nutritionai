@@ -35,6 +35,7 @@ fun CameraScreen(
     val context = LocalContext.current
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     val uiState by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     val cameraPermission = rememberPermissionState(Manifest.permission.CAMERA)
 
@@ -47,6 +48,7 @@ fun CameraScreen(
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -139,6 +141,11 @@ fun CameraScreen(
                         }
                         is CameraUiState.Success -> {
                             LaunchedEffect(Unit) {
+                                val successState = uiState as CameraUiState.Success
+                                snackbarHostState.showSnackbar(
+                                    message = successState.successMessage,
+                                    duration = SnackbarDuration.Short
+                                )
                                 onMealAnalyzed()
                             }
                         }

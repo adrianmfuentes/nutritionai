@@ -31,24 +31,37 @@ fun RegisterScreen(
     var confirmPasswordVisible by remember { mutableStateOf(false) }
 
     val uiState by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(uiState) {
-        if (uiState is AuthUiState.Success) {
-            onRegisterSuccess()
+        when (val state = uiState) {
+            is AuthUiState.Success -> {
+                snackbarHostState.showSnackbar(
+                    message = state.successMessage,
+                    duration = SnackbarDuration.Short
+                )
+                onRegisterSuccess()
+            }
+            else -> {}
         }
     }
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
-    ) {
-        Column(
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { paddingValues ->
+        Surface(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .padding(paddingValues),
+            color = MaterialTheme.colorScheme.background
         ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
             Text(
                 text = "Crear Cuenta",
                 style = MaterialTheme.typography.displaySmall,
@@ -211,6 +224,7 @@ fun RegisterScreen(
                     Text("Inicia Sesión")
                 }
             }
+        }
         }
     }
 }

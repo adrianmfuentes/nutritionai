@@ -10,6 +10,8 @@ import com.health.nutritionai.data.remote.dto.RegisterRequest
 import com.health.nutritionai.util.Constants
 import com.health.nutritionai.util.NetworkResult
 import androidx.core.content.edit
+import com.health.nutritionai.util.ErrorContext
+import com.health.nutritionai.util.ErrorMapper
 
 class UserRepository(
     context: Context,
@@ -176,7 +178,8 @@ class UserRepository(
             apiService.changePassword(request)
             NetworkResult.Success(Unit)
         } catch (e: Exception) {
-            NetworkResult.Error(e.message ?: "Error al cambiar la contraseña")
+            val userFriendlyMessage = ErrorMapper.mapErrorToMessage(e, ErrorContext.PASSWORD_CHANGE)
+            NetworkResult.Error(userFriendlyMessage)
         }
     }
 }

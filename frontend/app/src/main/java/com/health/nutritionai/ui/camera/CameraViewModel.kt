@@ -9,7 +9,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.health.nutritionai.data.model.Meal
 import com.health.nutritionai.data.repository.MealRepository
+import com.health.nutritionai.util.ErrorMapper
 import com.health.nutritionai.util.NetworkResult
+import com.health.nutritionai.util.SuccessAction
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,7 +24,7 @@ sealed class CameraUiState {
     data object Idle : CameraUiState()
     data object Capturing : CameraUiState()
     data object Analyzing : CameraUiState()
-    data class Success(val meal: Meal) : CameraUiState()
+    data class Success(val meal: Meal, val successMessage: String) : CameraUiState()
     data class Error(val message: String) : CameraUiState()
 }
 
@@ -74,7 +76,8 @@ class CameraViewModel(
             when (val result = mealRepository.analyzeMeal(imageFile)) {
                 is NetworkResult.Success -> {
                     result.data?.let { meal ->
-                        _uiState.value = CameraUiState.Success(meal)
+                        val successMessage = ErrorMapper.getSuccessMessage(SuccessAction.MEAL_ANALYZED)
+                        _uiState.value = CameraUiState.Success(meal, successMessage)
                     } ?: run {
                         _uiState.value = CameraUiState.Error("No se pudo procesar la comida")
                     }

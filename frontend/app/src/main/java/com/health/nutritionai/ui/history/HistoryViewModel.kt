@@ -5,6 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.health.nutritionai.data.model.Meal
 import com.health.nutritionai.data.repository.MealRepository
 import com.health.nutritionai.data.repository.UserRepository
+import com.health.nutritionai.util.ErrorMapper
+import com.health.nutritionai.util.NetworkResult
+import com.health.nutritionai.util.SuccessAction
+import com.health.nutritionai.util.UserFeedback
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,6 +27,9 @@ class HistoryViewModel(
 
     private val _uiState = MutableStateFlow<HistoryUiState>(HistoryUiState.Loading)
     val uiState: StateFlow<HistoryUiState> = _uiState.asStateFlow()
+
+    private val _feedback = MutableStateFlow<UserFeedback>(UserFeedback.None)
+    val feedback: StateFlow<UserFeedback> = _feedback.asStateFlow()
 
     init {
         loadMeals()
@@ -47,13 +54,29 @@ class HistoryViewModel(
 
     fun deleteMeal(mealId: String) {
         viewModelScope.launch {
-            mealRepository.deleteMeal(mealId)
+            when (val result = mealRepository.deleteMeal(mealId)) {
+                is NetworkResult.Success -> {
+                    _feedback.value = UserFeedback.Success(
+                        ErrorMapper.getSuccessMessage(SuccessAction.MEAL_DELETED)
+                    )
+                }
+                is NetworkResult.Error -> {
+                    _feedback.value = UserFeedback.Error(
+                        result.message ?: "Error al eliminar la comida"
+                    )
+                }
+                else -> {}
+            }
             // The Flow will automatically update
         }
     }
 
     fun refresh() {
         loadMeals()
+    }
+
+    fun clearFeedback() {
+        _feedback.value = UserFeedback.None
     }
 }
 

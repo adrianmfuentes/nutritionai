@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.health.nutritionai.data.model.NutritionGoals
 import com.health.nutritionai.data.model.UserProfile
+import com.health.nutritionai.util.UserFeedback
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -27,6 +28,7 @@ fun SettingsScreen(
     onLogout: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val feedback by viewModel.feedback.collectAsState()
     val showGoalsDialog by viewModel.showGoalsDialog.collectAsState()
     val showNotificationsDialog by viewModel.showNotificationsDialog.collectAsState()
     val showLanguageDialog by viewModel.showLanguageDialog.collectAsState()
@@ -35,8 +37,31 @@ fun SettingsScreen(
     val notificationsEnabled by viewModel.notificationsEnabled.collectAsState()
     val selectedLanguage by viewModel.selectedLanguage.collectAsState()
     val selectedUnits by viewModel.selectedUnits.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // Show feedback messages
+    LaunchedEffect(feedback) {
+        when (feedback) {
+            is UserFeedback.Success -> {
+                snackbarHostState.showSnackbar(
+                    message = (feedback as UserFeedback.Success).message,
+                    duration = SnackbarDuration.Short
+                )
+                viewModel.clearFeedback()
+            }
+            is UserFeedback.Error -> {
+                snackbarHostState.showSnackbar(
+                    message = (feedback as UserFeedback.Error).message,
+                    duration = SnackbarDuration.Long
+                )
+                viewModel.clearFeedback()
+            }
+            else -> {}
+        }
+    }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         when (uiState) {
             is SettingsUiState.Loading -> {
