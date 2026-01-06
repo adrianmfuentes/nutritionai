@@ -1,0 +1,308 @@
+# 🍽️ Nutrition AI - Aplicación de Seguimiento Nutricional con IA
+
+Aplicación completa de seguimiento nutricional que utiliza Inteligencia Artificial (Claude 3.5 Sonnet) para analizar imágenes de comidas y proporcionar información nutricional detallada.
+
+## 📱 Arquitectura
+
+- **Frontend**: Android nativo con Kotlin (Jetpack Compose)
+- **Backend**: Node.js + TypeScript + Express
+- **Base de Datos**: PostgreSQL
+- **IA**: Claude 3.5 Sonnet (Anthropic) para análisis de imágenes
+- **Infraestructura**: Docker + Docker Compose
+- **Servidor**: Oracle Ampere A1 (ARM64)
+
+## ✨ Características Principales
+
+### Frontend Android
+
+- 📸 Captura de fotos de comidas con CameraX
+- 🤖 Análisis automático de alimentos con IA
+- 📊 Dashboard nutricional con progreso diario
+- 📈 Gráficos y estadísticas semanales
+- 🎯 Seguimiento de objetivos personalizados
+- 🔒 Autenticación segura con JWT
+- 💾 Almacenamiento local con Room
+- 🎨 UI moderna con Material Design 3
+
+### Backend API
+
+- 🧠 Análisis de imágenes con Claude 3.5 Sonnet
+- 🍎 Detección automática de alimentos
+- 📏 Estimación de porciones
+- 🔢 Cálculo preciso de macronutrientes
+- 👤 Gestión de usuarios y perfiles
+- 📊 Resúmenes nutricionales diarios y semanales
+- 🎯 Sistema de objetivos personalizables
+- 🔐 Seguridad completa (JWT, bcrypt, rate limiting)
+- 📦 Completamente containerizado
+
+## 🚀 Inicio Rápido
+
+### Requisitos Previos
+
+- Docker y Docker Compose
+- Android Studio (para frontend)
+- API Key de Anthropic
+
+### Configuración Backend
+
+```bash
+cd backend
+
+# Copiar variables de entorno
+cp .env.example .env
+
+# Editar .env con tus credenciales
+nano .env
+
+# Levantar servicios
+docker-compose up -d --build
+
+# Verificar
+curl http://localhost:3000/health
+```
+
+### Configuración Frontend
+
+```bash
+cd frontend
+
+# Abrir en Android Studio
+# Configurar API URL en ApiConfig.kt
+# Ejecutar en emulador o dispositivo
+```
+
+## 📁 Estructura del Proyecto
+
+```
+nutrition-app/
+├── frontend/              # Aplicación Android
+│   ├── app/
+│   │   └── src/
+│   │       ├── main/
+│   │       │   ├── java/    # Código Kotlin
+│   │       │   └── res/     # Recursos UI
+│   │       └── test/
+│   └── build.gradle.kts
+│
+└── backend/              # API Node.js
+    ├── src/
+    │   ├── config/       # Configuración
+    │   ├── controllers/  # Lógica de negocio
+    │   ├── middleware/   # Auth, upload, errores
+    │   ├── models/       # Modelos de datos
+    │   ├── routes/       # Rutas API
+    │   ├── services/     # Vision AI, Storage
+    │   └── utils/        # Utilidades
+    ├── nginx/           # Reverse proxy
+    ├── docker-compose.yml
+    └── Dockerfile
+```
+
+## 🔌 API Endpoints
+
+### Autenticación
+
+```
+POST   /v1/auth/register    - Registrar usuario
+POST   /v1/auth/login       - Iniciar sesión
+GET    /v1/profile          - Obtener perfil
+```
+
+### Comidas
+
+```
+POST   /v1/meals/analyze    - Analizar imagen
+GET    /v1/meals            - Listar comidas
+GET    /v1/meals/:id        - Obtener comida
+DELETE /v1/meals/:id        - Eliminar comida
+```
+
+### Nutrición
+
+```
+GET    /v1/nutrition/daily  - Resumen diario
+GET    /v1/nutrition/weekly - Resumen semanal
+PUT    /v1/nutrition/goals  - Actualizar objetivos
+```
+
+## 📖 Documentación
+
+- [Backend README](backend/README.md) - Guía completa del backend
+- [API Documentation](backend/API.md) - Referencia de endpoints
+- [Deployment Guide](backend/DEPLOYMENT.md) - Guía de deployment
+- [Android Integration](backend/ANDROID_INTEGRATION.md) - Integración con Android
+- [Testing Guide](backend/TESTING.md) - Guía de testing
+
+## 🛠️ Tecnologías Utilizadas
+
+### Frontend
+
+- Kotlin
+- Jetpack Compose
+- CameraX
+- Retrofit
+- Room Database
+- Coil (carga de imágenes)
+- Material Design 3
+
+### Backend
+
+- Node.js 20
+- TypeScript
+- Express.js
+- PostgreSQL
+- Anthropic Claude API
+- Docker
+- Nginx
+- JWT
+- Multer (uploads)
+- Sharp (procesamiento de imágenes)
+
+## 🔐 Seguridad
+
+- ✅ Autenticación JWT
+- ✅ Contraseñas hasheadas con bcrypt (12 rounds)
+- ✅ Rate limiting en todos los endpoints
+- ✅ Helmet para headers de seguridad
+- ✅ CORS configurado
+- ✅ Validación de inputs con Zod
+- ✅ SQL injection protection
+- ✅ File upload validation
+- ✅ SSL/TLS en producción
+
+## 📊 Base de Datos
+
+### Schema Principal
+
+- **users** - Usuarios del sistema
+- **nutrition_goals** - Objetivos nutricionales personalizados
+- **meals** - Comidas registradas
+- **detected_foods** - Alimentos detectados por IA
+
+## 🌟 Características Destacadas
+
+### Análisis Inteligente con IA
+
+- Identificación automática de alimentos
+- Estimación precisa de porciones
+- Cálculo de macronutrientes
+- Puntuación de salud de comidas
+- Detección de categorías (proteína, carbos, etc.)
+
+### Dashboard Nutricional
+
+- Progreso diario en tiempo real
+- Comparación con objetivos
+- Gráficos interactivos
+- Historial de comidas
+- Tendencias semanales
+
+### Experiencia de Usuario
+
+- Captura rápida de fotos
+- Análisis en segundos
+- Interfaz intuitiva
+- Modo oscuro/claro
+- Notificaciones de progreso
+
+## 🚢 Deployment
+
+### Desarrollo Local
+
+```bash
+# Backend
+cd backend
+docker-compose up -d
+
+# Frontend
+cd frontend
+./gradlew installDebug
+```
+
+### Producción (Oracle Ampere)
+
+```bash
+cd backend
+chmod +x deploy.sh
+./deploy.sh
+```
+
+Ver [DEPLOYMENT.md](backend/DEPLOYMENT.md) para instrucciones detalladas.
+
+## 🧪 Testing
+
+```bash
+# Backend
+cd backend
+npm test
+
+# Test manual con cURL
+./test-full-flow.sh
+
+# Frontend
+cd frontend
+./gradlew test
+```
+
+## 📝 Configuración
+
+### Variables de Entorno Backend
+
+```env
+ANTHROPIC_API_KEY=tu-api-key
+DB_PASSWORD=password-seguro
+JWT_SECRET=secret-seguro
+CORS_ORIGIN=https://tu-dominio.com
+```
+
+### Configuración Frontend
+
+```kotlin
+// ApiConfig.kt
+private const val BASE_URL = "https://tu-api.com/v1/"
+```
+
+## 🤝 Contribuir
+
+1. Fork el proyecto
+2. Crea una rama (`git checkout -b feature/amazing-feature`)
+3. Commit cambios (`git commit -m 'Add amazing feature'`)
+4. Push a la rama (`git push origin feature/amazing-feature`)
+5. Abre un Pull Request
+
+## 📄 Licencia
+
+Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para detalles.
+
+## 👥 Autor
+
+Tu Nombre - [GitHub](https://github.com/tu-usuario)
+
+## 🙏 Agradecimientos
+
+- Anthropic por Claude 3.5 Sonnet
+- Oracle Cloud por Ampere A1
+- Comunidad open source
+
+## 📞 Soporte
+
+Para problemas o preguntas:
+
+- 📧 Email: soporte@ejemplo.com
+- 💬 Issues: [GitHub Issues](https://github.com/tu-usuario/nutrition-app/issues)
+- 📚 Docs: Ver carpeta `backend/`
+
+## 🗺️ Roadmap
+
+- [ ] App iOS
+- [ ] Soporte para múltiples idiomas
+- [ ] Integración con wearables
+- [ ] Recetas sugeridas
+- [ ] Social features
+- [ ] Exportación de datos
+- [ ] Integración con Apple Health / Google Fit
+
+---
+
+Desarrollado con ❤️ usando IA
