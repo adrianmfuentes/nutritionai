@@ -17,6 +17,11 @@ const LoginSchema = z.object({
   password: z.string().min(1, 'La contraseña es requerida'),
 });
 
+const ChangePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'La contraseña actual es requerida'),
+  newPassword: z.string().min(8, 'La nueva contraseña debe tener al menos 8 caracteres'),
+});
+
 export class AuthController {
   async register(req: Request, res: Response, next: NextFunction) {
     try {
@@ -116,6 +121,49 @@ export class AuthController {
         },
         token,
       });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          error: 'Validación fallida', 
+          details: error.errors 
+        });
+      }
+      next(error);
+    }
+  }
+
+  async changePassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = (req as any).user?.id;
+      const validatedData = ChangePasswordSchema.parse(req.body);
+      const { currentPassword, newPassword } = validatedData;
+      
+      const result = await pool.query(
+        'SELECT password_hash FROM users WHERE id = $1',
+        [userId]
+      );
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'Usuario no encontrado' });
+      }
+
+      const user = result.rows[0];
+
+      const isValidPassword = await bcrypt.compare(currentPassword, user.password_hash);
+      if (!isValidPassword) {
+        return res.status(401).json({ error: 'La contraseña actual es incorrecta' });
+      }
+
+      const newPasswordHash = await bcrypt.hash(newPassword, 12);
+
+      await pool.query(
+        'UPDATE users SET password_hash = $1 WHERE id = $2',
+        [newPasswordHash, userId]
+      );
+
+      logger.info(`Contraseña actualizada para usuario ID: ${userId}`);
+
+      res.json({ message: 'Contraseña actualizada exitosamente' });
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ 

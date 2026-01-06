@@ -74,9 +74,7 @@ class AuthViewModel(
             }
 
             // Llamar al backend
-            val result = userRepository.register(email, password, name)
-
-            when (result) {
+            when (val result = userRepository.register(email, password, name)) {
                 is com.health.nutritionai.util.NetworkResult.Success -> {
                     val userId = result.data?.userId ?: result.data?.user?.userId ?: "unknown"
                     _uiState.value = AuthUiState.Success(userId)
@@ -91,20 +89,5 @@ class AuthViewModel(
         }
     }
 
-    fun skipLogin() {
-        viewModelScope.launch {
-            _uiState.value = AuthUiState.Loading
-
-            // Modo demo sin autenticación
-            userRepository.saveAuthToken("demo_token")
-            userRepository.saveUserId("demo_user")
-
-            _uiState.value = AuthUiState.Success("demo_user")
-        }
-    }
-
-    fun resetState() {
-        _uiState.value = AuthUiState.Idle
-    }
 }
 

@@ -13,6 +13,9 @@ object Constants {
     const val KEY_AUTH_TOKEN = "auth_token"
     const val KEY_USER_ID = "user_id"
     const val KEY_USER_EMAIL = "user_email"
+    const val KEY_NOTIFICATIONS_ENABLED = "notifications_enabled"
+    const val KEY_LANGUAGE = "language"
+    const val KEY_UNITS = "units"
 
     // Date Format
     const val DATE_FORMAT = "yyyy-MM-dd"

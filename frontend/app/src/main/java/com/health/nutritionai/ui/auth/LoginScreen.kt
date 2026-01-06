@@ -136,18 +136,7 @@ fun LoginScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Skip Login (for testing)
-            TextButton(
-                onClick = {
-                    viewModel.skipLogin()
-                }
-            ) {
-                Text("Continuar sin cuenta (Demo)")
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             // Register Link
             Row(
