@@ -350,6 +350,24 @@ Si algo no funciona:
    http://TU_IP:3000/health
    ```
 
+## ❓ Solución de Problemas Comunes
+
+### Error: "failed to connect to /192.168.1.101 (port 3000)... after 30000ms"
+
+Este error indica que el móvil no puede "ver" a tu PC.
+
+**Causas probables:**
+
+1. **Redes Diferentes (MÁS PROBABLE):**
+
+   - Tu PC tiene IP `192.168.1.x` (WiFi Casa).
+   - Tu Móvil tiene IP `10.x.x.x` (Datos 4G/5G, VPN activada, o WiFi Invitados).
+   - **Solución:** Conecta el móvil al **mismo WiFi** que el PC. Desactiva Datos Móviles y VPN.
+
+2. **Firewall de Windows:**
+   - Windows bloquea conexiones entrantes al puerto 3000 por defecto en redes Privadas/Públicas.
+   - **Solución:** Ejecuta el script `open-firewall.bat` que hemos creado en la raíz del proyecto.
+
 ---
 
 **✅ La app ahora está completamente conectada al backend con Groq (IA gratuita)!**

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.health.nutritionai.data.model.Meal
 import com.health.nutritionai.data.repository.MealRepository
+import com.health.nutritionai.data.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,7 +17,8 @@ sealed class HistoryUiState {
 }
 
 class HistoryViewModel(
-    private val mealRepository: MealRepository
+    private val mealRepository: MealRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<HistoryUiState>(HistoryUiState.Loading)
@@ -28,14 +30,16 @@ class HistoryViewModel(
 
     private fun loadMeals() {
         viewModelScope.launch {
+            val userId = userRepository.getUserId()
+
             try {
                 // Sync with server
-                mealRepository.refreshMeals("current_user")
+                mealRepository.refreshMeals(userId)
             } catch (e: Exception) {
                 // Continue to load local data even if sync fails
             }
             
-            mealRepository.getAllMeals("current_user").collect { meals ->
+            mealRepository.getAllMeals(userId).collect { meals ->
                 _uiState.value = HistoryUiState.Success(meals)
             }
         }

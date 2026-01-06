@@ -1,9 +1,6 @@
 package com.health.nutritionai.data.repository
 
 import android.content.Context
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import com.health.nutritionai.data.model.AuthResponse
 import com.health.nutritionai.data.model.NutritionGoals
 import com.health.nutritionai.data.model.UserProfile
@@ -13,14 +10,13 @@ import com.health.nutritionai.data.remote.dto.RegisterRequest
 import com.health.nutritionai.util.Constants
 import com.health.nutritionai.util.NetworkResult
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
-
-private val Context.dataStore by preferencesDataStore(name = Constants.PREFERENCES_NAME)
+import kotlinx.coroutines.flow.flow
 
 class UserRepository(
     private val context: Context,
     private val apiService: NutritionApiService
 ) {
+    private val prefs = context.getSharedPreferences(Constants.PREFERENCES_NAME, Context.MODE_PRIVATE)
 
     suspend fun register(email: String, password: String, name: String): NetworkResult<AuthResponse> {
         return try {
@@ -131,31 +127,33 @@ class UserRepository(
     }
 
     suspend fun logout() {
-        context.dataStore.edit { preferences ->
-            preferences.clear()
-        }
+        prefs.edit().clear().apply()
     }
 
     fun getAuthToken(): Flow<String?> {
-        return context.dataStore.data.map { preferences ->
-            preferences[stringPreferencesKey(Constants.KEY_AUTH_TOKEN)]
+        // SharedPreferences doesn't emit updates natively as Flow, but for login check just returning current state in flow is okay
+        // For a more robust solution we could use callbackFlow, but this suffices for "check persistence on init"
+        return flow {
+             emit(prefs.getString(Constants.KEY_AUTH_TOKEN, null))
         }
     }
 
     fun isLoggedIn(): Flow<Boolean> {
-        return getAuthToken().map { it != null }
+        return flow {
+            emit(prefs.getString(Constants.KEY_AUTH_TOKEN, null) != null)
+        }
     }
 
     suspend fun saveAuthToken(token: String) {
-        context.dataStore.edit { preferences ->
-            preferences[stringPreferencesKey(Constants.KEY_AUTH_TOKEN)] = token
-        }
+        prefs.edit().putString(Constants.KEY_AUTH_TOKEN, token).apply()
     }
 
     suspend fun saveUserId(userId: String) {
-        context.dataStore.edit { preferences ->
-            preferences[stringPreferencesKey(Constants.KEY_USER_ID)] = userId
-        }
+        prefs.edit().putString(Constants.KEY_USER_ID, userId).apply()
+    }
+
+    suspend fun getUserId(): String {
+        return prefs.getString(Constants.KEY_USER_ID, "demo_user") ?: "demo_user"
     }
 }
 

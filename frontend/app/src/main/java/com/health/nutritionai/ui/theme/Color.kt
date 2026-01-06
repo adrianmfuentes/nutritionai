@@ -28,11 +28,11 @@ val OnSecondaryDark = Color(0xFF000000)
 val OnBackgroundDark = Color(0xFFE0E0E0)
 val OnSurfaceDark = Color(0xFFE0E0E0)
 
-// Macro Colors - Softer tones
-val ProteinColor = Color(0xFF66BB6A) // Soft green
-val CarbsColor = Color(0xFF42A5F5) // Lighter blue
+// Macro Colors - More subtle and professional
+val ProteinColor = Color(0xFF81C784) // Softer green
+val CarbsColor = Color(0xFF64B5F6) // Softer blue
 val FatColor = Color(0xFFFFB74D) // Softer orange
-val CaloriesColor = Color(0xFF7E57C2) // Softer purple
+val CaloriesColor = Color(0xFF9575CD) // Softer purple
 
 // Additional UI Colors
 val DividerColor = Color(0xFFE0E0E0)

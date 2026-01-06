@@ -19,7 +19,8 @@ import okhttp3.RequestBody.Companion.toRequestBody
 class MealRepository(
     private val mealDao: MealDao,
     private val foodDao: FoodDao,
-    private val apiService: NutritionApiService
+    private val apiService: NutritionApiService,
+    private val userRepository: UserRepository
 ) {
 
     // Mock goals for offline mode (removed mock data)
@@ -76,9 +77,9 @@ class MealRepository(
                 notes = null // Inicialmente sin notas
             )
 
-            // Save locally
-            // TODO: Obtain real userId from User Repository/Preferences
-            saveMealLocally(meal, "current_user") 
+            // Save locally with actual user ID
+            val userId = userRepository.getUserId()
+            saveMealLocally(meal, userId)
 
             NetworkResult.Success(meal)
         } catch (e: Exception) {
@@ -123,9 +124,10 @@ class MealRepository(
                 notes = null
             )
             
-            // Update local cache
-            saveMealLocally(meal, "current_user") // Replace with real userId
-            
+            // Update local cache with actual user ID
+            val userId = userRepository.getUserId()
+            saveMealLocally(meal, userId)
+
             NetworkResult.Success(meal)
         } catch (e: Exception) {
             // Fallback to local
@@ -154,7 +156,6 @@ class MealRepository(
     suspend fun refreshMeals(userId: String) {
         try {
             val response = apiService.getMeals()
-            // Note: This only fetches summaries. Detailed macros might be missing in list view.
             val meals = response.meals.map { summary ->
                 MealEntity(
                     mealId = summary.mealId,
@@ -177,38 +178,7 @@ class MealRepository(
         }
     }
 
-    suspend fun getDailyNutrition(date: String): NetworkResult<NutritionSummary> {
-        return try {
-            // TODO: Replace with real API call when backend is ready
-            // For now, return mock data
-            val mockTotals = Nutrition(
-                calories = 1200,
-                protein = 80.0,
-                carbs = 120.0,
-                fat = 40.0,
-                fiber = 15.0
-            )
 
-            val mockProgress = NutritionProgress(
-                caloriesPercent = 60.0,
-                proteinPercent = 53.3,
-                carbsPercent = 60.0,
-                fatPercent = 61.5
-            )
-
-            val mockSummary = NutritionSummary(
-                date = date,
-                totals = mockTotals,
-                goals = mockGoals,
-                progress = mockProgress,
-                meals = emptyList() // TODO: Get from local DB
-            )
-
-            NetworkResult.Success(mockSummary)
-        } catch (e: Exception) {
-            NetworkResult.Error(e.message ?: "Error al obtener los datos nutricionales")
-        }
-    }
 
     private suspend fun saveMealLocally(meal: Meal, userId: String) {
         val mealEntity = MealEntity(

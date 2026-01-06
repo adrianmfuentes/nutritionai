@@ -11,10 +11,20 @@ import java.util.concurrent.TimeUnit
 
 object ApiClient {
 
-    // ⚠️ IMPORTANTE: Cambia esta URL para pruebas locales
-    // Para emulador: "http://10.0.2.2:3000/v1/"
-    // Para dispositivo físico: "http://TU_IP_LOCAL:3000/v1/" (ej: "http://192.168.1.100:3000/v1/")
-    // Para producción: usa BuildConfig.API_BASE_URL
+    // ⚠️ CONFIGURACIÓN DE URL DEL BACKEND
+    // Cambia esta URL según tu entorno:
+    //
+    // Para emulador Android Studio:
+    //   private const val BASE_URL = "http://10.0.2.2:3000/v1/"
+    //
+    // Para dispositivo físico (mismo WiFi que tu PC):
+    //   private const val BASE_URL = "http://TU_IP_LOCAL:3000/v1/"
+    //   Ejemplo: "http://192.168.1.101:3000/v1/"
+    //   Para encontrar tu IP: En Windows ejecuta 'ipconfig' en CMD
+    //
+    // Para producción:
+    //   private const val BASE_URL = "https://tu-dominio.com/v1/"
+
     private const val BASE_URL = "http://192.168.1.101:3000/v1/"
 
     fun create(authInterceptor: AuthInterceptor): NutritionApiService {
