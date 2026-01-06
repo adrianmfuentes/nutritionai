@@ -2,16 +2,17 @@
 FROM node:20-alpine AS builder
 
 WORKDIR /app
+RUN npm install -g pnpm
 
 # Instalar dependencias
-COPY package*.json ./
-RUN npm ci --only=production
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 
 # Copiar código fuente
 COPY . .
 
 # Build TypeScript
-RUN npm run build
+RUN pnpm run build
 
 # ============================================
 # Production Stage
@@ -22,11 +23,13 @@ WORKDIR /app
 
 # Instalar curl para healthcheck
 RUN apk add --no-cache curl
+RUN npm install -g pnpm
 
 # Copiar dependencias y build
-COPY --from=builder /app/node_modules ./node_modules
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --prod --frozen-lockfile
+
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/package*.json ./
 
 # Crear directorio para uploads
 RUN mkdir -p /app/uploads /app/logs && \

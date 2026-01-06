@@ -3,7 +3,7 @@ import { Router } from 'express';
 import { AuthController } from '../controllers/auth.controller';
 import { authenticate } from '../middleware/auth';
 
-const router = Router();
+const router: Router = Router();
 const authController = new AuthController();
 
 // Todas las rutas requieren autenticación
