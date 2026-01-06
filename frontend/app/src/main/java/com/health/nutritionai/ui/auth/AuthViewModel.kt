@@ -37,18 +37,18 @@ class AuthViewModel(
                 return@launch
             }
 
-            // TODO: Implementar llamada al backend cuando esté disponible
-            // Por ahora, simular login exitoso
-            try {
-                kotlinx.coroutines.delay(1000) // Simular llamada de red
-
-                // Guardar token mock
-                userRepository.saveAuthToken("mock_token_${System.currentTimeMillis()}")
-                userRepository.saveUserId("mock_user_id")
-
-                _uiState.value = AuthUiState.Success("mock_user_id")
-            } catch (e: Exception) {
-                _uiState.value = AuthUiState.Error(e.message ?: "Error al iniciar sesión")
+            // Llamar al backend
+            when (val result = userRepository.login(email, password)) {
+                is com.health.nutritionai.util.NetworkResult.Success -> {
+                    val userId = result.data?.userId ?: result.data?.user?.userId ?: "unknown"
+                    _uiState.value = AuthUiState.Success(userId)
+                }
+                is com.health.nutritionai.util.NetworkResult.Error -> {
+                    _uiState.value = AuthUiState.Error(result.message ?: "Error al iniciar sesión")
+                }
+                is com.health.nutritionai.util.NetworkResult.Loading -> {
+                    // Already in loading state
+                }
             }
         }
     }
@@ -73,17 +73,20 @@ class AuthViewModel(
                 return@launch
             }
 
-            // TODO: Implementar llamada al backend cuando esté disponible
-            try {
-                kotlinx.coroutines.delay(1000) // Simular llamada de red
+            // Llamar al backend
+            val result = userRepository.register(email, password, name)
 
-                // Guardar token mock
-                userRepository.saveAuthToken("mock_token_${System.currentTimeMillis()}")
-                userRepository.saveUserId("mock_user_id")
-
-                _uiState.value = AuthUiState.Success("mock_user_id")
-            } catch (e: Exception) {
-                _uiState.value = AuthUiState.Error(e.message ?: "Error al registrarse")
+            when (result) {
+                is com.health.nutritionai.util.NetworkResult.Success -> {
+                    val userId = result.data?.userId ?: result.data?.user?.userId ?: "unknown"
+                    _uiState.value = AuthUiState.Success(userId)
+                }
+                is com.health.nutritionai.util.NetworkResult.Error -> {
+                    _uiState.value = AuthUiState.Error(result.message ?: "Error al registrarse")
+                }
+                is com.health.nutritionai.util.NetworkResult.Loading -> {
+                    // Already in loading state
+                }
             }
         }
     }

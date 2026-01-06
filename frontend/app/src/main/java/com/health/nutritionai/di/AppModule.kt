@@ -38,7 +38,7 @@ val appModule = module {
     single {
         AuthInterceptor {
             // Token provider - obtiene el token guardado
-            val prefs = androidContext().getSharedPreferences("nutrition_prefs", android.content.Context.MODE_PRIVATE)
+            val prefs = androidContext().getSharedPreferences("nutrition_ai_prefs", android.content.Context.MODE_PRIVATE)
             prefs.getString("auth_token", null)
         }
     }
@@ -49,15 +49,22 @@ val appModule = module {
     }
 
     // Repositories
-    single { MealRepository(get(), get(), get()) }
-    single { NutritionRepository(get()) }
     single { UserRepository(androidContext(), get()) }
+    single {
+        MealRepository(
+            mealDao = get(),
+            foodDao = get(),
+            apiService = get(),
+            userRepository = get()
+        )
+    }
+    single { NutritionRepository(get()) }
 
     // ViewModels
     viewModel { AuthViewModel(get()) }
     viewModel { DashboardViewModel(get()) }
     viewModel { CameraViewModel(get()) }
-    viewModel { HistoryViewModel(get()) }
+    viewModel { HistoryViewModel(get(), get()) }
     viewModel { SettingsViewModel(get()) }
 }
 

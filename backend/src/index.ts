@@ -19,8 +19,8 @@ async function startServer() {
     const app = createApp();
 
     // Iniciar servidor
-    app.listen(PORT, () => {
-      logger.info(`🚀 Servidor corriendo en puerto ${PORT}`);
+    app.listen(PORT, '0.0.0.0', () => {
+      logger.info(`🚀 Servidor corriendo en puerto ${PORT} (0.0.0.0)`);
       logger.info(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
       logger.info(`🔗 Health check: http://localhost:${PORT}/health`);
     });
