@@ -15,7 +15,7 @@ object ApiClient {
     // Para emulador: "http://10.0.2.2:3000/v1/"
     // Para dispositivo físico: "http://TU_IP_LOCAL:3000/v1/" (ej: "http://192.168.1.100:3000/v1/")
     // Para producción: usa BuildConfig.API_BASE_URL
-    private const val BASE_URL = "http://10.0.2.2:3000/v1/"
+    private const val BASE_URL = "http://192.168.1.101:3000/v1/"
 
     fun create(authInterceptor: AuthInterceptor): NutritionApiService {
         val loggingInterceptor = HttpLoggingInterceptor().apply {
