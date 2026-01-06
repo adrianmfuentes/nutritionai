@@ -1,0 +1,51 @@
+package com.health.nutritionai.data.remote.dto
+
+import com.google.gson.annotations.SerializedName
+
+data class LoginRequest(
+    @SerializedName("email")
+    val email: String,
+    @SerializedName("password")
+    val password: String
+)
+
+data class RegisterRequest(
+    @SerializedName("email")
+    val email: String,
+    @SerializedName("password")
+    val password: String,
+    @SerializedName("name")
+    val name: String
+)
+
+data class AuthResponseDto(
+    @SerializedName("token")
+    val token: String,
+    @SerializedName("user")
+    val user: UserProfileDto?,
+    @SerializedName("userId")
+    val userId: String?
+)
+
+data class UserProfileDto(
+    @SerializedName("userId")
+    val userId: String,
+    @SerializedName("email")
+    val email: String,
+    @SerializedName("name")
+    val name: String,
+    @SerializedName("goals")
+    val goals: NutritionGoalsDto?
+)
+
+data class UpdateGoalsRequest(
+    @SerializedName("dailyCalories")
+    val dailyCalories: Int,
+    @SerializedName("proteinGrams")
+    val proteinGrams: Double,
+    @SerializedName("carbsGrams")
+    val carbsGrams: Double,
+    @SerializedName("fatGrams")
+    val fatGrams: Double
+)
+

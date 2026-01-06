@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Nutrition AI</string>
+    <string name="app_description">Análisis nutricional con IA</string>
+</resources>

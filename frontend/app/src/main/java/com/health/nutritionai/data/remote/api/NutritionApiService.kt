@@ -1,0 +1,92 @@
+package com.health.nutritionai.data.remote.api
+
+import com.health.nutritionai.data.remote.dto.*
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import retrofit2.http.*
+
+interface NutritionApiService {
+
+    // Authentication
+    @POST("auth/register")
+    suspend fun register(@Body request: RegisterRequest): AuthResponseDto
+
+    @POST("auth/login")
+    suspend fun login(@Body request: LoginRequest): AuthResponseDto
+
+    // Meal Analysis
+    @Multipart
+    @POST("meals/analyze")
+    suspend fun analyzeMeal(
+        @Part image: MultipartBody.Part,
+        @Part("mealType") mealType: RequestBody?,
+        @Part("timestamp") timestamp: RequestBody?
+    ): AnalyzeMealResponse
+
+    // Meal Management
+    @GET("meals")
+    suspend fun getMeals(
+        @Query("date") date: String? = null,
+        @Query("limit") limit: Int? = null,
+        @Query("offset") offset: Int? = null
+    ): MealsListResponse
+
+    @GET("meals/{mealId}")
+    suspend fun getMealById(@Path("mealId") mealId: String): MealDetailResponse
+
+    @PATCH("meals/{mealId}")
+    suspend fun updateMeal(
+        @Path("mealId") mealId: String,
+        @Body request: UpdateMealRequest
+    ): MealDetailResponse
+
+    @DELETE("meals/{mealId}")
+    suspend fun deleteMeal(@Path("mealId") mealId: String): DeleteResponse
+
+    // Nutrition Tracking
+    @GET("nutrition/daily")
+    suspend fun getDailyNutrition(@Query("date") date: String): DailyNutritionResponse
+
+    @GET("nutrition/weekly")
+    suspend fun getWeeklyNutrition(@Query("startDate") startDate: String): WeeklyNutritionResponse
+
+    // User Profile & Goals
+    @GET("profile")
+    suspend fun getProfile(): ProfileResponse
+
+    @PATCH("profile/goals")
+    suspend fun updateGoals(@Body request: UpdateGoalsRequest): GoalsResponse
+}
+
+data class MealsListResponse(
+    val meals: List<MealSummaryDto>,
+    val pagination: PaginationDto
+)
+
+data class PaginationDto(
+    val total: Int,
+    val page: Int
+)
+
+data class MealDetailResponse(
+    val meal: AnalyzeMealResponse
+)
+
+data class UpdateMealRequest(
+    val foods: List<DetectedFoodDto>?,
+    val notes: String?
+)
+
+data class DeleteResponse(
+    val success: Boolean
+)
+
+data class ProfileResponse(
+    val user: UserProfileDto,
+    val goals: NutritionGoalsDto?
+)
+
+data class GoalsResponse(
+    val goals: NutritionGoalsDto
+)
+
