@@ -22,20 +22,18 @@ data class AuthResponseDto(
     @SerializedName("token")
     val token: String,
     @SerializedName("user")
-    val user: UserProfileDto?,
-    @SerializedName("userId")
-    val userId: String?
+    val user: UserProfileDto?
 )
 
 data class UserProfileDto(
-    @SerializedName("userId")
-    val userId: String,
+    @SerializedName("id")
+    val id: String,
     @SerializedName("email")
     val email: String,
     @SerializedName("name")
     val name: String,
     @SerializedName("goals")
-    val goals: NutritionGoalsDto?
+    val goals: NutritionGoalsDto? = null
 )
 
 data class UpdateGoalsRequest(

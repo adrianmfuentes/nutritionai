@@ -131,8 +131,15 @@ export class AuthController {
     try {
       const userId = (req as any).user?.id;
 
+      // Obtener usuario y sus objetivos más recientes
       const result = await pool.query(
-        'SELECT id, email, name, created_at FROM users WHERE id = $1',
+        `SELECT u.id, u.email, u.name, u.created_at,
+                ng.daily_calories, ng.daily_protein, ng.daily_carbs, ng.daily_fat
+         FROM users u
+         LEFT JOIN nutrition_goals ng ON u.id = ng.user_id
+         WHERE u.id = $1
+         ORDER BY ng.active_from DESC
+         LIMIT 1`,
         [userId]
       );
 
@@ -140,7 +147,25 @@ export class AuthController {
         return res.status(404).json({ error: 'Usuario no encontrado' });
       }
 
-      res.json({ user: result.rows[0] });
+      const row = result.rows[0];
+      
+      const user = {
+        id: row.id,
+        email: row.email,
+        name: row.name,
+        created_at: row.created_at
+      };
+
+      const goals = row.daily_calories ? {
+        calories: row.daily_calories,
+        protein: row.daily_protein,
+        carbs: row.daily_carbs,
+        fat: row.daily_fat
+      } : null;
+
+      // Estructura que espera el frontend (ProfileResponse)
+      // { user: UserProfileDto, goals: NutritionGoalsDto }
+      res.json({ user, goals });
     } catch (error) {
       next(error);
     }

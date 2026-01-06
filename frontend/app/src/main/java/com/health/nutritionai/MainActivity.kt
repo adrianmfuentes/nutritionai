@@ -1,5 +1,6 @@
 package com.health.nutritionai
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,32 +43,51 @@ fun MainScreen() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
+    // Check if user is logged in
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val prefs = context.getSharedPreferences("nutrition_prefs", Context.MODE_PRIVATE)
+    val isLoggedIn = prefs.getString("auth_token", null) != null
+
+    // Determine start destination
+    val startDestination = if (isLoggedIn) Screen.Dashboard.route else Screen.Login.route
+
+    // Show bottom bar only on main screens (not on auth screens)
+    val showBottomBar = currentDestination?.route in listOf(
+        Screen.Dashboard.route,
+        Screen.Camera.route,
+        Screen.History.route,
+        Screen.Settings.route
+    )
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
-            NavigationBar {
-                bottomNavItems.forEach { item ->
-                    NavigationBarItem(
-                        icon = { Icon(item.icon, contentDescription = item.label) },
-                        label = { Text(item.label) },
-                        selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
-                        onClick = {
-                            navController.navigate(item.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
+            if (showBottomBar) {
+                NavigationBar {
+                    bottomNavItems.forEach { item ->
+                        NavigationBarItem(
+                            icon = { Icon(item.icon, contentDescription = item.label) },
+                            label = { Text(item.label) },
+                            selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
+                            onClick = {
+                                navController.navigate(item.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
                                 }
-                                launchSingleTop = true
-                                restoreState = true
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }
     ) { innerPadding ->
         NavGraph(
             navController = navController,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding),
+            startDestination = startDestination
         )
     }
 }
@@ -80,5 +101,6 @@ data class BottomNavItem(
 val bottomNavItems = listOf(
     BottomNavItem(Screen.Dashboard.route, Icons.Default.Home, "Inicio"),
     BottomNavItem(Screen.Camera.route, Icons.Default.Add, "Cámara"),
-    BottomNavItem(Screen.History.route, Icons.AutoMirrored.Filled.List, "Historial")
+    BottomNavItem(Screen.History.route, Icons.AutoMirrored.Filled.List, "Historial"),
+    BottomNavItem(Screen.Settings.route, Icons.Default.Settings, "Ajustes")
 )

@@ -7,9 +7,11 @@ import com.health.nutritionai.data.remote.api.NutritionApiService
 import com.health.nutritionai.data.remote.interceptor.AuthInterceptor
 import com.health.nutritionai.data.repository.MealRepository
 import com.health.nutritionai.data.repository.UserRepository
+import com.health.nutritionai.ui.auth.AuthViewModel
 import com.health.nutritionai.ui.camera.CameraViewModel
 import com.health.nutritionai.ui.dashboard.DashboardViewModel
 import com.health.nutritionai.ui.history.HistoryViewModel
+import com.health.nutritionai.ui.settings.SettingsViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -45,13 +47,15 @@ val appModule = module {
         ApiClient.create(get())
     }
 
-    // Repositories (ahora con API)
+    // Repositories
     single { MealRepository(get(), get()) }
-    single { UserRepository(androidContext()) }
+    single { UserRepository(androidContext(), get()) }
 
     // ViewModels
+    viewModel { AuthViewModel(get()) }
     viewModel { DashboardViewModel(get()) }
     viewModel { CameraViewModel(get()) }
     viewModel { HistoryViewModel(get()) }
+    viewModel { SettingsViewModel(get()) }
 }
 

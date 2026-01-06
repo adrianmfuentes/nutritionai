@@ -14,11 +14,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.health.nutritionai.ui.dashboard.components.CaloriesCard
 import com.health.nutritionai.ui.dashboard.components.MacroCard
 import com.health.nutritionai.ui.dashboard.components.MealCard
+import com.health.nutritionai.ui.theme.*
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,22 +32,20 @@ fun DashboardScreen(
     val selectedDate by viewModel.selectedDate.collectAsState()
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Nutrición AI") },
-                actions = {
-                    IconButton(onClick = { viewModel.refresh() }) {
-                        Icon(Icons.Default.Refresh, contentDescription = "Actualizar")
-                    }
-                }
-            )
-        },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onNavigateToCamera,
-                containerColor = MaterialTheme.colorScheme.primary
+                containerColor = MaterialTheme.colorScheme.primary,
+                elevation = FloatingActionButtonDefaults.elevation(
+                    defaultElevation = 6.dp,
+                    pressedElevation = 8.dp
+                )
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Agregar comida")
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = "Agregar comida",
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
             }
         }
     ) { padding ->
@@ -58,7 +57,7 @@ fun DashboardScreen(
                         .padding(padding),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
             }
 
@@ -70,14 +69,20 @@ fun DashboardScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         Text(
                             text = (uiState as DashboardUiState.Error).message,
-                            color = MaterialTheme.colorScheme.error
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodyLarge
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(onClick = { viewModel.refresh() }) {
+                        Button(
+                            onClick = { viewModel.refresh() },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary
+                            )
+                        ) {
                             Text("Reintentar")
                         }
                     }
@@ -93,27 +98,41 @@ fun DashboardScreen(
                         .fillMaxSize()
                         .padding(padding),
                     contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
                     // Date Selector
                     item {
-                        Card {
+                        ElevatedCard(
+                            elevation = CardDefaults.elevatedCardElevation(
+                                defaultElevation = 2.dp
+                            )
+                        ) {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(8.dp),
+                                    .padding(12.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 IconButton(onClick = { viewModel.selectPreviousDay() }) {
-                                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Día anterior")
+                                    Icon(
+                                        Icons.AutoMirrored.Filled.ArrowBack,
+                                        contentDescription = "Día anterior",
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
                                 }
                                 Text(
                                     text = selectedDate,
-                                    style = MaterialTheme.typography.titleMedium
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                                 IconButton(onClick = { viewModel.selectNextDay() }) {
-                                    Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Día siguiente")
+                                    Icon(
+                                        Icons.AutoMirrored.Filled.ArrowForward,
+                                        contentDescription = "Día siguiente",
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
                                 }
                             }
                         }
@@ -127,18 +146,28 @@ fun DashboardScreen(
                         )
                     }
 
+                    // Macros Section Title
+                    item {
+                        Text(
+                            text = "Macronutrientes",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
+                    }
+
                     // Macros Grid
                     item {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             MacroCard(
                                 title = "Proteína",
                                 current = nutritionSummary.totals.protein,
                                 goal = nutritionSummary.goals.protein,
                                 unit = "g",
-                                color = Color(0xFF4CAF50),
+                                color = ProteinColor,
                                 modifier = Modifier.weight(1f)
                             )
                             MacroCard(
@@ -146,7 +175,7 @@ fun DashboardScreen(
                                 current = nutritionSummary.totals.carbs,
                                 goal = nutritionSummary.goals.carbs,
                                 unit = "g",
-                                color = Color(0xFF2196F3),
+                                color = CarbsColor,
                                 modifier = Modifier.weight(1f)
                             )
                         }
@@ -158,7 +187,7 @@ fun DashboardScreen(
                             current = nutritionSummary.totals.fat,
                             goal = nutritionSummary.goals.fat,
                             unit = "g",
-                            color = Color(0xFFFF9800),
+                            color = FatColor,
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
@@ -168,21 +197,41 @@ fun DashboardScreen(
                         Text(
                             text = "Comidas de hoy",
                             style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(vertical = 8.dp)
                         )
                     }
 
                     if (nutritionSummary.meals.isEmpty()) {
                         item {
-                            Card(
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text(
-                                    text = "No hay comidas registradas aún.\nToca el botón + para agregar una.",
-                                    modifier = Modifier.padding(24.dp),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                            ElevatedCard(
+                                modifier = Modifier.fillMaxWidth(),
+                                elevation = CardDefaults.elevatedCardElevation(
+                                    defaultElevation = 2.dp
                                 )
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(32.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    Text(
+                                        text = "📸",
+                                        style = MaterialTheme.typography.displayMedium
+                                    )
+                                    Text(
+                                        text = "No hay comidas registradas",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = "Toca el botón + para agregar tu primera comida",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
                             }
                         }
                     } else {
@@ -192,6 +241,11 @@ fun DashboardScreen(
                                 onClick = { /* Navigate to meal detail */ }
                             )
                         }
+                    }
+
+                    // Add bottom spacing for FAB
+                    item {
+                        Spacer(modifier = Modifier.height(64.dp))
                     }
                 }
             }

@@ -186,7 +186,12 @@ export class NutritionController {
       logger.info(`Goals actualizados para usuario: ${userId}`);
 
       res.json({ 
-        goals: result.rows[0],
+        goals: {
+          calories: dailyCalories,
+          protein: proteinGrams,
+          carbs: carbsGrams,
+          fat: fatGrams
+        },
         message: 'Objetivos nutricionales actualizados' 
       });
     } catch (error) {

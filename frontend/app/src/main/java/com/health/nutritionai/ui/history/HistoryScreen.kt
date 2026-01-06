@@ -11,6 +11,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.health.nutritionai.ui.dashboard.components.MealCard
 import org.koin.androidx.compose.koinViewModel
@@ -23,11 +24,6 @@ fun HistoryScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Historial de Comidas") }
-            )
-        }
     ) { padding ->
         when (uiState) {
             is HistoryUiState.Loading -> {
