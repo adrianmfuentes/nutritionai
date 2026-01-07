@@ -2,7 +2,9 @@ package com.health.nutritionai.data.remote.dto
 
 import com.google.gson.annotations.SerializedName
 
-data class AnalyzeMealRequest(
+data class AnalyzeTextRequest(
+    @SerializedName("description")
+    val description: String,
     @SerializedName("mealType")
     val mealType: String?,
     @SerializedName("timestamp")
@@ -34,7 +36,9 @@ data class DetectedFoodDto(
     @SerializedName("nutrition")
     val nutrition: NutritionDto,
     @SerializedName("category")
-    val category: String
+    val category: String,
+    @SerializedName("imageUrl")
+    val imageUrl: String? = null
 )
 
 data class PortionDto(

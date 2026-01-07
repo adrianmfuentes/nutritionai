@@ -5,7 +5,8 @@ data class Food(
     val confidence: Double,
     val portion: Portion,
     val nutrition: Nutrition,
-    val category: String
+    val category: String,
+    val imageUrl: String? = null // Image/logo URL for the food
 )
 
 data class Portion(

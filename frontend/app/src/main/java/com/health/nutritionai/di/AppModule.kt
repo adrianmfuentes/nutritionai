@@ -13,6 +13,7 @@ import com.health.nutritionai.ui.camera.CameraViewModel
 import com.health.nutritionai.ui.dashboard.DashboardViewModel
 import com.health.nutritionai.ui.history.HistoryViewModel
 import com.health.nutritionai.ui.settings.SettingsViewModel
+import com.health.nutritionai.ui.textinput.TextInputViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -64,6 +65,7 @@ val appModule = module {
     viewModel { AuthViewModel(get()) }
     viewModel { DashboardViewModel(get()) }
     viewModel { CameraViewModel(get()) }
+    viewModel { TextInputViewModel(get()) }
     viewModel { HistoryViewModel(get(), get()) }
     viewModel { SettingsViewModel(get()) }
 }
