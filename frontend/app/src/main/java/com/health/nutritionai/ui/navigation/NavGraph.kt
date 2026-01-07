@@ -11,6 +11,7 @@ import com.health.nutritionai.ui.camera.CameraScreen
 import com.health.nutritionai.ui.dashboard.DashboardScreen
 import com.health.nutritionai.ui.history.HistoryScreen
 import com.health.nutritionai.ui.settings.SettingsScreen
+import com.health.nutritionai.ui.textinput.TextInputScreen
 
 @Composable
 fun NavGraph(
@@ -55,12 +56,27 @@ fun NavGraph(
             DashboardScreen(
                 onNavigateToCamera = {
                     navController.navigate(Screen.Camera.route)
+                },
+                onNavigateToTextInput = {
+                    navController.navigate(Screen.TextInput.route)
                 }
             )
         }
 
         composable(Screen.Camera.route) {
             CameraScreen(
+                onMealAnalyzed = {
+                    navController.popBackStack()
+                    navController.navigate(Screen.Dashboard.route)
+                },
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(Screen.TextInput.route) {
+            TextInputScreen(
                 onMealAnalyzed = {
                     navController.popBackStack()
                     navController.navigate(Screen.Dashboard.route)

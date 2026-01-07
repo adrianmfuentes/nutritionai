@@ -3,15 +3,19 @@ package com.health.nutritionai.ui.dashboard
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Create
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -22,19 +26,35 @@ import com.health.nutritionai.ui.dashboard.components.MealCard
 import com.health.nutritionai.ui.theme.*
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
     viewModel: DashboardViewModel = koinViewModel(),
-    onNavigateToCamera: () -> Unit
+    onNavigateToCamera: () -> Unit,
+    onNavigateToTextInput: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val selectedDate by viewModel.selectedDate.collectAsState()
+    var showAddMealDialog by remember { mutableStateOf(false) }
+
+    // Helper function to dismiss dialog and navigate
+    fun dismissAndNavigateToCamera() {
+        showAddMealDialog = false
+        onNavigateToCamera()
+    }
+
+    fun dismissAndNavigateToTextInput() {
+        showAddMealDialog = false
+        onNavigateToTextInput()
+    }
+
+    fun dismissDialog() {
+        showAddMealDialog = false
+    }
 
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
-                onClick = onNavigateToCamera,
+                onClick = { showAddMealDialog = true },
                 containerColor = MaterialTheme.colorScheme.primary,
                 elevation = FloatingActionButtonDefaults.elevation(
                     defaultElevation = 6.dp,
@@ -250,6 +270,111 @@ fun DashboardScreen(
                 }
             }
         }
+    }
+
+    // Add Meal Dialog
+    if (showAddMealDialog) {
+        AlertDialog(
+            onDismissRequest = ::dismissDialog,
+            title = {
+                Text(
+                    "Añadir Comida",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        "¿Cómo quieres añadir tu comida?",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+
+                    // Camera Option
+                    ElevatedCard(
+                        onClick = ::dismissAndNavigateToCamera,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Surface(
+                                modifier = Modifier.size(32.dp),
+                                shape = RoundedCornerShape(8.dp),
+                                color = MaterialTheme.colorScheme.primaryContainer
+                            ) {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "📷",
+                                        style = MaterialTheme.typography.titleLarge
+                                    )
+                                }
+                            }
+                            Column {
+                                Text(
+                                    "Tomar Foto",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    "Captura una imagen de tu comida",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+
+                    // Text Input Option
+                    ElevatedCard(
+                        onClick = ::dismissAndNavigateToTextInput,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                Icons.Default.Create,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.secondary,
+                                modifier = Modifier.size(32.dp)
+                            )
+                            Column {
+                                Text(
+                                    "Descripción",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    "Escribe o graba la descripción",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = ::dismissDialog) {
+                    Text("Cancelar")
+                }
+            }
+        )
     }
 }
 

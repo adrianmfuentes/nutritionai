@@ -9,9 +9,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.health.nutritionai.ui.dashboard.components.MealCard
+import com.health.nutritionai.ui.history.components.DetailedMealCard
 import com.health.nutritionai.util.UserFeedback
 import org.koin.androidx.compose.koinViewModel
 
@@ -134,14 +133,8 @@ fun HistoryScreen(
                                 },
                                 enableDismissFromStartToEnd = false
                             ) {
-                                MealCard(
-                                    meal = com.health.nutritionai.data.model.MealSummary(
-                                        mealId = meal.mealId,
-                                        mealType = meal.mealType ?: "comida",
-                                        imageUrl = meal.imageUrl,
-                                        totalCalories = meal.totalNutrition.calories,
-                                        timestamp = meal.timestamp
-                                    ),
+                                DetailedMealCard(
+                                    meal = meal,
                                     onClick = { /* Navigate to meal detail */ }
                                 )
                             }

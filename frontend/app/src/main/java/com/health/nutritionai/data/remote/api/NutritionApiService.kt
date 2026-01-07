@@ -23,6 +23,11 @@ interface NutritionApiService {
         @Part("timestamp") timestamp: RequestBody?
     ): AnalyzeMealResponse
 
+    @POST("meals/analyze-text")
+    suspend fun analyzeTextDescription(
+        @Body request: AnalyzeTextRequest
+    ): AnalyzeMealResponse
+
     // Meal Management
     @GET("meals")
     suspend fun getMeals(
@@ -31,14 +36,6 @@ interface NutritionApiService {
         @Query("offset") offset: Int? = null
     ): MealsListResponse
 
-    @GET("meals/{mealId}")
-    suspend fun getMealById(@Path("mealId") mealId: String): MealDetailResponse
-
-    @PATCH("meals/{mealId}")
-    suspend fun updateMeal(
-        @Path("mealId") mealId: String,
-        @Body request: UpdateMealRequest
-    ): MealDetailResponse
 
     @DELETE("meals/{mealId}")
     suspend fun deleteMeal(@Path("mealId") mealId: String): DeleteResponse
@@ -71,14 +68,6 @@ data class PaginationDto(
     val page: Int
 )
 
-data class MealDetailResponse(
-    val meal: AnalyzeMealResponse
-)
-
-data class UpdateMealRequest(
-    val foods: List<DetectedFoodDto>?,
-    val notes: String?
-)
 
 data class DeleteResponse(
     val success: Boolean

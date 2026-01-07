@@ -30,6 +30,7 @@ data class FoodEntity(
     val carbs: Double,
     val fat: Double,
     val fiber: Double?,
-    val category: String
+    val category: String,
+    val imageUrl: String? = null // Image/logo URL for the food
 )
 

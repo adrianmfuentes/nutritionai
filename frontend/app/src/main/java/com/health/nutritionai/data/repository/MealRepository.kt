@@ -31,12 +31,6 @@ class MealRepository(
         }
     }
 
-    fun getMealsByDate(userId: String, date: String): Flow<List<Meal>> {
-        return mealDao.getMealsByDate(userId, date).map { entities ->
-            entities.map { it.toMeal() }
-        }
-    }
-
     suspend fun analyzeMeal(imageFile: File, mealType: String? = null): NetworkResult<Meal> {
         return try {
             val requestFile = imageFile.asRequestBody("image/*".toMediaTypeOrNull())
@@ -60,7 +54,8 @@ class MealRepository(
                             fat = food.nutrition.fat,
                             fiber = food.nutrition.fiber ?: 0.0
                         ),
-                        category = food.category
+                        category = food.category,
+                        imageUrl = food.imageUrl
                     )
                 },
                 totalNutrition = Nutrition(
@@ -91,15 +86,19 @@ class MealRepository(
         }
     }
 
-    suspend fun getMealById(mealId: String): NetworkResult<Meal> {
+    suspend fun analyzeTextDescription(description: String, mealType: String? = null): NetworkResult<Meal> {
         return try {
-            // Try network first for fresh data
-            val response = apiService.getMealById(mealId)
-            val analyzeResponse = response.meal
-            
+            val response = apiService.analyzeTextDescription(
+                request = com.health.nutritionai.data.remote.dto.AnalyzeTextRequest(
+                    description = description,
+                    mealType = mealType,
+                    timestamp = System.currentTimeMillis().toString()
+                )
+            )
+
             val meal = Meal(
-                mealId = analyzeResponse.mealId,
-                detectedFoods = analyzeResponse.detectedFoods.map { food ->
+                mealId = response.mealId,
+                detectedFoods = response.detectedFoods.map { food ->
                     Food(
                         name = food.name,
                         confidence = food.confidence,
@@ -111,41 +110,38 @@ class MealRepository(
                             fat = food.nutrition.fat,
                             fiber = food.nutrition.fiber ?: 0.0
                         ),
-                        category = food.category
+                        category = food.category,
+                        imageUrl = food.imageUrl
                     )
                 },
                 totalNutrition = Nutrition(
-                    calories = analyzeResponse.totalNutrition.calories,
-                    protein = analyzeResponse.totalNutrition.protein,
-                    carbs = analyzeResponse.totalNutrition.carbs,
-                    fat = analyzeResponse.totalNutrition.fat,
-                    fiber = analyzeResponse.totalNutrition.fiber ?: 0.0
+                    calories = response.totalNutrition.calories,
+                    protein = response.totalNutrition.protein,
+                    carbs = response.totalNutrition.carbs,
+                    fat = response.totalNutrition.fat,
+                    fiber = response.totalNutrition.fiber ?: 0.0
                 ),
-                imageUrl = analyzeResponse.imageUrl,
-                timestamp = analyzeResponse.timestamp,
-                mealType = analyzeResponse.mealContext?.estimatedMealType ?: "unknown",
-                healthScore = analyzeResponse.mealContext?.healthScore ?: 0.0,
-                notes = null
+                imageUrl = response.imageUrl,
+                timestamp = response.timestamp,
+                mealType = response.mealContext?.estimatedMealType ?: mealType ?: "unknown",
+                healthScore = response.mealContext?.healthScore ?: 0.0,
+                notes = description // Save the text description as notes
             )
-            
-            // Update local cache with actual user ID
+
+            // Save locally with actual user ID
             val userId = userRepository.getUserId()
             saveMealLocally(meal, userId)
 
             NetworkResult.Success(meal)
         } catch (e: Exception) {
-            // Fallback to local
-            try {
-               val localMeal = mealDao.getMealById(mealId)
-               if (localMeal != null) {
-                   return NetworkResult.Success(localMeal.toMeal())
-               }
-            } catch (localEx: Exception) {
-               // Ignore
-            }
-            NetworkResult.Error(e.message ?: "Error al obtener la comida")
+            val userFriendlyMessage = com.health.nutritionai.util.ErrorMapper.mapErrorToMessage(
+                e,
+                com.health.nutritionai.util.ErrorContext.MEAL_ANALYSIS
+            )
+            NetworkResult.Error(userFriendlyMessage)
         }
     }
+
 
     suspend fun deleteMeal(mealId: String): NetworkResult<Boolean> {
         return try {
@@ -225,7 +221,8 @@ class MealRepository(
                 carbs = food.nutrition.carbs,
                 fat = food.nutrition.fat,
                 fiber = food.nutrition.fiber,
-                category = food.category
+                category = food.category,
+                imageUrl = food.imageUrl
             )
         }
 
@@ -233,9 +230,9 @@ class MealRepository(
     }
 
     // Extension functions for mapping
-    private fun MealEntity.toMeal() = Meal(
+    private fun MealEntity.toMeal(detectedFoods: List<Food> = emptyList()) = Meal(
         mealId = mealId,
-        detectedFoods = emptyList(), // Would need to fetch foods separately
+        detectedFoods = detectedFoods,
         totalNutrition = Nutrition(
             calories = totalCalories,
             protein = totalProtein,
