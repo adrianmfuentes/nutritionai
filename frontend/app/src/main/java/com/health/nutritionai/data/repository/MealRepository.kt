@@ -164,21 +164,28 @@ class MealRepository(
     suspend fun refreshMeals(userId: String) {
         try {
             val response = apiService.getMeals()
-            val meals = response.meals.map { summary ->
-                MealEntity(
-                    mealId = summary.mealId,
-                    userId = userId,
-                    mealType = summary.mealType,
-                    imageUrl = summary.imageUrl,
-                    notes = null,
-                    totalCalories = summary.totalCalories,
-                    totalProtein = 0.0, 
-                    totalCarbs = 0.0,
-                    totalFat = 0.0,
-                    totalFiber = 0.0,
-                    healthScore = 0.0,
-                    timestamp = summary.timestamp
-                )
+            val meals = response.meals.mapNotNull { summary ->
+                // Filter out meals with null required fields
+                if (summary.mealId != null && summary.mealType != null &&
+                    summary.imageUrl != null && summary.totalCalories != null &&
+                    summary.timestamp != null) {
+                    MealEntity(
+                        mealId = summary.mealId,
+                        userId = userId,
+                        mealType = summary.mealType,
+                        imageUrl = summary.imageUrl,
+                        notes = null,
+                        totalCalories = summary.totalCalories,
+                        totalProtein = 0.0,
+                        totalCarbs = 0.0,
+                        totalFat = 0.0,
+                        totalFiber = 0.0,
+                        healthScore = 0.0,
+                        timestamp = summary.timestamp
+                    )
+                } else {
+                    null // Skip meals with missing data
+                }
             }
             mealDao.insertMeals(meals)
         } catch (e: Exception) {

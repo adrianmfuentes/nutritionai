@@ -39,15 +39,15 @@ data class NutritionProgressDto(
 
 data class MealSummaryDto(
     @SerializedName("mealId")
-    val mealId: String,
+    val mealId: String?,
     @SerializedName("mealType")
-    val mealType: String,
+    val mealType: String?,
     @SerializedName("imageUrl")
-    val imageUrl: String,
+    val imageUrl: String?,
     @SerializedName("totalCalories")
-    val totalCalories: Int,
+    val totalCalories: Int?,
     @SerializedName("timestamp")
-    val timestamp: String
+    val timestamp: String?
 )
 
 data class WeeklyNutritionResponse(

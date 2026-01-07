@@ -1,5 +1,5 @@
 // src/services/vision.service.ts
-import Groq from 'groq-sdk';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import fs from 'fs/promises';
 import path from 'path';
 import { logger } from '../utils/logger';
@@ -42,7 +42,7 @@ FORMATO DE SALIDA (JSON estricto):
     "fiber": 5
   },
   "mealContext": {
-    "estimatedMealType": "lunch",
+    "estimatedMealType": "breakfast|lunch|dinner|snack",
     "portionSize": "medium",
     "healthScore": 7.5
   },
@@ -70,12 +70,10 @@ BASE DE DATOS DE ALIMENTOS COMUNES (referencia):
 - Plátano (1 mediano ~120g): 105 cal, 1.3g proteína, 27g carbos, 0.4g grasa`;
 
 export class VisionService {
-  private client: Groq;
+  private genAI: GoogleGenerativeAI;
 
   constructor() {
-    this.client = new Groq({
-      apiKey: config.ai.groqApiKey,
-    });
+    this.genAI = new GoogleGenerativeAI(config.ai.geminiApiKey);
   }
 
   async analyzeMealImage(imagePath: string): Promise<VisionAnalysisResult> {
@@ -87,54 +85,47 @@ export class VisionService {
       const ext = path.extname(imagePath).toLowerCase();
       const mediaType = ext === '.png' ? 'image/png' : 'image/jpeg';
 
-      const completion = await this.client.chat.completions.create({
-        model: 'meta-llama/llama-4-scout-17b-16e-instruct',
-        messages: [
-          {
-            role: 'system',
-            content: VISION_SYSTEM_PROMPT,
-          },
-          {
-            role: 'user',
-            content: [
-              {
-                type: 'text',
-                text: 'Analiza esta imagen de comida y proporciona información nutricional siguiendo el formato especificado.',
-              },
-              {
-                type: 'image_url',
-                image_url: {
-                  url: `data:${mediaType};base64,${base64Image}`,
-                },
-              },
-            ],
-          },
-        ],
-        temperature: 0.3,
-        max_tokens: 2000,
-        top_p: 1,
-      });
+      const model = this.genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
 
-      const responseText = completion.choices[0]?.message?.content;
+      const prompt = `${VISION_SYSTEM_PROMPT}\n\nAnaliza esta imagen de comida y proporciona información nutricional siguiendo el formato especificado.`;
+
+      const imagePart = {
+        inlineData: {
+          data: base64Image,
+          mimeType: mediaType,
+        },
+      };
+
+      const geminiResult = await model.generateContent([prompt, imagePart]);
+      const response = await geminiResult.response;
+      const responseText = response.text();
+      
       if (!responseText) {
         throw new Error('No se recibió respuesta del modelo');
       }
 
       // Parsear JSON
+      let jsonStr = responseText;
       const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        logger.error('No se encontró JSON en la respuesta:', responseText);
-        throw new Error('Formato de respuesta inválido');
+      if (jsonMatch) {
+        jsonStr = jsonMatch[0];
       }
-
-      const result: VisionAnalysisResult = JSON.parse(jsonMatch[0]);
+      
+      let analysisResult: VisionAnalysisResult;
+      try {
+        analysisResult = JSON.parse(jsonStr);
+      } catch (e) {
+        logger.error('Error parseando JSON:', { text: responseText, error: e });
+        // Intento de recuperación básica o re-lanzar
+        throw new Error('Formato de respuesta inválido (JSON malformado)');
+      }
       
       // Validar estructura básica
-      if (!result.foods || !Array.isArray(result.foods)) {
-        throw new Error('Respuesta sin alimentos detectados');
+      if (!analysisResult.foods || !Array.isArray(analysisResult.foods)) {
+        throw new Error('Respuesta del modelo incompleta (sin array de alimentos)');
       }
 
-      return result;
+      return analysisResult;
     } catch (error) {
       logger.error('Error en análisis de visión:', error);
       throw new Error('Error al analizar la imagen de comida');

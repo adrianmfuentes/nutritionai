@@ -19,14 +19,21 @@ class NutritionRepository(
                 totals = response.totals.toNutrition(),
                 goals = response.goals.toGoals(),
                 progress = response.progress.toProgress(),
-                meals = response.meals.map { meal ->
-                    MealSummary(
-                        mealId = meal.mealId,
-                        mealType = meal.mealType,
-                        imageUrl = meal.imageUrl,
-                        totalCalories = meal.totalCalories,
-                        timestamp = meal.timestamp
-                    )
+                meals = response.meals.mapNotNull { meal ->
+                    // Filter out meals with null required fields
+                    if (meal.mealId != null && meal.mealType != null &&
+                        meal.imageUrl != null && meal.totalCalories != null &&
+                        meal.timestamp != null) {
+                        MealSummary(
+                            mealId = meal.mealId,
+                            mealType = meal.mealType,
+                            imageUrl = meal.imageUrl,
+                            totalCalories = meal.totalCalories,
+                            timestamp = meal.timestamp
+                        )
+                    } else {
+                        null // Skip meals with missing data
+                    }
                 }
             )
             NetworkResult.Success(summary)

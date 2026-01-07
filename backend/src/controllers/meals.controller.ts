@@ -62,6 +62,13 @@ export class MealsController {
 
       const mealDate = consumedAt.toISOString().split('T')[0];
 
+      // Sanitize meal type
+      const validMealTypes = ['breakfast', 'lunch', 'dinner', 'snack'];
+      const sanitizeMealType = (type: string) => {
+        const lowerType = (type || '').toLowerCase();
+        return validMealTypes.includes(lowerType) ? lowerType : 'snack';
+      };
+
       // Insertar meal
       const mealResult = await client.query(
         `INSERT INTO meals (
@@ -71,7 +78,7 @@ export class MealsController {
         RETURNING *`,
         [
           userId,
-          mealType || analysis.mealContext.estimatedMealType,
+          sanitizeMealType(mealType || analysis.mealContext.estimatedMealType),
           imageUrl,
           analysis.totalNutrition.calories,
           analysis.totalNutrition.protein,
@@ -87,12 +94,14 @@ export class MealsController {
       const meal = mealResult.rows[0];
 
 
-      // Helper function to validate category
+      // Sanitize functions
       const validCategories = ['protein', 'carb', 'vegetable', 'fruit', 'dairy', 'fat', 'mixed'];
       const sanitizeCategory = (category: string) => {
-        const lowerCat = category.toLowerCase();
+        const lowerCat = (category || 'mixed').toLowerCase();
         return validCategories.includes(lowerCat) ? lowerCat : 'mixed';
       };
+      const clampConfidence = (conf: number) => Math.max(0, Math.min(1, conf));
+      const clampPortion = (amount: number) => Math.max(0, Math.min(9999.99, amount));
 
       // Insertar detected foods
       const foodInsertPromises = analysis.foods.map((food) =>
@@ -105,8 +114,8 @@ export class MealsController {
           [
             meal.id,
             food.name,
-            food.confidence,
-            food.portion.amount,
+            clampConfidence(food.confidence),
+            clampPortion(food.portion.amount),
             food.portion.unit,
             food.nutrition.calories,
             food.nutrition.protein,

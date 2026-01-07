@@ -21,7 +21,7 @@ export const config = {
   },
   
   ai: {
-    groqApiKey: process.env.GROQ_API_KEY || '',
+    geminiApiKey: process.env.GEMINI_API_KEY || '',
   },
   
   storage: {
