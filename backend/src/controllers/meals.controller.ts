@@ -150,15 +150,18 @@ export class MealsController {
             fat: parseFloat(food.fat),
             fiber: food.fiber ? parseFloat(food.fiber) : undefined,
           },
+          category: food.category,
         })),
         totalNutrition: {
           calories: meal.total_calories,
           protein: parseFloat(meal.total_protein),
           carbs: parseFloat(meal.total_carbs),
           fat: parseFloat(meal.total_fat),
+          fiber: meal.total_fiber ? parseFloat(meal.total_fiber) : undefined,
         },
         imageUrl: meal.image_url,
         timestamp: meal.consumed_at,
+        mealContext: analysis.mealContext,
         notes: analysis.notes,
       });
     } catch (error) {

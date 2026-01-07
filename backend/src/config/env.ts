@@ -43,3 +43,31 @@ export const config = {
     path: process.env.LOG_PATH || './logs',
   },
 };
+
+import { logger } from '../utils/logger';
+
+export function validateConfig() {
+  const errors: string[] = [];
+
+  if (!config.ai.geminiApiKey) {
+    errors.push('Falta GEMINI_API_KEY o ANTHROPIC_API_KEY');
+  }
+
+  if (!config.database.host) errors.push('Falta DB_HOST');
+  if (!config.database.name) errors.push('Falta DB_NAME');
+  if (!config.database.user) errors.push('Falta DB_USER');
+  if (!config.database.password) errors.push('Falta DB_PASSWORD');
+  if (!config.jwt.secret) errors.push('Falta JWT_SECRET');
+
+  if (errors.length > 0) {
+    logger.error('❌ Errores de configuración:', errors);
+    throw new Error(`Configuración inválida: ${errors.join(', ')}`);
+  }
+
+  logger.info('✅ Configuración validada correctamente');
+  logger.info(`🤖 Proveedor de IA: ${config.ai.geminiApiKey ? 'Google Gemini' : 'Anthropic Claude'}`);
+  
+  if (config.ai.geminiApiKey) {
+    logger.info(`🔑 Google API Key: ${config.ai.geminiApiKey.substring(0, 10)}...`);
+  }
+}

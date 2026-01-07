@@ -85,7 +85,7 @@ export class VisionService {
       const ext = path.extname(imagePath).toLowerCase();
       const mediaType = ext === '.png' ? 'image/png' : 'image/jpeg';
 
-      const model = this.genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+      const model = this.genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
 
       const prompt = `${VISION_SYSTEM_PROMPT}\n\nAnaliza esta imagen de comida y proporciona información nutricional siguiendo el formato especificado.`;
 

@@ -2,6 +2,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+import { validateConfig } from './config/env';
 import { createApp } from './app';
 import { pool } from './config/database';
 import { logger } from './utils/logger';
@@ -10,6 +11,9 @@ const PORT = parseInt(process.env.PORT || '3000', 10);
 
 async function startServer() {
   try {
+    // VALIDAR CONFIGURACIÓN PRIMERO
+    validateConfig();
+
     // Verificar conexión a base de datos
     const client = await pool.connect();
     logger.info('✅ Conexión a PostgreSQL exitosa');
