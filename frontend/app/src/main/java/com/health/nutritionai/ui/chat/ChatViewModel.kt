@@ -21,7 +21,7 @@ import java.util.UUID
 
 sealed class ChatUiState {
     data object Loading : ChatUiState()
-    data class Success(val messages: List<ChatMessage>) : ChatUiState()
+    data class Success(val messages: List<ChatMessage>, val isProcessing: Boolean = false) : ChatUiState()
     data class Error(val message: String) : ChatUiState()
 }
 
@@ -57,9 +57,9 @@ class ChatViewModel(
             // Agregar mensaje del usuario
             val userMsg = ChatMessage(role = "user", content = userMessage)
             conversationHistory.add(userMsg)
-            _uiState.value = ChatUiState.Success(conversationHistory.toList())
 
-            _uiState.value = ChatUiState.Loading
+            // Mostrar los mensajes con indicador de procesamiento
+            _uiState.value = ChatUiState.Success(conversationHistory.toList(), isProcessing = true)
 
             try {
                 val request = ChatRequest(
@@ -78,7 +78,7 @@ class ChatViewModel(
                     registerMealFromChat(response.mealData)
                 }
 
-                _uiState.value = ChatUiState.Success(conversationHistory.toList())
+                _uiState.value = ChatUiState.Success(conversationHistory.toList(), isProcessing = false)
             } catch (e: Exception) {
                 val errorMessage = ErrorMapper.mapErrorToMessage(e, ErrorContext.MEAL_ANALYSIS)
                 conversationHistory.add(
@@ -87,7 +87,7 @@ class ChatViewModel(
                         content = "Lo siento, tuve un problema procesando tu mensaje. Por favor, intenta de nuevo."
                     )
                 )
-                _uiState.value = ChatUiState.Success(conversationHistory.toList())
+                _uiState.value = ChatUiState.Success(conversationHistory.toList(), isProcessing = false)
                 _feedback.value = UserFeedback.Error(errorMessage)
             }
         }

@@ -2,10 +2,15 @@ package com.health.nutritionai.data.local.dao
 
 import androidx.room.*
 import com.health.nutritionai.data.local.entity.MealEntity
+import com.health.nutritionai.data.local.entity.MealWithFoods
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MealDao {
+
+    @Transaction
+    @Query("SELECT * FROM meals WHERE userId = :userId ORDER BY timestamp DESC")
+    fun getAllMealsWithFoods(userId: String): Flow<List<MealWithFoods>>
 
     @Query("SELECT * FROM meals WHERE userId = :userId ORDER BY timestamp DESC")
     fun getAllMeals(userId: String): Flow<List<MealEntity>>

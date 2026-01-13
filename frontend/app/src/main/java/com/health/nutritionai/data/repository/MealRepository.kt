@@ -26,8 +26,8 @@ class MealRepository(
     // Mock goals for offline mode (removed mock data)
     
     fun getAllMeals(userId: String): Flow<List<Meal>> {
-        return mealDao.getAllMeals(userId).map { entities ->
-            entities.map { it.toMeal() }
+        return mealDao.getAllMealsWithFoods(userId).map { mealsWithFoods ->
+            mealsWithFoods.map { it.toMeal() }
         }
     }
 
@@ -235,21 +235,37 @@ class MealRepository(
     }
 
     // Extension functions for mapping
-    private fun MealEntity.toMeal(detectedFoods: List<Food> = emptyList()) = Meal(
-        mealId = mealId,
-        detectedFoods = detectedFoods,
+
+    private fun com.health.nutritionai.data.local.entity.MealWithFoods.toMeal() = Meal(
+        mealId = meal.mealId,
+        detectedFoods = foods.map { it.toFood() },
         totalNutrition = Nutrition(
-            calories = totalCalories,
-            protein = totalProtein,
-            carbs = totalCarbs,
-            fat = totalFat,
-            fiber = totalFiber
+            calories = meal.totalCalories,
+            protein = meal.totalProtein,
+            carbs = meal.totalCarbs,
+            fat = meal.totalFat,
+            fiber = meal.totalFiber
         ),
-        imageUrl = imageUrl,
-        timestamp = timestamp,
-        mealType = mealType,
-        notes = notes,
-        healthScore = healthScore
+        imageUrl = meal.imageUrl,
+        timestamp = meal.timestamp,
+        mealType = meal.mealType,
+        notes = meal.notes,
+        healthScore = meal.healthScore
+    )
+
+    private fun FoodEntity.toFood() = Food(
+        name = name,
+        confidence = confidence,
+        portion = Portion(portionAmount, portionUnit),
+        nutrition = Nutrition(
+            calories = calories,
+            protein = protein,
+            carbs = carbs,
+            fat = fat,
+            fiber = fiber
+        ),
+        category = category,
+        imageUrl = imageUrl
     )
 }
 

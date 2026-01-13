@@ -158,7 +158,7 @@ fun ChatScreen(
                         modifier = Modifier.weight(1f),
                         placeholder = { Text("Escribe tu comida...") },
                         singleLine = true,
-                        enabled = uiState !is ChatUiState.Loading
+                        enabled = (uiState as? ChatUiState.Success)?.isProcessing != true
                     )
 
                     Spacer(modifier = Modifier.width(8.dp))
@@ -171,12 +171,13 @@ fun ChatScreen(
                                 userInput = ""
                             }
                         },
-                        enabled = userInput.isNotBlank() && uiState !is ChatUiState.Loading
+                        enabled = userInput.isNotBlank() && (uiState as? ChatUiState.Success)?.isProcessing != true
                     ) {
                         Icon(
                             Icons.AutoMirrored.Filled.Send,
                             contentDescription = "Enviar",
-                            tint = if (userInput.isNotBlank()) MaterialTheme.colorScheme.primary
+                            tint = if (userInput.isNotBlank() && (uiState as? ChatUiState.Success)?.isProcessing != true)
+                                MaterialTheme.colorScheme.primary
                             else MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -229,6 +230,47 @@ fun ChatScreen(
                             }
 
                             // Loading indicator at the bottom when processing
+                            if (state.isProcessing) {
+                                item {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 8.dp),
+                                        horizontalArrangement = Arrangement.Start
+                                    ) {
+                                        Card(
+                                            modifier = Modifier.widthIn(max = 100.dp),
+                                            shape = RoundedCornerShape(
+                                                topStart = 16.dp,
+                                                topEnd = 16.dp,
+                                                bottomStart = 4.dp,
+                                                bottomEnd = 16.dp
+                                            ),
+                                            colors = CardDefaults.cardColors(
+                                                containerColor = MaterialTheme.colorScheme.secondaryContainer
+                                            )
+                                        ) {
+                                            Row(
+                                                modifier = Modifier.padding(12.dp),
+                                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                CircularProgressIndicator(
+                                                    modifier = Modifier.size(16.dp),
+                                                    strokeWidth = 2.dp,
+                                                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                                                )
+                                                Spacer(modifier = Modifier.width(4.dp))
+                                                Text(
+                                                    text = "...",
+                                                    style = MaterialTheme.typography.bodyMedium,
+                                                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
