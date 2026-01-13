@@ -100,7 +100,7 @@ dependencies {
     // Testing
     testImplementation(libs.junit)
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
-    testImplementation("io.mockk:mockk:1.13.13")
+    testImplementation("io.mockk:mockk:1.14.7")
     testImplementation("app.cash.turbine:turbine:1.2.1")
     testImplementation("org.robolectric:robolectric:4.16")
     androidTestImplementation(libs.androidx.junit)
