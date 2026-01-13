@@ -1,9 +1,11 @@
 package com.health.nutritionai.ui.history.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -12,6 +14,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -20,6 +25,7 @@ import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
 import com.health.nutritionai.data.model.Food
 import com.health.nutritionai.data.model.Meal
+import com.health.nutritionai.ui.theme.*
 import java.util.Locale
 
 @Composable
@@ -28,12 +34,20 @@ fun DetailedMealCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    ElevatedCard(
+    val mealEmoji = getMealEmoji(meal.mealType)
+
+    Card(
         onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
-        elevation = CardDefaults.elevatedCardElevation(
-            defaultElevation = 3.dp,
-            pressedElevation = 6.dp
+        modifier = modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation = 8.dp,
+                shape = RoundedCornerShape(20.dp),
+                spotColor = Primary.copy(alpha = 0.15f)
+            ),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
         )
     ) {
         Column(
@@ -47,42 +61,74 @@ fun DetailedMealCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = meal.mealType?.replaceFirstChar { it.uppercase() } ?: "Comida",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Surface(
+                        modifier = Modifier.size(44.dp),
+                        shape = CircleShape,
+                        color = Primary.copy(alpha = 0.1f)
+                    ) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            Text(
+                                text = mealEmoji,
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column {
+                        Text(
+                            text = meal.mealType?.replaceFirstChar { it.uppercase() } ?: "Comida",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = formatTimestamp(meal.timestamp),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
 
                 Surface(
-                    color = MaterialTheme.colorScheme.primary,
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    color = CaloriesColor.copy(alpha = 0.1f)
                 ) {
-                    Text(
-                        text = "${meal.totalNutrition.calories} kcal",
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                    )
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "🔥",
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "${meal.totalNutrition.calories}",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = CaloriesColor
+                        )
+                        Text(
+                            text = " kcal",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
-
-            // Timestamp
-            Text(
-                text = formatTimestamp(meal.timestamp),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
             if (meal.detectedFoods.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // Detected Foods List
                 LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     items(meal.detectedFoods) { food ->
@@ -93,19 +139,46 @@ fun DetailedMealCard(
 
             // Meal image if available
             if (!meal.imageUrl.isNullOrEmpty()) {
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                AsyncImage(
-                    model = meal.imageUrl,
-                    contentDescription = "Imagen de la comida",
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(150.dp)
-                        .clip(RoundedCornerShape(12.dp)),
-                    contentScale = ContentScale.Crop
-                )
+                        .height(160.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                ) {
+                    AsyncImage(
+                        model = meal.imageUrl,
+                        contentDescription = "Imagen de la comida",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                    // Subtle gradient overlay
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color.Transparent,
+                                        Color.Black.copy(alpha = 0.2f)
+                                    )
+                                )
+                            )
+                    )
+                }
             }
         }
+    }
+}
+
+private fun getMealEmoji(mealType: String?): String {
+    return when (mealType?.lowercase()) {
+        "breakfast", "desayuno" -> "🥐"
+        "lunch", "almuerzo", "comida" -> "🍱"
+        "dinner", "cena" -> "🍽️"
+        "snack", "merienda", "snacks" -> "🍎"
+        else -> "🍴"
     }
 }
 
@@ -118,14 +191,15 @@ private fun FoodItem(
 
     Card(
         modifier = modifier
-            .width(140.dp)
+            .width(130.dp)
             .clickable { showDialog.value = true },
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
         )
     ) {
         Column(
-            modifier = Modifier.padding(8.dp),
+            modifier = Modifier.padding(10.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Food image or icon
@@ -134,16 +208,16 @@ private fun FoodItem(
                     model = food.imageUrl,
                     contentDescription = food.name,
                     modifier = Modifier
-                        .size(60.dp)
-                        .clip(RoundedCornerShape(8.dp)),
+                        .size(56.dp)
+                        .clip(RoundedCornerShape(12.dp)),
                     contentScale = ContentScale.Crop
                 )
             } else {
                 Surface(
                     modifier = Modifier
-                        .size(60.dp)
-                        .clip(RoundedCornerShape(8.dp)),
-                    color = MaterialTheme.colorScheme.primaryContainer
+                        .size(56.dp)
+                        .clip(RoundedCornerShape(12.dp)),
+                    color = Primary.copy(alpha = 0.15f)
                 ) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
@@ -356,7 +430,7 @@ private fun MacroRow(
     label: String,
     value: String,
     unit: String,
-    color: androidx.compose.ui.graphics.Color
+    color: Color
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
