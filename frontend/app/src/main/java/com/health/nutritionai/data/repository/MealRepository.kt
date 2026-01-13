@@ -156,7 +156,31 @@ class MealRepository(
             NetworkResult.Error(userFriendlyMessage)
         }
     }
-    
+
+    suspend fun updateMeal(meal: Meal): NetworkResult<Boolean> {
+        return try {
+            val userId = userRepository.getUserId()
+            val mealEntity = MealEntity(
+                mealId = meal.mealId,
+                userId = userId,
+                mealType = meal.mealType,
+                imageUrl = meal.imageUrl,
+                notes = meal.notes,
+                totalCalories = meal.totalNutrition.calories,
+                totalProtein = meal.totalNutrition.protein,
+                totalCarbs = meal.totalNutrition.carbs,
+                totalFat = meal.totalNutrition.fat,
+                totalFiber = meal.totalNutrition.fiber,
+                healthScore = meal.healthScore,
+                timestamp = meal.timestamp
+            )
+            mealDao.updateMeal(mealEntity)
+            NetworkResult.Success(true)
+        } catch (e: Exception) {
+            NetworkResult.Error("Error al actualizar la comida")
+        }
+    }
+
     suspend fun refreshMeals(userId: String) {
         try {
             val response = apiService.getMeals()

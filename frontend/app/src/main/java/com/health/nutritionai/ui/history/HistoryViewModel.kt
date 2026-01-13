@@ -71,6 +71,25 @@ class HistoryViewModel(
         }
     }
 
+    fun updateMeal(meal: Meal) {
+        viewModelScope.launch {
+            when (val result = mealRepository.updateMeal(meal)) {
+                is NetworkResult.Success -> {
+                    _feedback.value = UserFeedback.Success(
+                        "Comida actualizada correctamente"
+                    )
+                }
+                is NetworkResult.Error -> {
+                    _feedback.value = UserFeedback.Error(
+                        result.message ?: "Error al actualizar la comida"
+                    )
+                }
+                else -> {}
+            }
+            // The Flow will automatically update
+        }
+    }
+
     fun refresh() {
         loadMeals()
     }

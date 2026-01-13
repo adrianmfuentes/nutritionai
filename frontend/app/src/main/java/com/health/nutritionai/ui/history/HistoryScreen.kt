@@ -1,16 +1,17 @@
 package com.health.nutritionai.ui.history
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.health.nutritionai.data.model.Meal
 import com.health.nutritionai.ui.history.components.DetailedMealCard
+import com.health.nutritionai.ui.history.components.MealDetailDialog
 import com.health.nutritionai.util.UserFeedback
 import org.koin.androidx.compose.koinViewModel
 
@@ -22,6 +23,15 @@ fun HistoryScreen(
     val uiState by viewModel.uiState.collectAsState()
     val feedback by viewModel.feedback.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    var selectedMeal by remember { mutableStateOf<Meal?>(null) }
+
+    // Show meal detail dialog
+    selectedMeal?.let { meal ->
+        MealDetailDialog(
+            meal = meal,
+            onDismiss = { selectedMeal = null }
+        )
+    }
 
     // Show feedback messages
     LaunchedEffect(feedback) {
@@ -98,46 +108,22 @@ fun HistoryScreen(
                         )
                     }
                 } else {
-                    LazyColumn(
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(padding),
                         contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        items(meals) { meal ->
-                            SwipeToDismissBox(
-                                state = rememberSwipeToDismissBoxState(
-                                    confirmValueChange = { dismissValue ->
-                                        if (dismissValue == SwipeToDismissBoxValue.EndToStart) {
-                                            viewModel.deleteMeal(meal.mealId)
-                                            true
-                                        } else {
-                                            false
-                                        }
-                                    }
-                                ),
-                                backgroundContent = {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .padding(horizontal = 16.dp),
-                                        contentAlignment = Alignment.CenterEnd
-                                    ) {
-                                        Icon(
-                                            Icons.Default.Delete,
-                                            contentDescription = "Eliminar",
-                                            tint = MaterialTheme.colorScheme.error
-                                        )
-                                    }
-                                },
-                                enableDismissFromStartToEnd = false
-                            ) {
-                                DetailedMealCard(
-                                    meal = meal,
-                                    onClick = { /* Navigate to meal detail */ }
-                                )
-                            }
+                        items(meals, key = { it.mealId }) { meal ->
+                            DetailedMealCard(
+                                meal = meal,
+                                onClick = { selectedMeal = meal },
+                                onDelete = { viewModel.deleteMeal(meal.mealId) },
+                                onEdit = { updatedMeal -> viewModel.updateMeal(updatedMeal) }
+                            )
                         }
                     }
                 }
