@@ -131,4 +131,141 @@ export class VisionService {
       throw new Error('Error al analizar la imagen de comida');
     }
   }
+
+  async analyzeTextDescription(description: string): Promise<VisionAnalysisResult> {
+    try {
+      const TEXT_ANALYSIS_PROMPT = `${VISION_SYSTEM_PROMPT}
+
+DESCRIPCIÓN DE COMIDA: "${description}"
+
+Analiza esta descripción de comida y proporciona información nutricional siguiendo el formato especificado. Estima cantidades razonables basándote en porciones típicas.`;
+
+      const model = this.genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
+
+      const geminiResult = await model.generateContent(TEXT_ANALYSIS_PROMPT);
+      const response = await geminiResult.response;
+      const responseText = response.text();
+      
+      if (!responseText) {
+        throw new Error('No se recibió respuesta del modelo');
+      }
+
+      // Parsear JSON
+      let jsonStr = responseText;
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        jsonStr = jsonMatch[0];
+      }
+      
+      let analysisResult: VisionAnalysisResult;
+      try {
+        analysisResult = JSON.parse(jsonStr);
+      } catch (e) {
+        logger.error('Error parseando JSON:', { text: responseText, error: e });
+        throw new Error('Formato de respuesta inválido (JSON malformado)');
+      }
+      
+      // Validar estructura básica
+      if (!analysisResult.foods || !Array.isArray(analysisResult.foods)) {
+        throw new Error('Respuesta del modelo incompleta (sin array de alimentos)');
+      }
+
+      return analysisResult;
+    } catch (error) {
+      logger.error('Error en análisis de texto:', error);
+      throw new Error('Error al analizar la descripción de comida');
+    }
+  }
+
+  async chatNutrition(message: string, conversationHistory?: any[]): Promise<{ message: string; shouldRegisterMeal: boolean; mealData?: any }> {
+    try {
+      const CHAT_SYSTEM_PROMPT = `Eres un asistente nutricional amigable y experto. 
+
+Tus responsabilidades:
+1. Responder preguntas sobre nutrición, dietas y salud
+2. Ofrecer consejos personalizados sobre alimentación
+3. Ayudar a interpretar información nutricional
+4. Detectar cuando el usuario menciona haber comido algo
+
+Cuando el usuario mencione que comió algo:
+- Responde de forma natural y amigable
+- Analiza la descripción nutricional
+- Devuelve shouldRegisterMeal: true y los datos de la comida
+
+Formato de respuesta (JSON):
+{
+  "message": "tu respuesta amigable al usuario",
+  "shouldRegisterMeal": false,
+  "mealData": null
+}
+
+O si detectas una comida:
+{
+  "message": "¡Qué delicioso! He registrado tu comida.",
+  "shouldRegisterMeal": true,
+  "mealData": {
+    "foods": [
+      {
+        "name": "nombre del alimento",
+        "amount": 100,
+        "unit": "g",
+        "nutrition": { "calories": 200, "protein": 10, "carbs": 20, "fat": 5, "fiber": 2 },
+        "category": "protein|carb|vegetable|fruit|dairy|fat|mixed"
+      }
+    ],
+    "totalNutrition": { "calories": 200, "protein": 10, "carbs": 20, "fat": 5, "fiber": 2 },
+    "mealType": "breakfast|lunch|dinner|snack"
+  }
+}`;
+
+      const model = this.genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
+
+      // Construir historial de conversación
+      let conversationContext = '';
+      if (conversationHistory && conversationHistory.length > 0) {
+        conversationContext = '\n\nHistorial de conversación:\n';
+        conversationHistory.forEach((msg: any) => {
+          conversationContext += `${msg.role === 'user' ? 'Usuario' : 'Asistente'}: ${msg.content}\n`;
+        });
+      }
+
+      const fullPrompt = `${CHAT_SYSTEM_PROMPT}${conversationContext}\n\nMensaje del usuario: "${message}"\n\nResponde en formato JSON.`;
+
+      const geminiResult = await model.generateContent(fullPrompt);
+      const response = await geminiResult.response;
+      const responseText = response.text();
+      
+      if (!responseText) {
+        throw new Error('No se recibió respuesta del modelo');
+      }
+
+      // Parsear JSON
+      let jsonStr = responseText;
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        jsonStr = jsonMatch[0];
+      }
+      
+      let chatResult: any;
+      try {
+        chatResult = JSON.parse(jsonStr);
+      } catch (e) {
+        logger.error('Error parseando JSON del chat:', { text: responseText, error: e });
+        // Respuesta por defecto si falla el parseo
+        return {
+          message: responseText || 'Lo siento, no pude procesar tu mensaje correctamente.',
+          shouldRegisterMeal: false
+        };
+      }
+
+      return {
+        message: chatResult.message || responseText,
+        shouldRegisterMeal: chatResult.shouldRegisterMeal || false,
+        mealData: chatResult.mealData || undefined
+      };
+    } catch (error) {
+      logger.error('Error en chat de nutrición:', error);
+      throw new Error('Error al procesar el mensaje');
+    }
+  }
 }
