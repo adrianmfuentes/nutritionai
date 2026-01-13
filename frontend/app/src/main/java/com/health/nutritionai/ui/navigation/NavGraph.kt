@@ -53,8 +53,10 @@ fun NavGraph(
         }
 
         // Main App Screens
-        composable(Screen.Dashboard.route) {
+        composable(Screen.Dashboard.route) { backStackEntry ->
             DashboardScreen(
+                // Pass a key that changes when returning from other screens
+                refreshKey = backStackEntry.savedStateHandle.get<Long>("refresh_key") ?: 0L,
                 onNavigateToCamera = {
                     navController.navigate(Screen.Camera.route)
                 },
@@ -70,8 +72,11 @@ fun NavGraph(
         composable(Screen.Camera.route) {
             CameraScreen(
                 onMealAnalyzed = {
+                    // Set refresh key before navigating back
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("refresh_key", System.currentTimeMillis())
                     navController.popBackStack()
-                    navController.navigate(Screen.Dashboard.route)
                 },
                 onNavigateBack = {
                     navController.popBackStack()
@@ -82,8 +87,11 @@ fun NavGraph(
         composable(Screen.TextInput.route) {
             TextInputScreen(
                 onMealAnalyzed = {
+                    // Set refresh key before navigating back
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("refresh_key", System.currentTimeMillis())
                     navController.popBackStack()
-                    navController.navigate(Screen.Dashboard.route)
                 },
                 onNavigateBack = {
                     navController.popBackStack()
@@ -93,6 +101,12 @@ fun NavGraph(
 
         composable(Screen.Chat.route) {
             ChatScreen(
+                onMealRegistered = {
+                    // Set refresh key when a meal is registered via chat
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("refresh_key", System.currentTimeMillis())
+                },
                 onNavigateBack = {
                     navController.popBackStack()
                 }
