@@ -32,6 +32,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun ChatScreen(
     viewModel: ChatViewModel = koinViewModel(),
+    onMealRegistered: () -> Unit = {},
     onNavigateBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -52,7 +53,7 @@ fun ChatScreen(
         }
     }
 
-    // Show feedback messages
+    // Show feedback messages and trigger callback when meal is registered
     LaunchedEffect(feedback) {
         when (feedback) {
             is UserFeedback.Success -> {
@@ -61,6 +62,8 @@ fun ChatScreen(
                     duration = SnackbarDuration.Short
                 )
                 viewModel.clearFeedback()
+                // Notify that a meal was registered
+                onMealRegistered()
             }
             is UserFeedback.Error -> {
                 snackbarHostState.showSnackbar(

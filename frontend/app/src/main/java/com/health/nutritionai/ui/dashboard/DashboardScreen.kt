@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.Create
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,6 +33,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun DashboardScreen(
+    refreshKey: Long = 0L,
     viewModel: DashboardViewModel = koinViewModel(),
     onNavigateToCamera: () -> Unit,
     onNavigateToTextInput: () -> Unit,
@@ -40,6 +42,13 @@ fun DashboardScreen(
     val uiState by viewModel.uiState.collectAsState()
     val selectedDate by viewModel.selectedDate.collectAsState()
     var showAddMealDialog by remember { mutableStateOf(false) }
+
+    // Refresh when refreshKey changes (i.e., when returning from adding a meal)
+    LaunchedEffect(refreshKey) {
+        if (refreshKey > 0L) {
+            viewModel.refresh()
+        }
+    }
 
     // Observe lifecycle to refresh when screen resumes
     val lifecycleOwner = LocalLifecycleOwner.current
