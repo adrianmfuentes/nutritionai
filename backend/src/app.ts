@@ -8,6 +8,7 @@ import authRoutes from './routes/auth.routes';
 import mealsRoutes from './routes/meals.routes';
 import nutritionRoutes from './routes/nutrition.routes';
 import profileRoutes from './routes/profile.routes';
+import chatRoutes from './routes/chat.routes';
 
 export function createApp(): Application {
   const app = express();
@@ -41,6 +42,7 @@ export function createApp(): Application {
   app.use('/v1/meals', mealsRoutes);
   app.use('/v1/nutrition', nutritionRoutes);
   app.use('/v1/profile', profileRoutes);
+  app.use('/v1/chat', chatRoutes);
 
   // 404 handler
   app.use((req, res) => {

@@ -15,6 +15,10 @@ router.post('/analyze', analysisLimiter, upload.single('image'), (req, res, next
   mealsController.analyzeMeal(req, res, next)
 );
 
+router.post('/analyze-text', analysisLimiter, (req, res, next) =>
+  mealsController.analyzeTextDescription(req, res, next)
+);
+
 router.get('/', (req, res, next) =>
   mealsController.getMeals(req, res, next)
 );

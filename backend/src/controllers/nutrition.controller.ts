@@ -83,7 +83,13 @@ export class NutritionController {
           carbsPercent: Math.round(progress.carbsPercent),
           fatPercent: Math.round(progress.fatPercent),
         },
-        meals: mealsListResult.rows,
+        meals: mealsListResult.rows.map(m => ({
+          mealId: m.id,
+          mealType: m.meal_type,
+          imageUrl: m.image_url,
+          totalCalories: m.total_calories,
+          timestamp: m.consumed_at,
+        })),
       });
     } catch (error) {
       next(error);
@@ -145,12 +151,13 @@ export class NutritionController {
       res.json({
         days: days.map(d => ({
           date: d.meal_date,
-          calories: parseInt(d.daily_calories),
-          protein: parseFloat(d.daily_protein),
-          carbs: parseFloat(d.daily_carbs),
-          fat: parseFloat(d.daily_fat),
+          totals: {
+            calories: parseInt(d.daily_calories),
+            protein: parseFloat(d.daily_protein),
+            carbs: parseFloat(d.daily_carbs),
+            fat: parseFloat(d.daily_fat),
+          },
           mealCount: parseInt(d.meal_count),
-          healthScore: d.avg_health_score ? parseFloat(d.avg_health_score) : null,
         })),
         averages,
         trend,
