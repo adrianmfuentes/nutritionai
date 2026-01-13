@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.map
 import java.io.File
 
 import com.health.nutritionai.data.remote.api.NutritionApiService
+import com.health.nutritionai.data.remote.dto.UpdateMealRequest
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -160,24 +161,40 @@ class MealRepository(
     suspend fun updateMeal(meal: Meal): NetworkResult<Boolean> {
         return try {
             val userId = userRepository.getUserId()
+
+            val response = apiService.updateMeal(
+                mealId = meal.mealId,
+                request = UpdateMealRequest(
+                    mealType = meal.mealType,
+                    notes = meal.notes
+                )
+            )
+
+            val existing = mealDao.getMealById(meal.mealId)
             val mealEntity = MealEntity(
                 mealId = meal.mealId,
                 userId = userId,
-                mealType = meal.mealType,
-                imageUrl = meal.imageUrl,
-                notes = meal.notes,
-                totalCalories = meal.totalNutrition.calories,
-                totalProtein = meal.totalNutrition.protein,
-                totalCarbs = meal.totalNutrition.carbs,
-                totalFat = meal.totalNutrition.fat,
-                totalFiber = meal.totalNutrition.fiber,
-                healthScore = meal.healthScore,
-                timestamp = meal.timestamp
+                mealType = response.meal.mealType ?: meal.mealType ?: existing?.mealType,
+                imageUrl = response.meal.imageUrl ?: meal.imageUrl ?: existing?.imageUrl,
+                notes = response.meal.notes ?: meal.notes ?: existing?.notes,
+                totalCalories = response.meal.totalCalories ?: meal.totalNutrition.calories,
+                totalProtein = response.meal.totalProtein ?: meal.totalNutrition.protein,
+                totalCarbs = response.meal.totalCarbs ?: meal.totalNutrition.carbs,
+                totalFat = response.meal.totalFat ?: meal.totalNutrition.fat,
+                totalFiber = response.meal.totalFiber ?: meal.totalNutrition.fiber,
+                healthScore = response.meal.healthScore ?: meal.healthScore ?: existing?.healthScore,
+                timestamp = response.meal.timestamp ?: meal.timestamp
             )
+
             mealDao.updateMeal(mealEntity)
-            NetworkResult.Success(true)
+
+            NetworkResult.Success(response.success)
         } catch (e: Exception) {
-            NetworkResult.Error("Error al actualizar la comida")
+            val userFriendlyMessage = com.health.nutritionai.util.ErrorMapper.mapErrorToMessage(
+                e,
+                com.health.nutritionai.util.ErrorContext.MEAL_UPDATE
+            )
+            NetworkResult.Error(userFriendlyMessage)
         }
     }
 
@@ -185,26 +202,23 @@ class MealRepository(
         try {
             val response = apiService.getMeals()
             val meals = response.meals.mapNotNull { summary ->
-                // Filter out meals with null required fields
-                if (summary.mealId != null && summary.mealType != null &&
-                    summary.imageUrl != null && summary.totalCalories != null &&
-                    summary.timestamp != null) {
+                if (summary.mealId == null || summary.mealType == null || summary.totalCalories == null || summary.timestamp == null) {
+                    null
+                } else {
                     MealEntity(
                         mealId = summary.mealId,
                         userId = userId,
                         mealType = summary.mealType,
                         imageUrl = summary.imageUrl,
-                        notes = null,
+                        notes = summary.notes,
                         totalCalories = summary.totalCalories,
-                        totalProtein = 0.0,
-                        totalCarbs = 0.0,
-                        totalFat = 0.0,
-                        totalFiber = 0.0,
-                        healthScore = 0.0,
+                        totalProtein = summary.totalProtein ?: 0.0,
+                        totalCarbs = summary.totalCarbs ?: 0.0,
+                        totalFat = summary.totalFat ?: 0.0,
+                        totalFiber = summary.totalFiber,
+                        healthScore = summary.healthScore,
                         timestamp = summary.timestamp
                     )
-                } else {
-                    null // Skip meals with missing data
                 }
             }
             mealDao.insertMeals(meals)

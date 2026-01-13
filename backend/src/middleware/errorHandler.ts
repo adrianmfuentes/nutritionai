@@ -1,6 +1,7 @@
 // src/middleware/errorHandler.ts
 import { Request, Response, NextFunction } from 'express';
 import { logger } from '../utils/logger';
+import { HttpError } from '../utils/httpError';
 
 export function errorHandler(
   error: Error,
@@ -27,6 +28,15 @@ export function errorHandler(
   // Database errors
   if (error.message.includes('duplicate key')) {
     return res.status(409).json({ error: 'El recurso ya existe' });
+  }
+
+  // Explicit HTTP errors
+  if (error instanceof HttpError) {
+    return res.status(error.status).json({
+      error: error.message,
+      code: error.code,
+      details: error.details,
+    });
   }
 
   // Default error

@@ -46,6 +46,18 @@ data class MealSummaryDto(
     val imageUrl: String?,
     @SerializedName("totalCalories")
     val totalCalories: Int?,
+    @SerializedName("totalProtein")
+    val totalProtein: Double? = null,
+    @SerializedName("totalCarbs")
+    val totalCarbs: Double? = null,
+    @SerializedName("totalFat")
+    val totalFat: Double? = null,
+    @SerializedName("totalFiber")
+    val totalFiber: Double? = null,
+    @SerializedName("healthScore")
+    val healthScore: Double? = null,
+    @SerializedName("notes")
+    val notes: String? = null,
     @SerializedName("timestamp")
     val timestamp: String?
 )

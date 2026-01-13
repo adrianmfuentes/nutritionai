@@ -45,6 +45,12 @@ interface NutritionApiService {
     @DELETE("meals/{mealId}")
     suspend fun deleteMeal(@Path("mealId") mealId: String): DeleteResponse
 
+    @PATCH("meals/{mealId}")
+    suspend fun updateMeal(
+        @Path("mealId") mealId: String,
+        @Body request: UpdateMealRequest
+    ): UpdateMealResponse
+
     // Nutrition Tracking
     @GET("nutrition/daily")
     suspend fun getDailyNutrition(@Query("date") date: String): DailyNutritionResponse
@@ -76,6 +82,11 @@ data class PaginationDto(
 
 data class DeleteResponse(
     val success: Boolean
+)
+
+data class UpdateMealResponse(
+    val success: Boolean,
+    val meal: MealSummaryDto
 )
 
 data class ProfileResponse(

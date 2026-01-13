@@ -5,6 +5,8 @@ import path from 'path';
 import { logger } from '../utils/logger';
 import { VisionAnalysisResult } from '../types';
 import { config } from '../config/env';
+import { HttpError } from '../utils/httpError';
+import { sanitizeChatMealData, sanitizeVisionAnalysisResult } from '../utils/llmSanitizers';
 
 const VISION_SYSTEM_PROMPT = `Eres un nutricionista profesional especializado en reconocimiento de alimentos y análisis nutricional.
 
@@ -116,19 +118,18 @@ export class VisionService {
         analysisResult = JSON.parse(jsonStr);
       } catch (e) {
         logger.error('Error parseando JSON:', { text: responseText, error: e });
-        // Intento de recuperación básica o re-lanzar
-        throw new Error('Formato de respuesta inválido (JSON malformado)');
+        throw new HttpError(
+          502,
+          'No pude interpretar la respuesta del modelo. Intenta nuevamente.',
+          'LLM_RESPONSE_INVALID',
+          { kind: 'json_parse' }
+        );
       }
-      
-      // Validar estructura básica
-      if (!analysisResult.foods || !Array.isArray(analysisResult.foods)) {
-        throw new Error('Respuesta del modelo incompleta (sin array de alimentos)');
-      }
-
-      return analysisResult;
+      return sanitizeVisionAnalysisResult(analysisResult);
     } catch (error) {
+      if (error instanceof HttpError) throw error;
       logger.error('Error en análisis de visión:', error);
-      throw new Error('Error al analizar la imagen de comida');
+      throw new HttpError(502, 'Error al analizar la imagen de comida', 'LLM_ANALYSIS_FAILED');
     }
   }
 
@@ -162,18 +163,18 @@ Analiza esta descripción de comida y proporciona información nutricional sigui
         analysisResult = JSON.parse(jsonStr);
       } catch (e) {
         logger.error('Error parseando JSON:', { text: responseText, error: e });
-        throw new Error('Formato de respuesta inválido (JSON malformado)');
+        throw new HttpError(
+          502,
+          'No pude interpretar la respuesta del modelo. Intenta reformular tu comida.',
+          'LLM_RESPONSE_INVALID',
+          { kind: 'json_parse' }
+        );
       }
-      
-      // Validar estructura básica
-      if (!analysisResult.foods || !Array.isArray(analysisResult.foods)) {
-        throw new Error('Respuesta del modelo incompleta (sin array de alimentos)');
-      }
-
-      return analysisResult;
+      return sanitizeVisionAnalysisResult(analysisResult);
     } catch (error) {
+      if (error instanceof HttpError) throw error;
       logger.error('Error en análisis de texto:', error);
-      throw new Error('Error al analizar la descripción de comida');
+      throw new HttpError(502, 'Error al analizar la descripción de comida', 'LLM_ANALYSIS_FAILED');
     }
   }
 
@@ -258,10 +259,13 @@ O si detectas una comida:
         };
       }
 
+      const shouldRegisterMeal = chatResult?.shouldRegisterMeal === true;
+      const sanitizedMealData = shouldRegisterMeal ? sanitizeChatMealData(chatResult?.mealData) : undefined;
+
       return {
         message: chatResult.message || responseText,
-        shouldRegisterMeal: chatResult.shouldRegisterMeal || false,
-        mealData: chatResult.mealData || undefined
+        shouldRegisterMeal: shouldRegisterMeal && !!sanitizedMealData,
+        mealData: sanitizedMealData
       };
     } catch (error) {
       logger.error('Error en chat de nutrición:', error);

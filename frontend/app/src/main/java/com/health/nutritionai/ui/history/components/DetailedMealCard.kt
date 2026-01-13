@@ -102,7 +102,7 @@ fun DetailedMealCard(
                 .fillMaxWidth()
                 .padding(12.dp)
         ) {
-            // Header: Meal Type, Calories and Menu
+            // Header: Meal Type, Calories and Menu (Compacto)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -113,7 +113,7 @@ fun DetailedMealCard(
                     modifier = Modifier.weight(1f)
                 ) {
                     Surface(
-                        modifier = Modifier.size(36.dp),
+                        modifier = Modifier.size(28.dp),
                         shape = CircleShape,
                         color = Primary.copy(alpha = 0.1f)
                     ) {
@@ -123,15 +123,15 @@ fun DetailedMealCard(
                         ) {
                             Text(
                                 text = mealEmoji,
-                                style = MaterialTheme.typography.titleMedium
+                                style = MaterialTheme.typography.titleSmall
                             )
                         }
                     }
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
                     Column {
                         Text(
                             text = meal.mealType?.replaceFirstChar { it.uppercase() } ?: "Comida",
-                            style = MaterialTheme.typography.titleSmall,
+                            style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface,
                             maxLines = 1,
@@ -198,22 +198,22 @@ fun DetailedMealCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
-            // Calories badge
+            // Calories badge (más compacto)
             Surface(
-                shape = RoundedCornerShape(8.dp),
+                shape = RoundedCornerShape(6.dp),
                 color = CaloriesColor.copy(alpha = 0.1f)
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         text = "🔥",
                         style = MaterialTheme.typography.labelSmall
                     )
-                    Spacer(modifier = Modifier.width(4.dp))
+                    Spacer(modifier = Modifier.width(3.dp))
                     Text(
                         text = "${meal.totalNutrition.calories}",
                         style = MaterialTheme.typography.labelMedium,
@@ -230,7 +230,7 @@ fun DetailedMealCard(
 
             // Meal image if available (smaller for compact view)
             if (!meal.imageUrl.isNullOrEmpty()) {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(6.dp))
 
                 Box(
                     modifier = Modifier
@@ -267,11 +267,30 @@ private fun EditMealDialog(
     onDismiss: () -> Unit,
     onSave: (Meal) -> Unit
 ) {
-    var selectedMealType by remember { mutableStateOf(meal.mealType ?: "comida") }
+    val initialMealType = remember(meal.mealType) {
+        when (meal.mealType?.lowercase()) {
+            "breakfast", "desayuno" -> "breakfast"
+            "lunch", "almuerzo", "comida" -> "lunch"
+            "dinner", "cena" -> "dinner"
+            "snack", "merienda", "snacks" -> "snack"
+            else -> "snack"
+        }
+    }
+    var selectedMealType by remember { mutableStateOf(initialMealType) }
     var notes by remember { mutableStateOf(meal.notes ?: "") }
     var expanded by remember { mutableStateOf(false) }
 
-    val mealTypes = listOf("desayuno", "almuerzo", "comida", "merienda", "cena", "snack")
+    val mealTypes = listOf("breakfast", "lunch", "dinner", "snack")
+
+    fun mealTypeLabel(type: String): String {
+        return when (type) {
+            "breakfast" -> "Desayuno"
+            "lunch" -> "Comida"
+            "dinner" -> "Cena"
+            "snack" -> "Snack"
+            else -> type.replaceFirstChar { it.uppercase() }
+        }
+    }
 
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -310,7 +329,7 @@ private fun EditMealDialog(
                     onExpandedChange = { expanded = !expanded }
                 ) {
                     OutlinedTextField(
-                        value = selectedMealType.replaceFirstChar { it.uppercase() },
+                        value = mealTypeLabel(selectedMealType),
                         onValueChange = {},
                         readOnly = true,
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
@@ -325,7 +344,7 @@ private fun EditMealDialog(
                     ) {
                         mealTypes.forEach { mealType ->
                             DropdownMenuItem(
-                                text = { Text(mealType.replaceFirstChar { it.uppercase() }) },
+                                text = { Text(mealTypeLabel(mealType)) },
                                 onClick = {
                                     selectedMealType = mealType
                                     expanded = false

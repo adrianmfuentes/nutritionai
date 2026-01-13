@@ -51,7 +51,7 @@ fun MealDetailDialog(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(200.dp)
+                        .height(140.dp)
                 ) {
                     if (!meal.imageUrl.isNullOrEmpty()) {
                         AsyncImage(
@@ -96,13 +96,13 @@ fun MealDetailDialog(
                     Surface(
                         modifier = Modifier
                             .align(Alignment.BottomStart)
-                            .padding(16.dp),
+                            .padding(12.dp),
                         shape = RoundedCornerShape(12.dp),
                         color = Primary
                     ) {
                         Text(
                             text = "${getMealEmoji(meal.mealType)} ${meal.mealType?.replaceFirstChar { it.uppercase() } ?: "Comida"}",
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.Bold,
                             color = OnPrimary

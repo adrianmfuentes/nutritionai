@@ -77,6 +77,7 @@ object ErrorMapper {
             ErrorContext.AUTH_REGISTER -> "No se pudo completar el registro. Por favor, intenta nuevamente."
             ErrorContext.MEAL_ANALYSIS -> "No se pudo analizar la comida. Por favor, intenta con otra foto."
             ErrorContext.MEAL -> "Error al procesar la comida. Por favor, intenta nuevamente."
+            ErrorContext.MEAL_UPDATE -> "No se pudo actualizar la comida. Por favor, intenta nuevamente."
             ErrorContext.NUTRITION_GOALS -> "No se pudieron actualizar los objetivos. Por favor, intenta nuevamente."
             ErrorContext.USER_PROFILE -> "No se pudo cargar tu perfil. Por favor, intenta nuevamente."
             ErrorContext.PASSWORD_CHANGE -> "No se pudo cambiar la contraseña. Por favor, intenta nuevamente."
@@ -112,6 +113,7 @@ enum class ErrorContext {
     MEAL_ANALYSIS,
     MEAL,
     MEAL_DELETE,
+    MEAL_UPDATE,
     NUTRITION_GOALS,
     USER_PROFILE,
     PASSWORD_CHANGE
