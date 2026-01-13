@@ -20,7 +20,7 @@ datastore = "1.2.0"
 navigation = "2.8.5"
 ksp = "2.3.4"
 lifecycleViewmodel = "2.8.7"
-accompanist = "0.34.0"
+accompanist = "0.37.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
