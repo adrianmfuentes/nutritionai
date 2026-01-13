@@ -9,7 +9,7 @@ data class MealEntity(
     val mealId: String,
     val userId: String,
     val mealType: String?,
-    val imageUrl: String,
+    val imageUrl: String?,
     val notes: String?,
     val totalCalories: Int,
     val totalProtein: Double,

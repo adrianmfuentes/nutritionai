@@ -87,7 +87,7 @@ fun DetailedMealCard(
             }
 
             // Meal image if available
-            if (meal.imageUrl.isNotEmpty()) {
+            if (!meal.imageUrl.isNullOrEmpty()) {
                 Spacer(modifier = Modifier.height(12.dp))
 
                 AsyncImage(

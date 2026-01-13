@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import com.health.nutritionai.ui.auth.LoginScreen
 import com.health.nutritionai.ui.auth.RegisterScreen
 import com.health.nutritionai.ui.camera.CameraScreen
+import com.health.nutritionai.ui.chat.ChatScreen
 import com.health.nutritionai.ui.dashboard.DashboardScreen
 import com.health.nutritionai.ui.history.HistoryScreen
 import com.health.nutritionai.ui.settings.SettingsScreen
@@ -59,6 +60,9 @@ fun NavGraph(
                 },
                 onNavigateToTextInput = {
                     navController.navigate(Screen.TextInput.route)
+                },
+                onNavigateToChat = {
+                    navController.navigate(Screen.Chat.route)
                 }
             )
         }
@@ -81,6 +85,14 @@ fun NavGraph(
                     navController.popBackStack()
                     navController.navigate(Screen.Dashboard.route)
                 },
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(Screen.Chat.route) {
+            ChatScreen(
                 onNavigateBack = {
                     navController.popBackStack()
                 }

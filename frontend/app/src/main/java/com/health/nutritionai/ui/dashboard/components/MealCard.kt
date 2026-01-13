@@ -30,7 +30,7 @@ fun MealCard(
             modifier = Modifier.fillMaxWidth()
         ) {
             // Image or placeholder
-            if (meal.imageUrl.isNotEmpty()) {
+            if (!meal.imageUrl.isNullOrEmpty()) {
                 AsyncImage(
                     model = meal.imageUrl,
                     contentDescription = meal.mealType,

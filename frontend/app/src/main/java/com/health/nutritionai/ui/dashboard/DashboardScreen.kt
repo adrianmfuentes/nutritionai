@@ -30,7 +30,8 @@ import org.koin.androidx.compose.koinViewModel
 fun DashboardScreen(
     viewModel: DashboardViewModel = koinViewModel(),
     onNavigateToCamera: () -> Unit,
-    onNavigateToTextInput: () -> Unit
+    onNavigateToTextInput: () -> Unit,
+    onNavigateToChat: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val selectedDate by viewModel.selectedDate.collectAsState()
@@ -45,6 +46,11 @@ fun DashboardScreen(
     fun dismissAndNavigateToTextInput() {
         showAddMealDialog = false
         onNavigateToTextInput()
+    }
+
+    fun dismissAndNavigateToChat() {
+        showAddMealDialog = false
+        onNavigateToChat()
     }
 
     fun dismissDialog() {
@@ -360,6 +366,48 @@ fun DashboardScreen(
                                 )
                                 Text(
                                     "Escribe o graba la descripción",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+
+                    // Chat Option
+                    ElevatedCard(
+                        onClick = ::dismissAndNavigateToChat,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Surface(
+                                modifier = Modifier.size(32.dp),
+                                shape = RoundedCornerShape(8.dp),
+                                color = MaterialTheme.colorScheme.tertiaryContainer
+                            ) {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "💬",
+                                        style = MaterialTheme.typography.titleLarge
+                                    )
+                                }
+                            }
+                            Column {
+                                Text(
+                                    "Chat con IA",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    "Habla con el asistente nutricional",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )

@@ -9,7 +9,7 @@ import com.health.nutritionai.data.local.entity.MealEntity
 
 @Database(
     entities = [MealEntity::class, FoodEntity::class],
-    version = 1,
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

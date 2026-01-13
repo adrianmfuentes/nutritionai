@@ -28,6 +28,11 @@ interface NutritionApiService {
         @Body request: AnalyzeTextRequest
     ): AnalyzeMealResponse
 
+    @POST("chat")
+    suspend fun chat(
+        @Body request: ChatRequest
+    ): ChatResponse
+
     // Meal Management
     @GET("meals")
     suspend fun getMeals(

@@ -229,6 +229,11 @@ class MealRepository(
         foodDao.insertFoods(foodEntities)
     }
 
+    suspend fun saveMealWithFoods(mealEntity: MealEntity, foodEntities: List<FoodEntity>) {
+        mealDao.insertMeal(mealEntity)
+        foodDao.insertFoods(foodEntities)
+    }
+
     // Extension functions for mapping
     private fun MealEntity.toMeal(detectedFoods: List<Food> = emptyList()) = Meal(
         mealId = mealId,

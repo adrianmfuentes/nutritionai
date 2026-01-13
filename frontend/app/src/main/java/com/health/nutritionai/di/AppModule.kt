@@ -10,6 +10,7 @@ import com.health.nutritionai.data.repository.NutritionRepository
 import com.health.nutritionai.data.repository.UserRepository
 import com.health.nutritionai.ui.auth.AuthViewModel
 import com.health.nutritionai.ui.camera.CameraViewModel
+import com.health.nutritionai.ui.chat.ChatViewModel
 import com.health.nutritionai.ui.dashboard.DashboardViewModel
 import com.health.nutritionai.ui.history.HistoryViewModel
 import com.health.nutritionai.ui.settings.SettingsViewModel
@@ -66,6 +67,7 @@ val appModule = module {
     viewModel { DashboardViewModel(get()) }
     viewModel { CameraViewModel(get()) }
     viewModel { TextInputViewModel(get()) }
+    viewModel { ChatViewModel(get(), get(), get()) }
     viewModel { HistoryViewModel(get(), get()) }
     viewModel { SettingsViewModel(get()) }
 }
