@@ -19,7 +19,7 @@ coroutines = "1.10.2"
 datastore = "1.2.0"
 navigation = "2.9.6"
 ksp = "2.3.4"
-lifecycleViewmodel = "2.8.7"
+lifecycleViewmodel = "2.10.0"
 accompanist = "0.37.3"
 
 
