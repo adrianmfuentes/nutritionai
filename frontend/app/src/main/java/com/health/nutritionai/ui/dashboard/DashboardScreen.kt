@@ -1,15 +1,43 @@
 package com.health.nutritionai.ui.dashboard
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Create
-import androidx.compose.material3.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LargeFloatingActionButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -20,6 +48,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -28,7 +57,23 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.health.nutritionai.ui.dashboard.components.CaloriesCard
 import com.health.nutritionai.ui.dashboard.components.MacroCard
 import com.health.nutritionai.ui.dashboard.components.MealCard
-import com.health.nutritionai.ui.theme.*
+import com.health.nutritionai.ui.theme.Background
+import com.health.nutritionai.ui.theme.Background
+import com.health.nutritionai.ui.theme.CarbsColor
+import com.health.nutritionai.ui.theme.FatColor
+import com.health.nutritionai.ui.theme.OnPrimary
+import com.health.nutritionai.ui.theme.OnPrimaryContainer
+import com.health.nutritionai.ui.theme.OnSecondary
+import com.health.nutritionai.ui.theme.OnSecondaryContainer
+import com.health.nutritionai.ui.theme.OnTertiaryContainer
+import com.health.nutritionai.ui.theme.Primary
+import com.health.nutritionai.ui.theme.PrimaryContainer
+import com.health.nutritionai.ui.theme.ProteinColor
+import com.health.nutritionai.ui.theme.Secondary
+import com.health.nutritionai.ui.theme.SecondaryContainer
+import com.health.nutritionai.ui.theme.Tertiary
+import com.health.nutritionai.ui.theme.TertiaryContainer
+import com.health.nutritionai.ui.theme.TertiaryContainer
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -85,19 +130,27 @@ fun DashboardScreen(
     }
 
     Scaffold(
+        containerColor = Background,
         floatingActionButton = {
-            FloatingActionButton(
+            LargeFloatingActionButton(
                 onClick = { showAddMealDialog = true },
-                containerColor = MaterialTheme.colorScheme.primary,
+                shape = CircleShape,
+                containerColor = Primary,
                 elevation = FloatingActionButtonDefaults.elevation(
-                    defaultElevation = 6.dp,
-                    pressedElevation = 8.dp
+                    defaultElevation = 8.dp,
+                    pressedElevation = 12.dp
+                ),
+                modifier = Modifier.shadow(
+                    elevation = 16.dp,
+                    shape = CircleShape,
+                    spotColor = Primary.copy(alpha = 0.4f)
                 )
             ) {
                 Icon(
                     Icons.Default.Add,
                     contentDescription = "Agregar comida",
-                    tint = MaterialTheme.colorScheme.onPrimary
+                    tint = OnPrimary,
+                    modifier = Modifier.size(32.dp)
                 )
             }
         }
@@ -155,36 +208,66 @@ fun DashboardScreen(
                 ) {
                     // Date Selector
                     item {
-                        ElevatedCard(
-                            elevation = CardDefaults.elevatedCardElevation(
-                                defaultElevation = 2.dp
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .shadow(
+                                    elevation = 8.dp,
+                                    shape = RoundedCornerShape(20.dp),
+                                    spotColor = Primary.copy(alpha = 0.15f)
+                                ),
+                            shape = RoundedCornerShape(20.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surface
                             )
                         ) {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(12.dp),
+                                    .padding(horizontal = 8.dp, vertical = 12.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                IconButton(onClick = { viewModel.selectPreviousDay() }) {
+                                IconButton(
+                                    onClick = { viewModel.selectPreviousDay() },
+                                    modifier = Modifier
+                                        .background(
+                                            color = Primary.copy(alpha = 0.1f),
+                                            shape = CircleShape
+                                        )
+                                ) {
                                     Icon(
                                         Icons.AutoMirrored.Filled.ArrowBack,
                                         contentDescription = "Día anterior",
-                                        tint = MaterialTheme.colorScheme.primary
+                                        tint = Primary
                                     )
                                 }
-                                Text(
-                                    text = selectedDate,
-                                    style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                IconButton(onClick = { viewModel.selectNextDay() }) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        text = "📅",
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+                                    Text(
+                                        text = selectedDate,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+                                IconButton(
+                                    onClick = { viewModel.selectNextDay() },
+                                    modifier = Modifier
+                                        .background(
+                                            color = Primary.copy(alpha = 0.1f),
+                                            shape = CircleShape
+                                        )
+                                ) {
                                     Icon(
                                         Icons.AutoMirrored.Filled.ArrowForward,
                                         contentDescription = "Día siguiente",
-                                        tint = MaterialTheme.colorScheme.primary
+                                        tint = Primary
                                     )
                                 }
                             }
@@ -201,12 +284,22 @@ fun DashboardScreen(
 
                     // Macros Section Title
                     item {
-                        Text(
-                            text = "Macronutrientes",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.padding(vertical = 8.dp)
-                        )
+                        ) {
+                            Text(
+                                text = "💪",
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Macronutrientes",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
                     }
 
                     // Macros Grid
@@ -247,33 +340,61 @@ fun DashboardScreen(
 
                     // Meals Section
                     item {
-                        Text(
-                            text = "Comidas de hoy",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.padding(vertical = 8.dp)
-                        )
+                        ) {
+                            Text(
+                                text = "🍽️",
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Comidas de hoy",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
                     }
 
                     if (nutritionSummary.meals.isEmpty()) {
                         item {
-                            ElevatedCard(
-                                modifier = Modifier.fillMaxWidth(),
-                                elevation = CardDefaults.elevatedCardElevation(
-                                    defaultElevation = 2.dp
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .shadow(
+                                        elevation = 8.dp,
+                                        shape = RoundedCornerShape(24.dp),
+                                        spotColor = Primary.copy(alpha = 0.1f)
+                                    ),
+                                shape = RoundedCornerShape(24.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surface
                                 )
                             ) {
                                 Column(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(32.dp),
+                                        .padding(40.dp),
                                     horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                                    verticalArrangement = Arrangement.spacedBy(16.dp)
                                 ) {
-                                    Text(
-                                        text = "📸",
-                                        style = MaterialTheme.typography.displayMedium
-                                    )
+                                    Surface(
+                                        modifier = Modifier.size(80.dp),
+                                        shape = CircleShape,
+                                        color = Primary.copy(alpha = 0.1f)
+                                    ) {
+                                        Box(
+                                            contentAlignment = Alignment.Center,
+                                            modifier = Modifier.fillMaxSize()
+                                        ) {
+                                            Text(
+                                                text = "📸",
+                                                style = MaterialTheme.typography.displayMedium
+                                            )
+                                        }
+                                    }
                                     Text(
                                         text = "No hay comidas registradas",
                                         style = MaterialTheme.typography.titleMedium,
@@ -309,12 +430,35 @@ fun DashboardScreen(
     if (showAddMealDialog) {
         AlertDialog(
             onDismissRequest = ::dismissDialog,
+            shape = RoundedCornerShape(28.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
             title = {
-                Text(
-                    "Añadir Comida",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
-                )
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Surface(
+                        modifier = Modifier.size(56.dp),
+                        shape = CircleShape,
+                        color = Primary.copy(alpha = 0.1f)
+                    ) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            Text(
+                                text = "🍽️",
+                                style = MaterialTheme.typography.headlineMedium
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        "Añadir Comida",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             },
             text = {
                 Column(
@@ -322,13 +466,19 @@ fun DashboardScreen(
                 ) {
                     Text(
                         "¿Cómo quieres añadir tu comida?",
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 8.dp)
                     )
 
                     // Camera Option
-                    ElevatedCard(
+                    Card(
                         onClick = ::dismissAndNavigateToCamera,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = PrimaryContainer
+                        )
                     ) {
                         Row(
                             modifier = Modifier
@@ -338,9 +488,9 @@ fun DashboardScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Surface(
-                                modifier = Modifier.size(32.dp),
-                                shape = RoundedCornerShape(8.dp),
-                                color = MaterialTheme.colorScheme.primaryContainer
+                                modifier = Modifier.size(48.dp),
+                                shape = CircleShape,
+                                color = Primary
                             ) {
                                 Box(
                                     modifier = Modifier.fillMaxSize(),
@@ -356,54 +506,26 @@ fun DashboardScreen(
                                 Text(
                                     "Tomar Foto",
                                     style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.Bold,
+                                    color = OnPrimaryContainer
                                 )
                                 Text(
                                     "Captura una imagen de tu comida",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = OnPrimaryContainer.copy(alpha = 0.7f)
                                 )
                             }
                         }
                     }
 
                     // Text Input Option
-                    ElevatedCard(
+                    Card(
                         onClick = ::dismissAndNavigateToTextInput,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                Icons.Default.Create,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.secondary,
-                                modifier = Modifier.size(32.dp)
-                            )
-                            Column {
-                                Text(
-                                    "Descripción",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    "Escribe o graba la descripción",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                    }
-
-                    // Chat Option
-                    ElevatedCard(
-                        onClick = ::dismissAndNavigateToChat,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = SecondaryContainer
+                        )
                     ) {
                         Row(
                             modifier = Modifier
@@ -413,9 +535,58 @@ fun DashboardScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Surface(
-                                modifier = Modifier.size(32.dp),
-                                shape = RoundedCornerShape(8.dp),
-                                color = MaterialTheme.colorScheme.tertiaryContainer
+                                modifier = Modifier.size(48.dp),
+                                shape = CircleShape,
+                                color = Secondary
+                            ) {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        Icons.Default.Create,
+                                        contentDescription = null,
+                                        tint = OnSecondary,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
+                            }
+                            Column {
+                                Text(
+                                    "Descripción",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = OnSecondaryContainer
+                                )
+                                Text(
+                                    "Escribe o graba la descripción",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = OnSecondaryContainer.copy(alpha = 0.7f)
+                                )
+                            }
+                        }
+                    }
+
+                    // Chat Option
+                    Card(
+                        onClick = ::dismissAndNavigateToChat,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = TertiaryContainer
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Surface(
+                                modifier = Modifier.size(48.dp),
+                                shape = CircleShape,
+                                color = Tertiary
                             ) {
                                 Box(
                                     modifier = Modifier.fillMaxSize(),
@@ -431,12 +602,13 @@ fun DashboardScreen(
                                 Text(
                                     "Chat con IA",
                                     style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.Bold,
+                                    color = OnTertiaryContainer
                                 )
                                 Text(
                                     "Habla con el asistente nutricional",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = OnTertiaryContainer.copy(alpha = 0.7f)
                                 )
                             }
                         }

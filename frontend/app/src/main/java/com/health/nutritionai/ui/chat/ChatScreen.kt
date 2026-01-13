@@ -18,8 +18,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
@@ -313,36 +315,83 @@ fun ChatMessageBubble(message: ChatMessage) {
     val isUser = message.role == "user"
 
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
         horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start
     ) {
+        if (!isUser) {
+            // AI Avatar
+            Surface(
+                modifier = Modifier
+                    .size(36.dp)
+                    .padding(end = 8.dp),
+                shape = androidx.compose.foundation.shape.CircleShape,
+                color = MaterialTheme.colorScheme.secondaryContainer
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Text(
+                        text = "🤖",
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                }
+            }
+        }
+
         Card(
             modifier = Modifier
                 .widthIn(max = 280.dp),
             shape = RoundedCornerShape(
-                topStart = 16.dp,
-                topEnd = 16.dp,
-                bottomStart = if (isUser) 16.dp else 4.dp,
-                bottomEnd = if (isUser) 4.dp else 16.dp
+                topStart = 20.dp,
+                topEnd = 20.dp,
+                bottomStart = if (isUser) 20.dp else 4.dp,
+                bottomEnd = if (isUser) 4.dp else 20.dp
             ),
             colors = CardDefaults.cardColors(
                 containerColor = if (isUser)
-                    MaterialTheme.colorScheme.primaryContainer
+                    com.health.nutritionai.ui.theme.Primary
                 else
-                    MaterialTheme.colorScheme.secondaryContainer
+                    MaterialTheme.colorScheme.surfaceVariant
+            ),
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = if (isUser) 4.dp else 2.dp
             )
         ) {
             Column(
-                modifier = Modifier.padding(12.dp)
+                modifier = Modifier.padding(14.dp)
             ) {
                 Text(
                     text = message.content,
                     style = MaterialTheme.typography.bodyMedium,
                     color = if (isUser)
-                        MaterialTheme.colorScheme.onPrimaryContainer
+                        Color.White
                     else
-                        MaterialTheme.colorScheme.onSecondaryContainer
+                        MaterialTheme.colorScheme.onSurfaceVariant,
+                    lineHeight = 22.sp
                 )
+            }
+        }
+
+        if (isUser) {
+            Spacer(modifier = Modifier.width(8.dp))
+            // User Avatar
+            Surface(
+                modifier = Modifier.size(36.dp),
+                shape = androidx.compose.foundation.shape.CircleShape,
+                color = com.health.nutritionai.ui.theme.Primary.copy(alpha = 0.2f)
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Text(
+                        text = "👤",
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                }
             }
         }
     }
