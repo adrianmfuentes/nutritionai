@@ -64,7 +64,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
 
     // Koin for DI (simpler alternative)
-    implementation("io.insert-koin:koin-androidx-compose:3.5.0")
+    implementation("io.insert-koin:koin-androidx-compose:4.1.1")
 
     // Room Database
     implementation(libs.room.runtime)
