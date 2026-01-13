@@ -1,0 +1,13 @@
+version: 2
+updates:
+  # ANDROID FRONTEND (Gradle)
+  - package-ecosystem: "gradle"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+
+  # BACKEND (Node.js)
+  - package-ecosystem: "npm"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
