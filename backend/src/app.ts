@@ -12,6 +12,7 @@ import chatRoutes from './routes/chat.routes';
 
 export function createApp(): Application {
   const app = express();
+  app.set('trust proxy', 1);
 
   // Security middleware
   app.use(helmet());
