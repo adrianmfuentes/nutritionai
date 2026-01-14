@@ -1,4 +1,4 @@
-# 🍽️ Nutrition AI - Aplicación de Seguimiento Nutricional con IA
+# 🍽️ Nutrition AI
 
 Aplicación completa de seguimiento nutricional que utiliza Inteligencia Artificial para analizar imágenes de comidas y proporcionar información nutricional detallada.
 
@@ -298,9 +298,3 @@ private const val BASE_URL = "https://tu-api.com/v1/"
 ## 📄 Licencia
 
 Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para detalles.
-
-
-
----
-
-Desarrollado con ❤️ usando IA
