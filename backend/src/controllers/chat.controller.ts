@@ -41,7 +41,7 @@ export class ChatController {
         return res.status(400).json({ 
           error: 'Validación fallida', 
           code: 'VALIDATION_FAILED',
-          details: error.errors 
+          details: error.issues 
         });
       }
       

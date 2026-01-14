@@ -250,7 +250,7 @@ export class MealsController {
         return res.status(400).json({ 
           error: 'Validación fallida', 
           code: 'VALIDATION_FAILED',
-          details: error.errors 
+          details: error.issues 
         });
       }
       
@@ -473,7 +473,7 @@ export class MealsController {
       if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validación fallida',
-          details: error.errors,
+          details: error.issues,
         });
       }
       next(error);
@@ -680,7 +680,7 @@ export class MealsController {
         return res.status(400).json({ 
           error: 'Validación fallida', 
           code: 'VALIDATION_FAILED',
-          details: error.errors 
+          details: error.issues 
         });
       }
       

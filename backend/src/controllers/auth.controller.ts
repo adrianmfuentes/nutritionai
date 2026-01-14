@@ -76,7 +76,7 @@ export class AuthController {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ 
           error: 'Validación fallida', 
-          details: error.errors 
+          details: error.issues 
         });
       }
       next(error);
@@ -127,7 +127,7 @@ export class AuthController {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ 
           error: 'Validación fallida', 
-          details: error.errors 
+          details: error.issues 
         });
       }
       next(error);
@@ -170,7 +170,7 @@ export class AuthController {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ 
           error: 'Validación fallida', 
-          details: error.errors 
+          details: error.issues 
         });
       }
       next(error);
