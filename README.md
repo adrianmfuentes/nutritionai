@@ -1,41 +1,34 @@
-# 🍽️ Nutrition AI - Aplicación de Seguimiento Nutricional con IA
+# 🍽️ Nutrition AI
 
-> **🚀 ¿Primera vez?** Lee **[START.md](START.md)** para empezar en 15 minutos  
-> **📱 ¿Probar en local?** Ve a **[QUICKSTART_WINDOWS.md](QUICKSTART_WINDOWS.md)**  
-> **📖 ¿Necesitas ayuda?** Consulta **[backend/LOCAL_TESTING.md](backend/LOCAL_TESTING.md)**
-
-Aplicación completa de seguimiento nutricional que utiliza Inteligencia Artificial **gratuita (Groq)** para analizar imágenes de comidas y proporcionar información nutricional detallada.
+Aplicación completa de seguimiento nutricional que utiliza Inteligencia Artificial para analizar imágenes de comidas y proporcionar información nutricional detallada.
 
 ## 📱 Arquitectura
 
 - **Frontend**: Android nativo con Kotlin (Jetpack Compose)
 - **Backend**: Node.js + TypeScript + Express
 - **Base de Datos**: PostgreSQL
-- **IA**: Groq (LLaMA 3.2 90B Vision) - **100% GRATUITO** 🎉
+- **IA**: Groq (LLaMA 3.2 90B Vision)
 - **Infraestructura**: Docker + Docker Compose
-- **Servidor**: Oracle Ampere A1 (ARM64) o cualquier servidor local
+- **Servidor**: Oracle
 
 ## ✨ Características Principales
 
 ### Frontend Android
 
-- 📸 Captura de fotos de comidas con CameraX
+- 📸 Captura de fotos de comidas
 - 🤖 Análisis automático de alimentos con IA
 - 📊 Dashboard nutricional con progreso diario
-- 📈 Gráficos y estadísticas semanales
-- 🎯 Seguimiento de objetivos personalizados
 - 🔒 Autenticación segura con JWT
 - 💾 Almacenamiento local con Room
 - 🎨 UI moderna con Material Design 3
 
 ### Backend API
 
-- 🧠 Análisis de imágenes con Groq (LLaMA Vision) - **GRATIS**
+- 🧠 Análisis de imágenes con IA
 - 🍎 Detección automática de alimentos
 - 📏 Estimación de porciones
-- 🔢 Cálculo preciso de macronutrientes
+- 🔢 Cálculo de macronutrientes
 - 👤 Gestión de usuarios y perfiles
-- 📊 Resúmenes nutricionales diarios y semanales
 - 🎯 Sistema de objetivos personalizables
 - 🔐 Seguridad completa (JWT, bcrypt, rate limiting)
 - 📦 Completamente containerizado
@@ -166,15 +159,6 @@ GET    /v1/nutrition/weekly - Resumen semanal
 PUT    /v1/nutrition/goals  - Actualizar objetivos
 ```
 
-## 📖 Documentación
-
-- **[LOCAL_TESTING.md](backend/LOCAL_TESTING.md)** - **⭐ EMPIEZA AQUÍ** - Pruebas locales en tu móvil
-- [Backend README](backend/README.md) - Guía completa del backend
-- [API Documentation](backend/API.md) - Referencia de endpoints
-- [Deployment Guide](backend/DEPLOYMENT.md) - Guía de deployment en producción
-- [Android Integration](backend/ANDROID_INTEGRATION.md) - Integración con Android
-- [Testing Guide](backend/TESTING.md) - Guía de testing con cURL
-
 ## 🛠️ Tecnologías Utilizadas
 
 ### Frontend
@@ -269,8 +253,6 @@ chmod +x deploy.sh
 ./deploy.sh
 ```
 
-Ver [DEPLOYMENT.md](backend/DEPLOYMENT.md) para instrucciones detalladas.
-
 ## 🧪 Testing
 
 ```bash
@@ -316,35 +298,3 @@ private const val BASE_URL = "https://tu-api.com/v1/"
 ## 📄 Licencia
 
 Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para detalles.
-
-## 👥 Autor
-
-Tu Nombre - [GitHub](https://github.com/tu-usuario)
-
-## 🙏 Agradecimientos
-
-- **Groq** por proporcionar LLaMA Vision API **gratis** 🎉
-- Oracle Cloud por Ampere A1
-- Comunidad open source
-
-## 📞 Soporte
-
-Para problemas o preguntas:
-
-- 📧 Email: soporte@ejemplo.com
-- 💬 Issues: [GitHub Issues](https://github.com/tu-usuario/nutrition-app/issues)
-- 📚 Docs: Ver carpeta `backend/`
-
-## 🗺️ Roadmap
-
-- [ ] App iOS
-- [ ] Soporte para múltiples idiomas
-- [ ] Integración con wearables
-- [ ] Recetas sugeridas
-- [ ] Social features
-- [ ] Exportación de datos
-- [ ] Integración con Apple Health / Google Fit
-
----
-
-Desarrollado con ❤️ usando IA
