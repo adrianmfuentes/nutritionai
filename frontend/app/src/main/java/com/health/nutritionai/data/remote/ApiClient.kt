@@ -25,7 +25,7 @@ object ApiClient {
     // Para producción:
     //   private const val BASE_URL = "https://tu-dominio.com/v1/"
 
-    private const val BASE_URL = "http://api-nutricion.amfserver.duckdns.com/v1/"
+    private const val BASE_URL = "https://api-nutricion.amfserver.duckdns.org/v1/"
 
     fun create(authInterceptor: AuthInterceptor): NutritionApiService {
         val loggingInterceptor = HttpLoggingInterceptor().apply {

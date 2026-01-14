@@ -18,7 +18,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "API_BASE_URL", "\"http://api-nutricion.amfserver.duckdns.com/v1\"")
+        buildConfigField("String", "API_BASE_URL", "\"https://api-nutricion.amfserver.duckdns.org/v1\"")
     }
 
     buildTypes {
