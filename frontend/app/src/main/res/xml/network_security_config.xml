@@ -1,16 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-    <!-- Allow cleartext (HTTP) traffic for development and production -->
+    <!-- Allow cleartext (HTTP) traffic for development -->
     <domain-config cleartextTrafficPermitted="true">
         <!-- For emulator -->
         <domain includeSubdomains="true">10.0.2.2</domain>
-        <!-- For physical device - add your local IP here -->
+        <!-- For physical device - common local IP ranges -->
         <domain includeSubdomains="true">192.168.1.14</domain>
         <domain includeSubdomains="true">192.168.0.0</domain>
-        <!-- Production API -->
+        <domain includeSubdomains="true">192.168.1.0</domain>
+        <!-- Localhost for testing -->
+        <domain includeSubdomains="true">localhost</domain>
+    </domain-config>
+
+    <!-- Production API with HTTPS (allowed by default) -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">amfserver.duckdns.org</domain>
         <domain includeSubdomains="true">amfserver.duckdns.com</domain>
     </domain-config>
 
-    <!-- For production with HTTPS, use HTTPS only -->
-    <base-config cleartextTrafficPermitted="false" />
+    <!-- Default: HTTPS only for all other domains -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
 </network-security-config>

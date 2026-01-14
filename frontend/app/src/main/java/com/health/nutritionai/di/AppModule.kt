@@ -38,11 +38,21 @@ val appModule = module {
 
     // Network - Auth Interceptor
     single {
-        AuthInterceptor {
-            // Token provider - obtiene el token guardado
-            val prefs = androidContext().getSharedPreferences("nutrition_ai_prefs", android.content.Context.MODE_PRIVATE)
-            prefs.getString("auth_token", null)
-        }
+        val context = androidContext()
+        val prefs = context.getSharedPreferences("nutrition_ai_prefs", android.content.Context.MODE_PRIVATE)
+
+        AuthInterceptor(
+            tokenProvider = {
+                // Token provider - obtiene el token guardado
+                prefs.getString("auth_token", null)
+            },
+            onUnauthorized = {
+                // Clear the token when we receive 401
+                // This will force the user to log in again on next app restart
+                android.util.Log.w("AuthInterceptor", "Token expired or invalid, clearing auth data")
+                prefs.edit().remove("auth_token").remove("user_id").apply()
+            }
+        )
     }
 
     // Network - API Service
