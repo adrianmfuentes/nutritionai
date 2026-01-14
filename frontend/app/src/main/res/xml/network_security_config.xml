@@ -12,10 +12,10 @@
         <domain includeSubdomains="true">localhost</domain>
     </domain-config>
 
-    <!-- Production API with HTTPS (allowed by default) -->
+    <!-- Production API with HTTPS -->
     <domain-config cleartextTrafficPermitted="false">
         <domain includeSubdomains="true">amfserver.duckdns.org</domain>
-        <domain includeSubdomains="true">amfserver.duckdns.com</domain>
+        <domain includeSubdomains="true">api-nutricion.amfserver.duckdns.org</domain>
     </domain-config>
 
     <!-- Default: HTTPS only for all other domains -->
