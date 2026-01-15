@@ -16,16 +16,19 @@ jobs:
           host: ${{ secrets.ORACLE_IP }}
           username: ${{ secrets.ORACLE_USER }}
           key: ${{ secrets.ORACLE_SSH_KEY }}
+          port: 4422
           script: |
-            # Entrar a la carpeta del proyecto
-            cd ~/tu-repositorio/backend
+            mkdir -p ~/nutrition-app
+            cd ~/nutrition-app
+
+            if [ ! -d ".git" ]; then
+              git clone https://github.com/${{ github.repository }}.git .
+            else
+              git pull origin main
+            fi
             
-            # Actualizar código
-            git pull origin main
-            
-            # Instalar dependencias y construir (importante para TypeScript)
+            cd backend
             npm install
             npm run build
             
-            # Reiniciar el proceso (usando PM2 que es lo ideal para servidores)
             pm2 restart backend-app || pm2 start dist/app.js --name "backend-app"
