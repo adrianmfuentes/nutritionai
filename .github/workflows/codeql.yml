@@ -1,4 +1,4 @@
-name: "CodeQL Advanced - Backend Only"
+name: "CodeQL - Backend"
 
 on:
   push:

@@ -157,7 +157,6 @@ export class VisionService {
     // Fallback (no debería llegar aquí)
     throw lastError || new Error('Error desconocido en análisis de imagen');
   }
-  }
 
   async analyzeTextDescription(description: string): Promise<VisionAnalysisResult> {
     const MAX_RETRIES = 2;
@@ -214,7 +213,6 @@ Analiza esta descripción de comida y proporciona información nutricional sigui
       }
     }
     throw lastError || new Error('Error desconocido en análisis de texto');
-  }
   }
 
   async chatNutrition(message: string, conversationHistory?: any[]): Promise<{ message: string; shouldRegisterMeal: boolean; mealData?: any }> {
