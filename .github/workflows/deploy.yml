@@ -1,4 +1,4 @@
-name: Despliegue Manual Backend (Oracle Ampere)
+name: Despliegue Backend Oracle
 
 on:
   workflow_dispatch: # Esto habilita el botón manual en GitHub
