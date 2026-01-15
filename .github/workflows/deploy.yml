@@ -18,21 +18,12 @@ jobs:
           key: ${{ secrets.ORACLE_SSH_KEY }}
           port: 4422
           script: |
-            cd ~/nutrition-app/backend
+            cd ~/nutrition-app
             git pull origin main
             
-            # 1. Instalar con bypass de conflictos
-            npm install --legacy-peer-deps
+            # Construir y levantar los contenedores
+            # --build asegura que se apliquen los cambios de código
+            docker-compose up -d --build
             
-            # 2. Intentar compilar (si esto falla, el script se detendrá aquí)
-            npm run build
-            
-            # 3. Verificar si PM2 existe antes de usarlo
-            if ! command -v pm2 &> /dev/null
-            then
-                echo "PM2 no está instalado. Instalando..."
-                sudo npm install -g pm2
-            fi
-            
-            # 4. Reiniciar
-            pm2 restart backend-app || pm2 start dist/app.js --name "backend-app"
+            # Limpiar imágenes antiguas para no llenar el disco del servidor
+            docker image prune -f
