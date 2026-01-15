@@ -52,9 +52,9 @@ jobs:
       if: matrix.build-mode == 'manual'
       shell: bash
       run: |
-        # Si tu proyecto Kotlin está dentro de la carpeta 'backend', entramos en ella
-        if [ -d "backend" ]; then
-          cd backend
+        # Si tu proyecto Kotlin está dentro de la carpeta 'frontend', entramos en ella
+        if [ -d "frontend" ]; then
+          cd frontend
         fi
         
         # Damos permisos de ejecución al wrapper de Gradle
