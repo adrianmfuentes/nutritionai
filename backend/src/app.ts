@@ -16,8 +16,24 @@ export function createApp(): Application {
 
   // Security middleware
   app.use(helmet());
+  // CORS seguro: whitelist de orígenes permitidos
+  const allowedOrigins = (process.env.CORS_ORIGIN || '').split(',').map(o => o.trim()).filter(Boolean);
   app.use(cors({
-    origin: process.env.CORS_ORIGIN || '*',
+    origin: function (origin, callback) {
+      // Permitir peticiones sin origen (como curl o Postman)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.length === 0) {
+        // Si no hay whitelist, rechazar todo excepto localhost
+        if (origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
+          return callback(null, true);
+        }
+        return callback(new Error('CORS: origen no permitido'), false);
+      }
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error('CORS: origen no permitido'), false);
+    },
     credentials: true
   }));
 
