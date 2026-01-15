@@ -100,8 +100,14 @@ export class MealsController {
       }
       // Guardar imagen permanentemente
       const imageUrl = await this.storageService.saveImage(imagePath, userId);
-      // Eliminar imagen temporal después de guardar
-      await fs.unlink(imagePath).catch(() => undefined);
+      // Eliminar imagen temporal después de guardar (solo si está bajo uploads)
+      const uploadsRoot = (process.env.UPLOAD_PATH || './uploads').replace(/\\/g, '/');
+      const normalized = imagePath.replace(/\\/g, '/');
+      if (normalized.startsWith(uploadsRoot) || normalized.startsWith('./uploads') || normalized.startsWith('/app/uploads')) {
+        await fs.unlink(imagePath).catch(() => undefined);
+      } else {
+        logger.warn('Intento de eliminar archivo fuera de uploads bloqueado:', imagePath);
+      }
       imagePath = undefined;
       // Iniciar transacción
       await client.query('BEGIN');
@@ -222,7 +228,14 @@ export class MealsController {
       }
       // Si la imagen temporal aún existe (fallo antes de saveImage), intentamos limpiarla.
       if (imagePath) {
-        await fs.unlink(imagePath).catch(() => undefined);
+        // Sanitizar imagePath: solo permitir rutas bajo /uploads o ./uploads
+        const uploadsRoot = (process.env.UPLOAD_PATH || './uploads').replace(/\\/g, '/');
+        const normalized = imagePath.replace(/\\/g, '/');
+        if (normalized.startsWith(uploadsRoot) || normalized.startsWith('./uploads') || normalized.startsWith('/app/uploads')) {
+          await fs.unlink(imagePath).catch(() => undefined);
+        } else {
+          logger.warn('Intento de eliminar archivo fuera de uploads bloqueado:', imagePath);
+        }
       }
       logger.error('Error analizando comida:', error);
       if (error instanceof z.ZodError) {

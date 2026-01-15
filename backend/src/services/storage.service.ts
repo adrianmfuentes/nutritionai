@@ -14,14 +14,18 @@ export class StorageService {
 
   async saveImage(tempFilePath: string, userId: string): Promise<string> {
     try {
+      // Sanitizar userId para evitar path traversal
+      const safeUserId = String(userId).replace(/[^a-zA-Z0-9_-]/g, '');
       // Crear directorio para el usuario
-      const userDir = path.join(this.uploadPath, userId);
+      const userDir = path.join(this.uploadPath, safeUserId);
       await fs.mkdir(userDir, { recursive: true });
 
-      // Generar nombre único
+      // Generar nombre único seguro
       const uniqueId = crypto.randomBytes(16).toString('hex');
       const filename = `meal_${Date.now()}_${uniqueId}.jpg`;
-      const targetPath = path.join(userDir, filename);
+      // Asegurar que filename no contenga path separators
+      const safeFilename = path.basename(filename);
+      const targetPath = path.join(userDir, safeFilename);
 
       // Optimizar y guardar imagen
       await sharp(tempFilePath)
@@ -36,7 +40,7 @@ export class StorageService {
       await fs.unlink(tempFilePath);
 
       // Retornar URL relativa
-      return `/uploads/${userId}/${filename}`;
+      return `/uploads/${safeUserId}/${safeFilename}`;
     } catch (error) {
       logger.error('Error guardando imagen:', error);
       throw new Error('Error al guardar la imagen');
