@@ -66,8 +66,5 @@ export function validateConfig() {
 
   logger.info('✅ Configuración validada correctamente');
   logger.info(`🤖 Proveedor de IA: ${config.ai.geminiApiKey ? 'Google Gemini' : 'Anthropic Claude'}`);
-  
-  if (config.ai.geminiApiKey) {
-    logger.info(`🔑 Google API Key: ${config.ai.geminiApiKey.substring(0, 10)}...`);
-  }
+  // No se loguea ninguna parte de la API Key por seguridad
 }
