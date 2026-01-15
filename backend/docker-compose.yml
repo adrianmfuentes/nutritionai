@@ -34,6 +34,12 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       GEMINI_API_KEY: ${GEMINI_API_KEY}
       UPLOAD_PATH: /app/uploads
+      LOG_LEVEL: warn
+      PGPOOL_MAX: 30
+      PGPOOL_IDLE_TIMEOUT: 30000
+      PGPOOL_CONN_TIMEOUT: 2000
+      RATE_LIMIT_WINDOW_MS: 900000
+      RATE_LIMIT_MAX_REQUESTS: 100
     volumes:
       - uploads_data:/app/uploads
       - logs_data:/app/logs

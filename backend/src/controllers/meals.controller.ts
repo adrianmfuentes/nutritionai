@@ -79,24 +79,18 @@ export class MealsController {
   async analyzeMeal(req: Request, res: Response, next: NextFunction) {
     const client = await pool.connect();
     let transactionStarted = false;
-    
+    let imagePath = req.file?.path;
     try {
       const userId = (req as any).user?.id;
-      
-      if (!req.file) {
+      if (!imagePath) {
         return res.status(400).json({ error: 'No se proporcionó imagen' });
       }
-
       const validatedData = AnalyzeMealSchema.parse(req.body);
       const { mealType, timestamp } = validatedData;
-
       logger.info(`Analizando comida para usuario: ${userId}`);
-
       // Analizar imagen con IA
-      const analysis = await this.visionService.analyzeMealImage(req.file.path);
-
+      const analysis = await this.visionService.analyzeMealImage(imagePath);
       if (!analysis.foods || analysis.foods.length === 0) {
-        await fs.unlink(req.file.path).catch(() => undefined);
         throw new HttpError(
           422,
           'No se detectaron alimentos en la imagen. Intenta con otra foto más clara.',
@@ -104,14 +98,14 @@ export class MealsController {
           { inputType: 'image' }
         );
       }
-
       // Guardar imagen permanentemente
-      const imageUrl = await this.storageService.saveImage(req.file.path, userId);
-
+      const imageUrl = await this.storageService.saveImage(imagePath, userId);
+      // Eliminar imagen temporal después de guardar
+      await fs.unlink(imagePath).catch(() => undefined);
+      imagePath = undefined;
       // Iniciar transacción
       await client.query('BEGIN');
       transactionStarted = true;
-
       let consumedAt = new Date();
       if (timestamp) {
         // Si es solo dígitos, asumimos milisegundos
@@ -121,25 +115,20 @@ export class MealsController {
           consumedAt = new Date(timestamp);
         }
       }
-      
       // Verificamos si la fecha es inválida
       if (isNaN(consumedAt.getTime())) {
         logger.warn(`Timestamp inválido recibido: ${timestamp}, usando fecha actual`);
         consumedAt = new Date();
       }
-
       const mealDate = consumedAt.toISOString().split('T')[0];
-
       // Sanitize meal type
       const sanitizeMealType = (type: string) => this.normalizeMealType(type);
-
       const healthScore = this.ensureHealthScore(analysis);
       if (!analysis.mealContext) {
         analysis.mealContext = { estimatedMealType: 'snack', portionSize: 'medium', healthScore };
       } else {
         analysis.mealContext.healthScore = healthScore;
       }
-
       // Insertar meal
       const mealResult = await client.query(
         `INSERT INTO meals (
@@ -161,10 +150,7 @@ export class MealsController {
           consumedAt,
         ]
       );
-
       const meal = mealResult.rows[0];
-
-
       // Sanitize functions
       const validCategories = ['protein', 'carb', 'vegetable', 'fruit', 'dairy', 'fat', 'mixed'];
       const sanitizeCategory = (category: string) => {
@@ -173,7 +159,6 @@ export class MealsController {
       };
       const clampConfidence = (conf: number) => Math.max(0, Math.min(1, conf));
       const clampPortion = (amount: number) => Math.max(0, Math.min(9999.99, amount));
-
       // Insertar detected foods
       const foodInsertPromises = analysis.foods.map((food) =>
         client.query(
@@ -197,14 +182,10 @@ export class MealsController {
           ]
         )
       );
-
       const foodResults = await Promise.all(foodInsertPromises);
       const detectedFoods = foodResults.map((r) => r.rows[0]);
-
       await client.query('COMMIT');
-
       logger.info(`Comida analizada exitosamente: ${meal.id}`);
-
       res.status(201).json({
         mealId: meal.id,
         detectedFoods: detectedFoods.map((food) => ({
@@ -239,13 +220,11 @@ export class MealsController {
       if (transactionStarted) {
         await client.query('ROLLBACK').catch(() => undefined);
       }
-
       // Si la imagen temporal aún existe (fallo antes de saveImage), intentamos limpiarla.
-      if (req.file?.path) {
-        await fs.unlink(req.file.path).catch(() => undefined);
+      if (imagePath) {
+        await fs.unlink(imagePath).catch(() => undefined);
       }
       logger.error('Error analizando comida:', error);
-      
       if (error instanceof z.ZodError) {
         return res.status(400).json({ 
           error: 'Validación fallida', 
@@ -253,7 +232,6 @@ export class MealsController {
           details: error.issues 
         });
       }
-      
       next(error);
     } finally {
       client.release();
