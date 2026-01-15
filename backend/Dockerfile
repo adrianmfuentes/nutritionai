@@ -6,7 +6,7 @@ RUN npm install -g pnpm
 
 # Instalar dependencias
 COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --prefer-offline
 
 # Copiar código fuente
 COPY . .
@@ -23,17 +23,17 @@ WORKDIR /app
 
 # Instalar curl para healthcheck
 RUN apk add --no-cache curl
-RUN npm install -g pnpm
+RUN npm install -g pnpm && pnpm store prune
 
 # Copiar dependencias y build
 COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --prod --frozen-lockfile
+RUN pnpm install --prod --frozen-lockfile --prefer-offline --omit=dev && pnpm store prune && rm -rf /root/.npm /root/.pnpm-store
 
 COPY --from=builder /app/dist ./dist
 
-# Crear directorio para uploads
 RUN mkdir -p /app/uploads /app/logs && \
-    chown -R node:node /app
+    chown -R node:node /app && \
+    rm -rf /app/.git /app/test /app/tests /app/.github
 
 # Usar usuario no-root
 USER node

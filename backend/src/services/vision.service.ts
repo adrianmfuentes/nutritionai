@@ -1,6 +1,9 @@
 // src/services/vision.service.ts
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import fs from 'fs/promises';
+import crypto from 'crypto';
+// Simple in-memory cache (puede migrarse a Redis para producción)
+const imageAnalysisCache = new Map<string, VisionAnalysisResult>();
 import path from 'path';
 import { logger } from '../utils/logger';
 import { VisionAnalysisResult } from '../types';
@@ -79,103 +82,139 @@ export class VisionService {
   }
 
   async analyzeMealImage(imagePath: string): Promise<VisionAnalysisResult> {
-    try {
-      const imageBuffer = await fs.readFile(imagePath);
-      const base64Image = imageBuffer.toString('base64');
-      
-      // Determinar el tipo MIME
-      const ext = path.extname(imagePath).toLowerCase();
-      const mediaType = ext === '.png' ? 'image/png' : 'image/jpeg';
-
-      const model = this.genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
-
-      const prompt = `${VISION_SYSTEM_PROMPT}\n\nAnaliza esta imagen de comida y proporciona información nutricional siguiendo el formato especificado.`;
-
-      const imagePart = {
-        inlineData: {
-          data: base64Image,
-          mimeType: mediaType,
-        },
-      };
-
-      const geminiResult = await model.generateContent([prompt, imagePart]);
-      const response = await geminiResult.response;
-      const responseText = response.text();
-      
-      if (!responseText) {
-        throw new Error('No se recibió respuesta del modelo');
-      }
-
-      // Parsear JSON
-      let jsonStr = responseText;
-      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        jsonStr = jsonMatch[0];
-      }
-      
-      let analysisResult: VisionAnalysisResult;
-      try {
-        analysisResult = JSON.parse(jsonStr);
-      } catch (e) {
-        logger.error('Error parseando JSON:', { text: responseText, error: e });
-        throw new HttpError(
-          502,
-          'No pude interpretar la respuesta del modelo. Intenta nuevamente.',
-          'LLM_RESPONSE_INVALID',
-          { kind: 'json_parse' }
-        );
-      }
-      return sanitizeVisionAnalysisResult(analysisResult);
-    } catch (error) {
-      if (error instanceof HttpError) throw error;
-      logger.error('Error en análisis de visión:', error);
-      throw new HttpError(502, 'Error al analizar la imagen de comida', 'LLM_ANALYSIS_FAILED');
+    const MAX_RETRIES = 2;
+    const TIMEOUT_MS = 20000; // 20 segundos
+    let lastError: any = null;
+    // Leer buffer y calcular hash SHA256 para cacheo
+    const imageBuffer = await fs.readFile(imagePath);
+    const hash = crypto.createHash('sha256').update(imageBuffer).digest('hex');
+    if (imageAnalysisCache.has(hash)) {
+      logger.info(`[Vision] Cache hit para imagen: ${hash}`);
+      return imageAnalysisCache.get(hash)!;
     }
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        logger.info(`[Vision] Intento ${attempt + 1} de análisis de imagen`);
+        const base64Image = imageBuffer.toString('base64');
+        // Determinar el tipo MIME
+        const ext = path.extname(imagePath).toLowerCase();
+        const mediaType = ext === '.png' ? 'image/png' : 'image/jpeg';
+        const model = this.genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
+        const prompt = `${VISION_SYSTEM_PROMPT}\n\nAnaliza esta imagen de comida y proporciona información nutricional siguiendo el formato especificado.`;
+        const imagePart = {
+          inlineData: {
+            data: base64Image,
+            mimeType: mediaType,
+          },
+        };
+        // Timeout wrapper
+        const geminiResult = await Promise.race([
+          model.generateContent([prompt, imagePart]),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout del modelo LLM')), TIMEOUT_MS))
+        ]);
+        // @ts-ignore
+        const response = geminiResult.response;
+        const responseText = response.text();
+        logger.info(`[Vision] Respuesta del modelo recibida (longitud: ${responseText?.length || 0})`);
+        if (!responseText) {
+          throw new Error('No se recibió respuesta del modelo');
+        }
+        // Parsear JSON
+        let jsonStr = responseText;
+        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          jsonStr = jsonMatch[0];
+        }
+        let analysisResult: VisionAnalysisResult;
+        try {
+          analysisResult = JSON.parse(jsonStr);
+        } catch (e) {
+          logger.error('Error parseando JSON:', { text: responseText, error: e });
+          throw new HttpError(
+            502,
+            'No pude interpretar la respuesta del modelo. Intenta nuevamente.',
+            'LLM_RESPONSE_INVALID',
+            { kind: 'json_parse' }
+          );
+        }
+        const sanitized = sanitizeVisionAnalysisResult(analysisResult);
+        imageAnalysisCache.set(hash, sanitized);
+        return sanitized;
+      } catch (error) {
+        lastError = error;
+        logger.warn(`[Vision] Error en intento ${attempt + 1}:`, error);
+        // Si es HttpError, no reintentar
+        if (error instanceof HttpError) throw error;
+        // Si es el último intento, lanzar error controlado
+        if (attempt === MAX_RETRIES) {
+          logger.error('Error en análisis de visión tras reintentos:', error);
+          throw new HttpError(502, 'Error al analizar la imagen de comida', 'LLM_ANALYSIS_FAILED');
+        }
+        // Esperar antes de reintentar
+        await new Promise((res) => setTimeout(res, 1000));
+      }
+    }
+    // Fallback (no debería llegar aquí)
+    throw lastError || new Error('Error desconocido en análisis de imagen');
+  }
   }
 
   async analyzeTextDescription(description: string): Promise<VisionAnalysisResult> {
-    try {
-      const TEXT_ANALYSIS_PROMPT = `${VISION_SYSTEM_PROMPT}
+    const MAX_RETRIES = 2;
+    const TIMEOUT_MS = 20000;
+    let lastError: any = null;
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        logger.info(`[Vision] Intento ${attempt + 1} de análisis de texto`);
+        const TEXT_ANALYSIS_PROMPT = `${VISION_SYSTEM_PROMPT}
 
 DESCRIPCIÓN DE COMIDA: "${description}"
 
 Analiza esta descripción de comida y proporciona información nutricional siguiendo el formato especificado. Estima cantidades razonables basándote en porciones típicas.`;
-
-      const model = this.genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
-
-      const geminiResult = await model.generateContent(TEXT_ANALYSIS_PROMPT);
-      const response = await geminiResult.response;
-      const responseText = response.text();
-      
-      if (!responseText) {
-        throw new Error('No se recibió respuesta del modelo');
+        const model = this.genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
+        const geminiResult = await Promise.race([
+          model.generateContent(TEXT_ANALYSIS_PROMPT),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout del modelo LLM')), TIMEOUT_MS))
+        ]);
+        // @ts-ignore
+        const response = geminiResult.response;
+        const responseText = response.text();
+        logger.info(`[Vision] Respuesta del modelo recibida (texto, longitud: ${responseText?.length || 0})`);
+        if (!responseText) {
+          throw new Error('No se recibió respuesta del modelo');
+        }
+        // Parsear JSON
+        let jsonStr = responseText;
+        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          jsonStr = jsonMatch[0];
+        }
+        let analysisResult: VisionAnalysisResult;
+        try {
+          analysisResult = JSON.parse(jsonStr);
+        } catch (e) {
+          logger.error('Error parseando JSON:', { text: responseText, error: e });
+          throw new HttpError(
+            502,
+            'No pude interpretar la respuesta del modelo. Intenta reformular tu comida.',
+            'LLM_RESPONSE_INVALID',
+            { kind: 'json_parse' }
+          );
+        }
+        return sanitizeVisionAnalysisResult(analysisResult);
+      } catch (error) {
+        lastError = error;
+        logger.warn(`[Vision] Error en intento ${attempt + 1} (texto):`, error);
+        if (error instanceof HttpError) throw error;
+        if (attempt === MAX_RETRIES) {
+          logger.error('Error en análisis de texto tras reintentos:', error);
+          throw new HttpError(502, 'Error al analizar la descripción de comida', 'LLM_ANALYSIS_FAILED');
+        }
+        await new Promise((res) => setTimeout(res, 1000));
       }
-
-      // Parsear JSON
-      let jsonStr = responseText;
-      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        jsonStr = jsonMatch[0];
-      }
-      
-      let analysisResult: VisionAnalysisResult;
-      try {
-        analysisResult = JSON.parse(jsonStr);
-      } catch (e) {
-        logger.error('Error parseando JSON:', { text: responseText, error: e });
-        throw new HttpError(
-          502,
-          'No pude interpretar la respuesta del modelo. Intenta reformular tu comida.',
-          'LLM_RESPONSE_INVALID',
-          { kind: 'json_parse' }
-        );
-      }
-      return sanitizeVisionAnalysisResult(analysisResult);
-    } catch (error) {
-      if (error instanceof HttpError) throw error;
-      logger.error('Error en análisis de texto:', error);
-      throw new HttpError(502, 'Error al analizar la descripción de comida', 'LLM_ANALYSIS_FAILED');
     }
+    throw lastError || new Error('Error desconocido en análisis de texto');
+  }
   }
 
   async chatNutrition(message: string, conversationHistory?: any[]): Promise<{ message: string; shouldRegisterMeal: boolean; mealData?: any }> {
