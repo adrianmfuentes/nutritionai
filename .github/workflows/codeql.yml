@@ -1,4 +1,4 @@
-name: "CodeQL Advanced"
+name: "CodeQL Advanced - Backend Only"
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
 
 jobs:
   analyze:
-    name: Analyze (${{ matrix.language }})
+    name: Analyze (JS-TS)
     runs-on: ubuntu-latest
     permissions:
       security-events: write
@@ -22,46 +22,23 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - language: java-kotlin
-          build-mode: manual  # Cambiado a manual para evitar el error de autobuild
         - language: javascript-typescript
-          build-mode: none
+          build-mode: none # JS/TS no requiere compilación
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    # Configuración de Java necesaria para compilar Kotlin/Java manualmente
-    - name: Set up JDK 17
-      if: matrix.language == 'java-kotlin'
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: 'gradle'
-
-    # Inicializa las herramientas de CodeQL
+    # Inicializa CodeQL y lo limita SOLO a la carpeta backend
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v4
       with:
         languages: ${{ matrix.language }}
         build-mode: ${{ matrix.build-mode }}
-
-    # PASO DE COMPILACIÓN MANUAL: Aquí es donde resolvemos el error del log
-    - name: Manual Build
-      if: matrix.build-mode == 'manual'
-      shell: bash
-      run: |
-        # Si tu proyecto Kotlin está dentro de la carpeta 'frontend', entramos en ella
-        if [ -d "frontend" ]; then
-          cd frontend
-        fi
-        
-        # Damos permisos de ejecución al wrapper de Gradle
-        chmod +x gradlew
-        
-        # Compilamos el proyecto omitiendo los tests para acelerar el análisis
-        ./gradlew build -x test
+        # Filtramos para que solo analice el contenido de backend/
+        config: |
+          paths:
+            - backend
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v4

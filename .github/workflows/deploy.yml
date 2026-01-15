@@ -18,17 +18,21 @@ jobs:
           key: ${{ secrets.ORACLE_SSH_KEY }}
           port: 4422
           script: |
-            mkdir -p ~/nutrition-app
-            cd ~/nutrition-app
-
-            if [ ! -d ".git" ]; then
-              git clone https://github.com/${{ github.repository }}.git .
-            else
-              git pull origin main
-            fi
+            cd ~/nutrition-app/backend
+            git pull origin main
             
-            cd backend
-            npm install
+            # 1. Instalar con bypass de conflictos
+            npm install --legacy-peer-deps
+            
+            # 2. Intentar compilar (si esto falla, el script se detendrá aquí)
             npm run build
             
+            # 3. Verificar si PM2 existe antes de usarlo
+            if ! command -v pm2 &> /dev/null
+            then
+                echo "PM2 no está instalado. Instalando..."
+                sudo npm install -g pm2
+            fi
+            
+            # 4. Reiniciar
             pm2 restart backend-app || pm2 start dist/app.js --name "backend-app"
