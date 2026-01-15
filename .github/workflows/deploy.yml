@@ -1,0 +1,31 @@
+name: Despliegue Manual Backend (Oracle Ampere)
+
+on:
+  workflow_dispatch: # Esto habilita el botón manual en GitHub
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Desplegar en Oracle via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.ORACLE_IP }}
+          username: ${{ secrets.ORACLE_USER }}
+          key: ${{ secrets.ORACLE_SSH_KEY }}
+          script: |
+            # Entrar a la carpeta del proyecto
+            cd ~/tu-repositorio/backend
+            
+            # Actualizar código
+            git pull origin main
+            
+            # Instalar dependencias y construir (importante para TypeScript)
+            npm install
+            npm run build
+            
+            # Reiniciar el proceso (usando PM2 que es lo ideal para servidores)
+            pm2 restart backend-app || pm2 start dist/app.js --name "backend-app"
