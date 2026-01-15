@@ -35,10 +35,18 @@ jobs:
       with:
         languages: ${{ matrix.language }}
         build-mode: ${{ matrix.build-mode }}
-        # Filtramos para que solo analice el contenido de backend/
+        # Configuración avanzada de rutas
         config: |
           paths:
             - backend
+          paths-ignore:
+            - '**/test/**'
+            - '**/tests/**'
+            - '**/*.test.ts'
+            - '**/*.spec.ts'
+            - 'backend/dist/**'
+            - 'backend/node_modules/**'
+            - 'backend/logs/**'
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v4
