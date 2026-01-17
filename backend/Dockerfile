@@ -19,7 +19,7 @@ RUN pnpm install --prefer-offline
 
 COPY . .
 
-RUN pnpm run build
+RUN pnpm run build || (ls -R && pnpm run build)
 
 # ============================================
 # ETAPA 2: Production
