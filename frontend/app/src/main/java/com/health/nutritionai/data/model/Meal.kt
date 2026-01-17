@@ -8,7 +8,8 @@ data class Meal(
     val timestamp: String,
     val mealType: String? = null,
     val notes: String? = null,
-    val healthScore: Double? = null
+    val healthScore: Double? = null,
+    val advice: String? = null
 )
 
 data class MealSummary(
