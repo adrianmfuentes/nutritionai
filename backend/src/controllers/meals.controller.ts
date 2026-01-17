@@ -67,25 +67,63 @@ export class MealsController {
   }
 
   private computeHealthScoreFromTotals(totals: { calories?: any; protein?: any; carbs?: any; fat?: any; fiber?: any }): number {
+      /**
+       * Genera un consejo personalizado según la puntuación de salud y los nutrientes
+       */
+      private getHealthAdvice(score: number, totals: { calories?: any; protein?: any; carbs?: any; fat?: any; fiber?: any }): string {
+        if (score >= 9) return '¡Excelente comida! Muy equilibrada y saludable.';
+        if (score >= 7) return 'Buena elección. Puedes añadir más vegetales o fibra para mejorar aún más.';
+        if (score >= 5) return 'Comida aceptable, pero podrías mejorar el balance añadiendo proteína magra, vegetales o reduciendo grasas.';
+        if (score >= 3) return 'Intenta reducir grasas y calorías, y aumentar la fibra y proteína para una comida más saludable.';
+        return 'Esta comida es poco saludable. Intenta incluir más vegetales, proteína magra y reducir azúcares y grasas.';
+      }
+    // Fórmula avanzada basada en criterios científicos
     const calories = Number(totals.calories ?? 0);
     const protein = Number(totals.protein ?? 0);
+    const carbs = Number(totals.carbs ?? 0);
     const fat = Number(totals.fat ?? 0);
     const fiber = Number(totals.fiber ?? 0);
 
-    const proteinScore = Math.min(3, (protein / 30) * 3);
-    const fiberScore = Math.min(2, (fiber / 10) * 2);
-    const fatPenalty = Math.min(2, (fat / 25) * 2);
-    const caloriePenalty = calories > 800 ? Math.min(2, ((calories - 800) / 800) * 2) : 0;
+    // 1. Penalización por exceso de calorías
+    let score = 10;
+    if (calories > 800) score -= 2;
+    else if (calories > 600) score -= 1;
+    if (calories < 200) score -= 1; // muy baja en calorías
 
-    const score = 5 + proteinScore + fiberScore - fatPenalty - caloriePenalty;
+    // 2. Proporción proteína/calorías (ideal: >15% de calorías de proteína)
+    const proteinKcal = protein * 4;
+    const proteinPct = calories > 0 ? (proteinKcal / calories) : 0;
+    if (proteinPct >= 0.15) score += 1;
+    else if (proteinPct < 0.10) score -= 1;
+
+    // 3. Proporción fibra/calorías (ideal: >8g por 500 kcal)
+    const fiberPer500kcal = calories > 0 ? (fiber / calories) * 500 : 0;
+    if (fiberPer500kcal >= 8) score += 1;
+    else if (fiberPer500kcal < 3) score -= 1;
+
+    // 4. Relación proteína/carbohidrato (ideal: 0.3-1)
+    const protCarbRatio = carbs > 0 ? protein / carbs : 0;
+    if (protCarbRatio >= 0.3 && protCarbRatio <= 1.2) score += 1;
+    else if (protCarbRatio < 0.2) score -= 1;
+
+    // 5. Penalización por exceso de grasa (>30g)
+    if (fat > 30) score -= 1;
+    // Penalización por grasa/caloría (>35% kcal de grasa)
+    const fatKcal = fat * 9;
+    const fatPct = calories > 0 ? (fatKcal / calories) : 0;
+    if (fatPct > 0.35) score -= 1;
+
+    // 6. Bonus por variedad (si hay proteína, vegetal y carbohidrato)
+    // (esto se puede mejorar si se pasa la lista de alimentos, pero aquí solo con totales)
+    if (protein > 10 && carbs > 15 && fiber > 3) score += 1;
+
+    // Clamp final
+    score = Math.round(score);
     return Math.max(1, Math.min(10, Number.isFinite(score) ? score : 5));
   }
 
   private ensureHealthScore(analysis: any): number {
-    const raw = analysis?.mealContext?.healthScore;
-    if (typeof raw === 'number' && !isNaN(raw)) {
-      return Math.max(1, Math.min(10, raw));
-    }
+    // SIEMPRE calcular la puntuación en backend, ignorar la del modelo
     return this.computeHealthScoreFromTotals({
       calories: analysis?.totalNutrition?.calories,
       protein: analysis?.totalNutrition?.protein,
@@ -447,6 +485,7 @@ export class MealsController {
       }), { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 });
 
       const computedHealth = this.computeHealthScoreFromTotals(total);
+      const advice = this.getHealthAdvice(computedHealth, total);
 
       const result = await pool.query(
         `UPDATE meals 
@@ -499,6 +538,7 @@ export class MealsController {
           totalFat: updated.total_fat !== null && updated.total_fat !== undefined ? parseFloat(updated.total_fat) : null,
           totalFiber: updated.total_fiber !== null && updated.total_fiber !== undefined ? parseFloat(updated.total_fiber) : null,
           healthScore,
+          advice,
           notes: updated.notes,
           timestamp: updated.consumed_at,
         },

@@ -1,29 +1,12 @@
-name: Despliegue Backend Oracle
+name: Despliegue Backend via Portainer Webhook
 
 on:
-  workflow_dispatch: # Esto habilita el botón manual en GitHub
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout del código
-        uses: actions/checkout@v4
-
-      - name: Desplegar en Oracle via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.ORACLE_IP }}
-          username: ${{ secrets.ORACLE_USER }}
-          key: ${{ secrets.ORACLE_SSH_KEY }}
-          port: 4422
-          script: |
-            cd ~/nutrition-app
-            git pull origin main
-            
-            # Construir y levantar los contenedores
-            # --build asegura que se apliquen los cambios de código
-            docker-compose up -d --build
-            
-            # Limpiar imágenes antiguas para no llenar el disco del servidor
-            docker image prune -f
+      - name: Trigger Portainer Webhook
+        run: |
+          curl -X POST "${{ secrets.PORTAINER_WEBHOOK_URL }}"
