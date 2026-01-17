@@ -37,7 +37,6 @@ export class StorageService {
         .toFile(targetPath);
 
       // Eliminar archivo temporal de forma segura
-      const path = require('path');
       const tempDir = path.resolve('./uploads/temp');
       const absoluteTempFilePath = path.resolve(tempFilePath);
       if (absoluteTempFilePath.startsWith(tempDir + path.sep)) {

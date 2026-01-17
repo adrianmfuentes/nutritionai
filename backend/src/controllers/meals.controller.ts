@@ -70,13 +70,7 @@ export class MealsController {
       /**
        * Genera un consejo personalizado según la puntuación de salud y los nutrientes
        */
-      private getHealthAdvice(score: number, totals: { calories?: any; protein?: any; carbs?: any; fat?: any; fiber?: any }): string {
-        if (score >= 9) return '¡Excelente comida! Muy equilibrada y saludable.';
-        if (score >= 7) return 'Buena elección. Puedes añadir más vegetales o fibra para mejorar aún más.';
-        if (score >= 5) return 'Comida aceptable, pero podrías mejorar el balance añadiendo proteína magra, vegetales o reduciendo grasas.';
-        if (score >= 3) return 'Intenta reducir grasas y calorías, y aumentar la fibra y proteína para una comida más saludable.';
-        return 'Esta comida es poco saludable. Intenta incluir más vegetales, proteína magra y reducir azúcares y grasas.';
-      }
+  
     // Fórmula avanzada basada en criterios científicos
     const calories = Number(totals.calories ?? 0);
     const protein = Number(totals.protein ?? 0);
@@ -121,7 +115,15 @@ export class MealsController {
     score = Math.round(score);
     return Math.max(1, Math.min(10, Number.isFinite(score) ? score : 5));
   }
-
+  
+  private getHealthAdvice(score: number, totals: { calories?: any; protein?: any; carbs?: any; fat?: any; fiber?: any }): string {
+    if (score >= 9) return '¡Excelente comida! Muy equilibrada y saludable.';
+    if (score >= 7) return 'Buena elección. Puedes añadir más vegetales o fibra para mejorar aún más.';
+    if (score >= 5) return 'Comida aceptable, pero podrías mejorar el balance añadiendo proteína magra, vegetales o reduciendo grasas.';
+    if (score >= 3) return 'Intenta reducir grasas y calorías, y aumentar la fibra y proteína para una comida más saludable.';
+    return 'Esta comida es poco saludable. Intenta incluir más vegetales, proteína magra y reducir azúcares y grasas.';
+  }
+  
   private ensureHealthScore(analysis: any): number {
     // SIEMPRE calcular la puntuación en backend, ignorar la del modelo
     return this.computeHealthScoreFromTotals({
