@@ -32,9 +32,7 @@ export class ChatController {
       const chatResult = await this.visionService.chatNutrition(message, conversationHistory);
 
       res.json({
-        message: chatResult.message,
-        shouldRegisterMeal: chatResult.shouldRegisterMeal,
-        mealData: chatResult.mealData || undefined,
+        message: chatResult.message
       });
     } catch (error) {
       if (error instanceof z.ZodError) {

@@ -40,11 +40,11 @@ class ChatViewModel(
     private val conversationHistory = mutableListOf<ChatMessage>()
 
     init {
-        // Agregar mensaje inicial del asistente
+        // Mensaje inicial solo de asesoramiento
         conversationHistory.add(
             ChatMessage(
                 role = "assistant",
-                content = "¡Hola! Soy tu asistente nutricional. Cuéntame qué has comido y te ayudaré a registrarlo. Puedes decirme el nombre de los alimentos y las cantidades (por ejemplo: '200g de pollo con arroz' o 'una manzana mediana')."
+                content = "¡Hola! Soy tu asistente nutricional. Estoy aquí para responder tus dudas y darte consejos sobre alimentación saludable."
             )
         )
         _uiState.value = ChatUiState.Success(conversationHistory.toList())
@@ -64,7 +64,7 @@ class ChatViewModel(
             try {
                 val request = ChatRequest(
                     message = userMessage,
-                    conversationHistory = conversationHistory.takeLast(10) // Últimos 10 mensajes para contexto
+                    conversationHistory = conversationHistory.takeLast(10)
                 )
 
                 val response = apiService.chat(request)
@@ -73,10 +73,7 @@ class ChatViewModel(
                 val assistantMsg = ChatMessage(role = "assistant", content = response.message)
                 conversationHistory.add(assistantMsg)
 
-                // Si el LLM identificó una comida para registrar
-                if (response.shouldRegisterMeal && response.mealData != null) {
-                    registerMealFromChat(response.mealData)
-                }
+                // Ya no se registra ninguna comida desde el chat
 
                 _uiState.value = ChatUiState.Success(conversationHistory.toList(), isProcessing = false)
             } catch (e: Exception) {
@@ -93,56 +90,7 @@ class ChatViewModel(
         }
     }
 
-    private suspend fun registerMealFromChat(mealData: com.health.nutritionai.data.remote.dto.MealDataDto) {
-        try {
-            val userId = userRepository.getUserId()
-            val mealId = UUID.randomUUID().toString()
-            val timestamp = System.currentTimeMillis().toString()
-
-            // Crear entidad de comida
-            val mealEntity = MealEntity(
-                mealId = mealId,
-                userId = userId,
-                mealType = mealData.mealType ?: "snack",
-                imageUrl = "", // No hay imagen para chat
-                notes = conversationHistory.lastOrNull { it.role == "user" }?.content,
-                totalCalories = mealData.totalNutrition.calories,
-                totalProtein = mealData.totalNutrition.protein,
-                totalCarbs = mealData.totalNutrition.carbs,
-                totalFat = mealData.totalNutrition.fat,
-                totalFiber = mealData.totalNutrition.fiber ?: 0.0,
-                healthScore = null,
-                timestamp = timestamp
-            )
-
-            // Crear entidades de alimentos
-            val foodEntities = mealData.foods.map { food ->
-                FoodEntity(
-                    mealId = mealId,
-                    name = food.name,
-                    confidence = 1.0, // Alta confianza porque fue especificado por el usuario
-                    portionAmount = food.amount,
-                    portionUnit = food.unit,
-                    calories = food.nutrition.calories,
-                    protein = food.nutrition.protein,
-                    carbs = food.nutrition.carbs,
-                    fat = food.nutrition.fat,
-                    fiber = food.nutrition.fiber ?: 0.0,
-                    category = food.category,
-                    imageUrl = null
-                )
-            }
-
-            // Guardar en la base de datos local
-            mealRepository.saveMealWithFoods(mealEntity, foodEntities)
-
-            val successMessage = ErrorMapper.getSuccessMessage(SuccessAction.MEAL_ANALYZED)
-            _feedback.value = UserFeedback.Success("✅ $successMessage")
-        } catch (e: Exception) {
-            val errorMessage = ErrorMapper.mapErrorToMessage(e, ErrorContext.MEAL_ANALYSIS)
-            _feedback.value = UserFeedback.Error(errorMessage)
-        }
-    }
+    // Eliminada la función de registrar comidas desde el chat
 
     fun clearFeedback() {
         _feedback.value = UserFeedback.None
@@ -153,7 +101,7 @@ class ChatViewModel(
         conversationHistory.add(
             ChatMessage(
                 role = "assistant",
-                content = "Conversación reiniciada. ¿Qué has comido?"
+                content = "Conversación reiniciada. ¿En qué puedo ayudarte sobre nutrición?"
             )
         )
         _uiState.value = ChatUiState.Success(conversationHistory.toList())

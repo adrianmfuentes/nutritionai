@@ -225,44 +225,15 @@ Analiza esta descripción de comida y proporciona información nutricional sigui
 
   async chatNutrition(message: string, conversationHistory?: any[]): Promise<{ message: string; shouldRegisterMeal: boolean; mealData?: any }> {
     try {
+      // Nuevo prompt: solo asesoramiento, nunca registrar comidas
       const CHAT_SYSTEM_PROMPT = `Eres un asistente nutricional amigable y experto. 
 
 Tus responsabilidades:
 1. Responder preguntas sobre nutrición, dietas y salud
 2. Ofrecer consejos personalizados sobre alimentación
 3. Ayudar a interpretar información nutricional
-4. Detectar cuando el usuario menciona haber comido algo
 
-Cuando el usuario mencione que comió algo:
-- Responde de forma natural y amigable
-- Analiza la descripción nutricional
-- Devuelve shouldRegisterMeal: true y los datos de la comida
-
-Formato de respuesta (JSON):
-{
-  "message": "tu respuesta amigable al usuario",
-  "shouldRegisterMeal": false,
-  "mealData": null
-}
-
-O si detectas una comida:
-{
-  "message": "¡Qué delicioso! He registrado tu comida.",
-  "shouldRegisterMeal": true,
-  "mealData": {
-    "foods": [
-      {
-        "name": "nombre del alimento",
-        "amount": 100,
-        "unit": "g",
-        "nutrition": { "calories": 200, "protein": 10, "carbs": 20, "fat": 5, "fiber": 2 },
-        "category": "protein|carb|vegetable|fruit|dairy|fat|mixed"
-      }
-    ],
-    "totalNutrition": { "calories": 200, "protein": 10, "carbs": 20, "fat": 5, "fiber": 2 },
-    "mealType": "breakfast|lunch|dinner|snack"
-  }
-}`;
+No debes registrar comidas ni pedir al usuario que registre comidas. Si el usuario menciona que comió algo, solo ofrece asesoramiento o comentarios, pero nunca digas que has registrado la comida ni devuelvas datos de comidas.`;
 
       const model = this.genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
 
@@ -275,7 +246,7 @@ O si detectas una comida:
         });
       }
 
-      const fullPrompt = `${CHAT_SYSTEM_PROMPT}${conversationContext}\n\nMensaje del usuario: "${message}"\n\nResponde en formato JSON.`;
+      const fullPrompt = `${CHAT_SYSTEM_PROMPT}${conversationContext}\n\nMensaje del usuario: "${message}"\n\nResponde solo con un JSON: { "message": "respuesta" }.`;
 
       const geminiResult = await model.generateContent(fullPrompt);
       const response = await geminiResult.response;
@@ -300,17 +271,15 @@ O si detectas una comida:
         // Respuesta por defecto si falla el parseo
         return {
           message: responseText || 'Lo siento, no pude procesar tu mensaje correctamente.',
-          shouldRegisterMeal: false
+          shouldRegisterMeal: false,
+          mealData: undefined
         };
       }
 
-      const shouldRegisterMeal = chatResult?.shouldRegisterMeal === true;
-      const sanitizedMealData = shouldRegisterMeal ? sanitizeChatMealData(chatResult?.mealData) : undefined;
-
       return {
         message: chatResult.message || responseText,
-        shouldRegisterMeal: shouldRegisterMeal && !!sanitizedMealData,
-        mealData: sanitizedMealData
+        shouldRegisterMeal: false,
+        mealData: undefined
       };
     } catch (error) {
       logger.error('Error en chat de nutrición:', error);
