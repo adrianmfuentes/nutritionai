@@ -122,7 +122,13 @@ fun HistoryScreen(
                                 meal = meal,
                                 onClick = { selectedMeal = meal },
                                 onDelete = { viewModel.deleteMeal(meal.mealId) },
-                                onEdit = { updatedMeal -> viewModel.updateMeal(updatedMeal) }
+                                onEdit = { updatedMeal ->
+                                    if (updatedMeal.detectedFoods.isEmpty()) {
+                                        viewModel.deleteMeal(meal.mealId)
+                                    } else {
+                                        viewModel.updateMeal(updatedMeal)
+                                    }
+                                }
                             )
                         }
                     }

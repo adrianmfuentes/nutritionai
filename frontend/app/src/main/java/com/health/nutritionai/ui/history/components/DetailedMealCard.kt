@@ -75,9 +75,13 @@ fun DetailedMealCard(
         EditMealDialog(
             meal = meal,
             onDismiss = { showEditDialog = false },
-            onSave = { updatedMeal ->
+            onSave = { updatedMeal, shouldDelete ->
                 showEditDialog = false
-                onEdit?.invoke(updatedMeal)
+                if (shouldDelete) {
+                    onDelete?.invoke(meal.mealId)
+                } else {
+                    onEdit?.invoke(updatedMeal)
+                }
             }
         )
     }
@@ -265,7 +269,7 @@ fun DetailedMealCard(
 private fun EditMealDialog(
     meal: Meal,
     onDismiss: () -> Unit,
-    onSave: (Meal) -> Unit
+    onSave: (Meal, Boolean) -> Unit // Boolean: true si se debe eliminar la comida
 ) {
     val initialMealType = remember(meal.mealType) {
         when (meal.mealType?.lowercase()) {
@@ -279,9 +283,7 @@ private fun EditMealDialog(
     var selectedMealType by remember { mutableStateOf(initialMealType) }
     var notes by remember { mutableStateOf(meal.notes ?: "") }
     var expanded by remember { mutableStateOf(false) }
-
     val mealTypes = listOf("breakfast", "lunch", "dinner", "snack")
-
     fun mealTypeLabel(type: String): String {
         return when (type) {
             "breakfast" -> "Desayuno"
@@ -291,6 +293,9 @@ private fun EditMealDialog(
             else -> type.replaceFirstChar { it.uppercase() }
         }
     }
+    // Edición de alimentos
+    var foods by remember { mutableStateOf(meal.detectedFoods.toMutableList()) }
+    var showAddFoodDialog by remember { mutableStateOf(false) }
 
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -379,9 +384,39 @@ private fun EditMealDialog(
                     maxLines = 5
                 )
 
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Lista editable de alimentos
+                Text("Alimentos", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+                Spacer(modifier = Modifier.height(8.dp))
+                foods.forEachIndexed { idx, food ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                        elevation = CardDefaults.cardElevation(2.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(8.dp)) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(food.name, fontWeight = FontWeight.Bold)
+                                Text("Cantidad: ${food.portion.amount} ${food.portion.unit}")
+                                Text("Calorías: ${food.nutrition.calories}")
+                            }
+                            IconButton(onClick = {
+                                foods = foods.toMutableList().also { it.removeAt(idx) }
+                            }) {
+                                Icon(Icons.Default.Delete, contentDescription = "Eliminar alimento")
+                            }
+                        }
+                    }
+                }
+                OutlinedButton(onClick = { showAddFoodDialog = true }, modifier = Modifier.fillMaxWidth()) {
+                    Icon(Icons.Default.Add, contentDescription = null)
+                    Spacer(Modifier.width(4.dp))
+                    Text("Añadir alimento")
+                }
+
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Buttons
+                // Botones
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
@@ -392,16 +427,47 @@ private fun EditMealDialog(
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
                         onClick = {
-                            val updatedMeal = meal.copy(
-                                mealType = selectedMealType,
-                                notes = notes.ifBlank { null }
-                            )
-                            onSave(updatedMeal)
+                            if (foods.isEmpty()) {
+                                // Si no hay alimentos, eliminar la comida
+                                onSave(meal, true)
+                            } else {
+                                // Recalcular nutrición total
+                                val total = foods.fold(Nutrition(0,0.0,0.0,0.0,0.0)) { acc, f ->
+                                    Nutrition(
+                                        calories = acc.calories + f.nutrition.calories,
+                                        protein = acc.protein + f.nutrition.protein,
+                                        carbs = acc.carbs + f.nutrition.carbs,
+                                        fat = acc.fat + f.nutrition.fat,
+                                        fiber = (acc.fiber ?: 0.0) + (f.nutrition.fiber ?: 0.0)
+                                    )
+                                }
+                                val updatedMeal = meal.copy(
+                                    mealType = selectedMealType,
+                                    notes = notes.ifBlank { null },
+                                    detectedFoods = foods.toList(),
+                                    totalNutrition = total
+                                )
+                                onSave(updatedMeal, false)
+                            }
                         }
                     ) {
-                        Text("Guardar")
+                        Text(if (foods.isEmpty()) "Eliminar comida" else "Guardar")
                     }
                 }
+            }
+        }
+    }
+
+    // Diálogo para añadir alimento
+    if (showAddFoodDialog) {
+        AddFoodDialog(
+            onAdd = { newFood ->
+                foods = foods.toMutableList().apply { add(newFood) }
+                showAddFoodDialog = false
+            },
+            onDismiss = { showAddFoodDialog = false }
+        )
+    }
             }
         }
     }

@@ -20,9 +20,28 @@ const AnalyzeTextSchema = z.object({
   timestamp: z.string().optional(),
 });
 
+const FoodSchema = z.object({
+  id: z.string().optional(),
+  name: z.string(),
+  confidence: z.number().optional(),
+  portion: z.object({
+    amount: z.number(),
+    unit: z.string(),
+  }),
+  nutrition: z.object({
+    calories: z.number(),
+    protein: z.number(),
+    carbs: z.number(),
+    fat: z.number(),
+    fiber: z.number().optional(),
+  }),
+  category: z.string(),
+});
+
 const UpdateMealSchema = z.object({
   notes: z.string().nullable().optional(),
   mealType: z.string().nullable().optional(),
+  foods: z.array(FoodSchema).optional(),
 });
 
 export class MealsController {
@@ -408,37 +427,59 @@ export class MealsController {
       const validated = UpdateMealSchema.parse(req.body);
       const notes = validated.notes ?? null;
       const mealType = validated.mealType ?? null;
+      const foods = validated.foods ?? [];
 
-      const existingResult = await pool.query(
-        'SELECT total_calories, total_protein, total_carbs, total_fat, total_fiber, health_score FROM meals WHERE id = $1 AND user_id = $2',
-        [mealId, userId]
-      );
-
-      if (existingResult.rows.length === 0) {
-        return res.status(404).json({ error: 'Comida no encontrada' });
+      // Si no hay alimentos, eliminar la comida y sus alimentos
+      if (foods.length === 0) {
+        await pool.query('DELETE FROM detected_foods WHERE meal_id = $1', [mealId]);
+        await pool.query('DELETE FROM meals WHERE id = $1 AND user_id = $2', [mealId, userId]);
+        return res.json({ success: true, deleted: true });
       }
 
-      const existing = existingResult.rows[0];
-      const computedHealth = (existing.health_score !== null && existing.health_score !== undefined)
-        ? parseFloat(existing.health_score)
-        : this.computeHealthScoreFromTotals({
-            calories: existing.total_calories,
-            protein: existing.total_protein,
-            carbs: existing.total_carbs,
-            fat: existing.total_fat,
-            fiber: existing.total_fiber,
-          });
+      // Actualizar comida
+      // Recalcular totales
+      const total = foods.reduce((acc, f) => ({
+        calories: acc.calories + f.nutrition.calories,
+        protein: acc.protein + f.nutrition.protein,
+        carbs: acc.carbs + f.nutrition.carbs,
+        fat: acc.fat + f.nutrition.fat,
+        fiber: (acc.fiber ?? 0) + (f.nutrition.fiber ?? 0)
+      }), { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 });
+
+      const computedHealth = this.computeHealthScoreFromTotals(total);
 
       const result = await pool.query(
         `UPDATE meals 
-         SET notes = $1, meal_type = COALESCE($2, meal_type), health_score = COALESCE(health_score, $3), updated_at = CURRENT_TIMESTAMP 
-         WHERE id = $4 AND user_id = $5 
+         SET notes = $1, meal_type = COALESCE($2, meal_type), health_score = $3, total_calories = $4, total_protein = $5, total_carbs = $6, total_fat = $7, total_fiber = $8, updated_at = CURRENT_TIMESTAMP 
+         WHERE id = $9 AND user_id = $10 
          RETURNING *`,
-        [notes, mealType ? this.normalizeMealType(mealType) : null, computedHealth, mealId, userId]
+        [notes, mealType ? this.normalizeMealType(mealType) : null, computedHealth, total.calories, total.protein, total.carbs, total.fat, total.fiber, mealId, userId]
       );
 
       if (result.rows.length === 0) {
         return res.status(404).json({ error: 'Comida no encontrada' });
+      }
+
+      // Actualizar alimentos: eliminar los existentes y crear los nuevos
+      await pool.query('DELETE FROM detected_foods WHERE meal_id = $1', [mealId]);
+      for (const food of foods) {
+        await pool.query(
+          `INSERT INTO detected_foods (meal_id, name, confidence, portion_amount, portion_unit, calories, protein, carbs, fat, fiber, category)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+          [
+            mealId,
+            food.name,
+            food.confidence ?? 1.0,
+            food.portion.amount,
+            food.portion.unit,
+            food.nutrition.calories,
+            food.nutrition.protein,
+            food.nutrition.carbs,
+            food.nutrition.fat,
+            food.nutrition.fiber ?? null,
+            food.category
+          ]
+        );
       }
 
       const updated = result.rows[0];
