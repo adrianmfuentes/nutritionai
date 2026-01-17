@@ -36,8 +36,13 @@ export class StorageService {
         .jpeg({ quality: 85 })
         .toFile(targetPath);
 
-      // Eliminar archivo temporal
-      await fs.unlink(tempFilePath);
+      // Eliminar archivo temporal de forma segura
+      const path = require('path');
+      const tempDir = path.resolve('./uploads/temp');
+      const absoluteTempFilePath = path.resolve(tempFilePath);
+      if (absoluteTempFilePath.startsWith(tempDir + path.sep)) {
+        await fs.unlink(absoluteTempFilePath).catch(() => undefined);
+      }
 
       // Retornar URL relativa
       return `/uploads/${safeUserId}/${safeFilename}`;

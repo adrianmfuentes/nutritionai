@@ -101,10 +101,11 @@ export class MealsController {
       // Guardar imagen permanentemente
       const imageUrl = await this.storageService.saveImage(imagePath, userId);
       // Eliminar imagen temporal después de guardar (solo si está bajo uploads)
-      const uploadsRoot = (process.env.UPLOAD_PATH || './uploads').replace(/\\/g, '/');
-      const normalized = imagePath.replace(/\\/g, '/');
-      if (normalized.startsWith(uploadsRoot) || normalized.startsWith('./uploads') || normalized.startsWith('/app/uploads')) {
-        await fs.unlink(imagePath).catch(() => undefined);
+      const path = require('path');
+      const uploadsRoot = path.resolve(process.env.UPLOAD_PATH || './uploads');
+      const absoluteImagePath = path.resolve(imagePath);
+      if (absoluteImagePath.startsWith(uploadsRoot + path.sep)) {
+        await fs.unlink(absoluteImagePath).catch(() => undefined);
       } else {
         logger.warn('Intento de eliminar archivo fuera de uploads bloqueado:', imagePath);
       }
@@ -229,10 +230,11 @@ export class MealsController {
       // Si la imagen temporal aún existe (fallo antes de saveImage), intentamos limpiarla.
       if (imagePath) {
         // Sanitizar imagePath: solo permitir rutas bajo /uploads o ./uploads
-        const uploadsRoot = (process.env.UPLOAD_PATH || './uploads').replace(/\\/g, '/');
-        const normalized = imagePath.replace(/\\/g, '/');
-        if (normalized.startsWith(uploadsRoot) || normalized.startsWith('./uploads') || normalized.startsWith('/app/uploads')) {
-          await fs.unlink(imagePath).catch(() => undefined);
+        const path = require('path');
+        const uploadsRoot = path.resolve(process.env.UPLOAD_PATH || './uploads');
+        const absoluteImagePath = path.resolve(imagePath);
+        if (absoluteImagePath.startsWith(uploadsRoot + path.sep)) {
+          await fs.unlink(absoluteImagePath).catch(() => undefined);
         } else {
           logger.warn('Intento de eliminar archivo fuera de uploads bloqueado:', imagePath);
         }

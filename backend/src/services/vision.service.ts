@@ -85,8 +85,16 @@ export class VisionService {
     const MAX_RETRIES = 2;
     const TIMEOUT_MS = 20000; // 20 segundos
     let lastError: any = null;
-    // Leer buffer y calcular hash SHA256 para cacheo
-    const imageBuffer = await fs.readFile(imagePath);
+    // Leer buffer de imagen de forma segura
+    const path = require('path');
+    const uploadsRoot = path.resolve(process.env.UPLOAD_PATH || './uploads');
+    const absoluteImagePath = path.resolve(imagePath);
+    let imageBuffer;
+    if (absoluteImagePath.startsWith(uploadsRoot + path.sep)) {
+      imageBuffer = await fs.readFile(absoluteImagePath);
+    } else {
+      throw new Error('Intento de leer archivo fuera de uploads bloqueado: ' + imagePath);
+    }
     const hash = crypto.createHash('sha256').update(imageBuffer).digest('hex');
     if (imageAnalysisCache.has(hash)) {
       logger.info(`[Vision] Cache hit para imagen: ${hash}`);
