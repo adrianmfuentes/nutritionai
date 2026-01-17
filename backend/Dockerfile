@@ -1,47 +1,65 @@
-# Build stage
+# ============================================
+# ETAPA 1: Builder
+# ============================================
 FROM node:20-alpine AS builder
 
+# Instalar dependencias necesarias para compilar módulos nativos en Alpine/ARM
+RUN apk add --no-cache libc6-compat python3 make g++
+
 WORKDIR /app
-RUN npm install -g pnpm
 
-# Instalar dependencias
+# Habilitar corepack
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Copiar archivos de definición de dependencias
 COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile --prefer-offline
 
-# Copiar código fuente
+# Instalamos todas las dependencias
+RUN pnpm install --prefer-offline
+
 COPY . .
 
-# Build TypeScript
 RUN pnpm run build
 
 # ============================================
-# Production Stage
+# ETAPA 2: Production
 # ============================================
-FROM node:20-alpine
+FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-# Instalar curl para healthcheck
-RUN apk add --no-cache curl
-RUN npm install -g pnpm && pnpm store prune
+# Instalar curl para el healthcheck y libc6-compat para compatibilidad ARM
+RUN apk add --no-cache curl libc6-compat
 
-# Copiar dependencias y build
+# Habilitar pnpm en la etapa de producción
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Configurar entorno de producción
+ENV NODE_ENV=production
+
+# Copiar archivos de dependencias
 COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --prod --frozen-lockfile --prefer-offline --omit=dev && pnpm store prune && rm -rf /root/.npm /root/.pnpm-store
 
+# Instalar dependencias de producción
+RUN pnpm install --prod --prefer-offline && \
+    pnpm store prune
+
+# Copiar el build desde la etapa anterior
 COPY --from=builder /app/dist ./dist
 
+# Crear carpetas necesarias y gestionar permisos para el usuario 'node'
 RUN mkdir -p /app/uploads /app/logs && \
     chown -R node:node /app && \
-    rm -rf /app/.git /app/test /app/tests /app/.github
+    rm -rf /root/.npm /root/.pnpm-store
 
-# Usar usuario no-root
+# Usar el usuario no-privilegiado que viene por defecto en la imagen de Node
 USER node
 
 EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+    CMD curl -f http://localhost:3000/health || exit 1
 
+# Ejecutar la aplicación
 CMD ["node", "dist/index.js"]
