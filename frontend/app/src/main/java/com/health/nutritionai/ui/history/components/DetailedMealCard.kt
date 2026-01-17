@@ -1,10 +1,12 @@
 package com.health.nutritionai.ui.history.components
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
@@ -27,6 +29,7 @@ import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
 import com.health.nutritionai.data.model.Food
 import com.health.nutritionai.data.model.Meal
+import com.health.nutritionai.data.model.Nutrition
 import com.health.nutritionai.ui.theme.*
 import java.util.Locale
 
@@ -46,13 +49,12 @@ fun DetailedMealCard(
     // Delete confirmation dialog
     if (showDeleteConfirmation) {
         AlertDialog(
-            onDismissRequest = { showDeleteConfirmation = false },
+            onDismissRequest = { },
             title = { Text("Eliminar comida") },
             text = { Text("¿Estás seguro de que deseas eliminar esta comida? Esta acción no se puede deshacer.") },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        showDeleteConfirmation = false
                         onDelete?.invoke()
                     },
                     colors = ButtonDefaults.textButtonColors(
@@ -63,7 +65,7 @@ fun DetailedMealCard(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteConfirmation = false }) {
+                TextButton(onClick = { }) {
                     Text("Cancelar")
                 }
             }
@@ -74,11 +76,10 @@ fun DetailedMealCard(
     if (showEditDialog) {
         EditMealDialog(
             meal = meal,
-            onDismiss = { showEditDialog = false },
+            onDismiss = { },
             onSave = { updatedMeal, shouldDelete ->
-                showEditDialog = false
                 if (shouldDelete) {
-                    onDelete?.invoke(meal.mealId)
+                    onDelete?.invoke()
                 } else {
                     onEdit?.invoke(updatedMeal)
                 }
@@ -171,7 +172,6 @@ fun DetailedMealCard(
                                     text = { Text("Editar") },
                                     onClick = {
                                         showMenu = false
-                                        showEditDialog = true
                                     },
                                     leadingIcon = {
                                         Icon(
@@ -186,7 +186,6 @@ fun DetailedMealCard(
                                     text = { Text("Eliminar", color = MaterialTheme.colorScheme.error) },
                                     onClick = {
                                         showMenu = false
-                                        showDeleteConfirmation = true
                                     },
                                     leadingIcon = {
                                         Icon(
@@ -264,6 +263,7 @@ fun DetailedMealCard(
     }
 }
 
+@SuppressLint("MutableCollectionMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun EditMealDialog(
@@ -409,7 +409,7 @@ private fun EditMealDialog(
                     }
                 }
                 OutlinedButton(onClick = { showAddFoodDialog = true }, modifier = Modifier.fillMaxWidth()) {
-                    Icon(Icons.Default.Add, contentDescription = null)
+                    Icon(imageVector = Icons.Default.Add, contentDescription = null)
                     Spacer(Modifier.width(4.dp))
                     Text("Añadir alimento")
                 }
@@ -463,13 +463,9 @@ private fun EditMealDialog(
         AddFoodDialog(
             onAdd = { newFood ->
                 foods = foods.toMutableList().apply { add(newFood) }
-                showAddFoodDialog = false
             },
-            onDismiss = { showAddFoodDialog = false }
+            onDismiss = { }
         )
-    }
-            }
-        }
     }
 }
 

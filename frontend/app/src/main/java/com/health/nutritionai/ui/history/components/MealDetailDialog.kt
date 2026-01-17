@@ -141,38 +141,9 @@ fun MealDetailDialog(
                     // Consejo personalizado (advice)
                     if (!meal.advice.isNullOrBlank()) {
                         item {
-                            AdviceCard(advice = meal.advice!!)
+                            AdviceCard(advice = meal.advice)
                         }
                     }
-@Composable
-private fun AdviceCard(advice: String) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.25f)
-        )
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text(
-                text = "Consejo personalizado",
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = advice,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        }
-    }
-}
 
                     // Notes if available
                     if (!meal.notes.isNullOrEmpty()) {
@@ -515,6 +486,36 @@ private fun FoodDetailCard(food: Food) {
     }
 }
 
+@Composable
+fun AdviceCard(advice: String) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.25f)
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "Consejo personalizado",
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = advice,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+    }
+}
+
 private fun getConfidenceColor(confidence: Double): androidx.compose.ui.graphics.Color {
     return when {
         confidence >= 0.8 -> Success
@@ -571,4 +572,3 @@ private fun formatDetailedTimestamp(timestamp: String): String {
         timestamp
     }
 }
-
