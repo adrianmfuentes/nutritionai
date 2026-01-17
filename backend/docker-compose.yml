@@ -25,6 +25,8 @@ services:
       dockerfile: Dockerfile
     container_name: nutrition_api_prod
     restart: always
+    ports:
+      - "3001:3000"
     environment:
       NODE_ENV: production
       PORT: 3000
