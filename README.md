@@ -270,16 +270,6 @@ cd frontend
 
 ## 📝 Configuración
 
-### Variables de Entorno Backend
-
-```env
-# Obtén tu API key gratis en: https://console.groq.com/
-GROQ_API_KEY=gsk_tu_api_key_aqui
-DB_PASSWORD=password-seguro
-JWT_SECRET=secret-seguro
-CORS_ORIGIN=https://tu-dominio.com
-```
-
 ### Configuración Frontend
 
 ```kotlin
