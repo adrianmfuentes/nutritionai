@@ -1,6 +1,7 @@
 // src/utils/llmSanitizers.ts
 import { VisionAnalysisResult, VisionAnalysisFood } from '../types';
 import { isClearlyNonFoodName } from './mealHeuristics';
+import { HttpError } from './httpError';
 
 const VALID_CATEGORIES = new Set(['protein', 'carb', 'vegetable', 'fruit', 'dairy', 'fat', 'mixed']);
 
@@ -37,6 +38,10 @@ function sanitizeUnit(value: unknown): string {
 }
 
 export function sanitizeVisionAnalysisResult(raw: any): VisionAnalysisResult {
+  if (typeof raw?.is_food === 'boolean' && !raw.is_food) {
+    throw new HttpError(400, raw.error || 'No hemos detectado comida válida en la imagen.', 'INVALID_FOOD_IMAGE');
+  }
+
   const foodsRaw = Array.isArray(raw?.foods) ? raw.foods : [];
 
   const foods: VisionAnalysisFood[] = foodsRaw
@@ -45,8 +50,10 @@ export function sanitizeVisionAnalysisResult(raw: any): VisionAnalysisResult {
       if (!name || isClearlyNonFoodName(name)) return null;
 
       const confidence = clamp(toFiniteNumber(f?.confidence, 0.5), 0, 1);
-      const portionAmount = clamp(toFiniteNumber(f?.portion?.amount ?? f?.portion_amount, 0), 0, 9999.99);
-      const portionUnit = sanitizeUnit(f?.portion?.unit ?? f?.portion_unit);
+      const portionAmount = clamp(toFiniteNumber(f?.portion_grams ?? f?.portion?.amount ?? f?.portion_amount, 0), 0, 9999.99);
+      const portionUnit = sanitizeUnit('g'); // Siempre gramos según el nuevo prompt
+      const portionDisplay = toStringOrEmpty(f?.portion_display);
+      const detectedIngredients = Array.isArray(f?.detected_ingredients) ? f.detected_ingredients.map(toStringOrEmpty).filter(Boolean) : [];
 
       const calories = clamp(toFiniteNumber(f?.nutrition?.calories ?? f?.calories, 0), 0, 99999);
       const protein = clamp(toFiniteNumber(f?.nutrition?.protein ?? f?.protein, 0), 0, 99999);
@@ -70,65 +77,39 @@ export function sanitizeVisionAnalysisResult(raw: any): VisionAnalysisResult {
           fiber: Number.isFinite(fiber) ? clamp(fiber, 0, 99999) : undefined,
         },
         category: sanitizeCategory(f?.category),
+        detected_ingredients: detectedIngredients,
+        portion_display: portionDisplay,
+        portion_grams: portionAmount,
       } satisfies VisionAnalysisFood;
     })
     .filter(Boolean) as VisionAnalysisFood[];
 
-  const totalRaw = raw?.totalNutrition ?? {};
-  const totalsFromModel = {
-    calories: clamp(toFiniteNumber(totalRaw?.calories, NaN), 0, 999999),
-    protein: clamp(toFiniteNumber(totalRaw?.protein, NaN), 0, 999999),
-    carbs: clamp(toFiniteNumber(totalRaw?.carbs, NaN), 0, 999999),
-    fat: clamp(toFiniteNumber(totalRaw?.fat, NaN), 0, 999999),
-    fiber: toFiniteNumber(totalRaw?.fiber, NaN),
+  const reasoning = toStringOrEmpty(raw?.reasoning);
+  const mealAnalysis = {
+    health_score: clamp(toFiniteNumber(raw?.meal_analysis?.health_score, 50), 0, 100),
+    health_feedback: toStringOrEmpty(raw?.meal_analysis?.health_feedback),
+    dominant_macro: toStringOrEmpty(raw?.meal_analysis?.dominant_macro),
   };
 
-  const totalsComputed = foods.reduce(
-    (acc, f) => {
-      acc.calories += toFiniteNumber(f.nutrition.calories, 0);
-      acc.protein += toFiniteNumber(f.nutrition.protein, 0);
-      acc.carbs += toFiniteNumber(f.nutrition.carbs, 0);
-      acc.fat += toFiniteNumber(f.nutrition.fat, 0);
-      if (typeof f.nutrition.fiber === 'number') acc.fiber += toFiniteNumber(f.nutrition.fiber, 0);
-      return acc;
-    },
+  // Compute total nutrition from foods
+  const totalNutrition = foods.reduce(
+    (total, food) => ({
+      calories: total.calories + food.nutrition.calories,
+      protein: total.protein + food.nutrition.protein,
+      carbs: total.carbs + food.nutrition.carbs,
+      fat: total.fat + food.nutrition.fat,
+      fiber: total.fiber + (food.nutrition.fiber || 0),
+    }),
     { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 }
   );
 
-  const useModelTotals =
-    Number.isFinite(totalsFromModel.calories) &&
-    Number.isFinite(totalsFromModel.protein) &&
-    Number.isFinite(totalsFromModel.carbs) &&
-    Number.isFinite(totalsFromModel.fat);
-
-  const totalNutrition = useModelTotals
-    ? {
-        calories: totalsFromModel.calories,
-        protein: totalsFromModel.protein,
-        carbs: totalsFromModel.carbs,
-        fat: totalsFromModel.fat,
-        fiber: Number.isFinite(totalsFromModel.fiber) ? clamp(totalsFromModel.fiber, 0, 999999) : undefined,
-      }
-    : {
-        calories: totalsComputed.calories,
-        protein: totalsComputed.protein,
-        carbs: totalsComputed.carbs,
-        fat: totalsComputed.fat,
-        fiber: totalsComputed.fiber > 0 ? totalsComputed.fiber : undefined,
-      };
-
-  const mc = raw?.mealContext ?? {};
-  const healthScore = clamp(toFiniteNumber(mc?.healthScore, 5), 1, 10);
-
   return {
+    is_food: true,
+    error: null,
+    reasoning,
     foods,
+    meal_analysis: mealAnalysis,
     totalNutrition,
-    mealContext: {
-      estimatedMealType: toStringOrEmpty(mc?.estimatedMealType) || 'snack',
-      portionSize: toStringOrEmpty(mc?.portionSize) || 'medium',
-      healthScore,
-    },
-    notes: toStringOrEmpty(raw?.notes),
   };
 }
 
