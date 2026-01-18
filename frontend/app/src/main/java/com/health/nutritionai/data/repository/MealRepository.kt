@@ -188,6 +188,26 @@ class MealRepository(
 
             mealDao.updateMeal(mealEntity)
 
+            // Update foods: delete old ones and insert new ones
+            foodDao.deleteFoodsByMealId(meal.mealId)
+            val foodEntities = meal.detectedFoods.map { food ->
+                FoodEntity(
+                    mealId = meal.mealId,
+                    name = food.name,
+                    confidence = food.confidence,
+                    portionAmount = food.portion.amount,
+                    portionUnit = food.portion.unit,
+                    calories = food.nutrition.calories,
+                    protein = food.nutrition.protein,
+                    carbs = food.nutrition.carbs,
+                    fat = food.nutrition.fat,
+                    fiber = food.nutrition.fiber,
+                    category = food.category,
+                    imageUrl = food.imageUrl
+                )
+            }
+            foodDao.insertFoods(foodEntities)
+
             NetworkResult.Success(response.success)
         } catch (e: Exception) {
             val userFriendlyMessage = com.health.nutritionai.util.ErrorMapper.mapErrorToMessage(
