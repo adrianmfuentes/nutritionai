@@ -299,8 +299,8 @@ private fun MacroItem(
 private fun HealthScoreCard(score: Double?) {
     val scoreColor = when {
         score == null -> MaterialTheme.colorScheme.onSurfaceVariant
-        score >= 80 -> Success
-        score >= 60 -> Warning
+        score >= 8.0 -> Success
+        score >= 6.0 -> Warning
         else -> Error
     }
 
@@ -336,7 +336,9 @@ private fun HealthScoreCard(score: Double?) {
                 )
             }
             Text(
-                text = if (score != null) "${score.toInt()}" else "—",
+                text = if (score != null) {
+                    if (score % 1 == 0.0) "${score.toInt()}/10" else "${score}/10"
+                } else "—",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = scoreColor
@@ -553,11 +555,11 @@ private fun getMealEmoji(mealType: String?): String {
 
 private fun getHealthScoreDescription(score: Double): String {
     return when {
-        score >= 90 -> "¡Excelente elección!"
-        score >= 80 -> "Muy buena opción"
-        score >= 70 -> "Buena comida"
-        score >= 60 -> "Opción moderada"
-        score >= 50 -> "Podría mejorar"
+        score >= 9.0 -> "¡Excelente elección!"
+        score >= 8.0 -> "Muy buena opción"
+        score >= 7.0 -> "Buena comida"
+        score >= 6.0 -> "Opción moderada"
+        score >= 5.0 -> "Podría mejorar"
         else -> "Considera opciones más saludables"
     }
 }

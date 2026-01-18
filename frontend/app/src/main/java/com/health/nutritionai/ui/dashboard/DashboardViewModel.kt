@@ -3,7 +3,9 @@ package com.health.nutritionai.ui.dashboard
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.health.nutritionai.data.model.NutritionSummary
+import com.health.nutritionai.data.repository.MealRepository
 import com.health.nutritionai.data.repository.NutritionRepository
+import com.health.nutritionai.data.repository.UserRepository
 import com.health.nutritionai.util.Constants
 import com.health.nutritionai.util.NetworkResult
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,7 +22,9 @@ sealed class DashboardUiState {
 }
 
 class DashboardViewModel(
-    private val nutritionRepository: NutritionRepository
+    private val nutritionRepository: NutritionRepository,
+    private val mealRepository: MealRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<DashboardUiState>(DashboardUiState.Loading)
@@ -37,6 +41,14 @@ class DashboardViewModel(
         viewModelScope.launch {
             _uiState.value = DashboardUiState.Loading
             _selectedDate.value = date
+
+            // Sync meals with server first
+            try {
+                val userId = userRepository.getUserId()
+                mealRepository.refreshMeals(userId)
+            } catch (e: Exception) {
+                // Continue even if sync fails
+            }
 
             when (val result = nutritionRepository.getDailyNutrition(date)) {
                 is NetworkResult.Success -> {
@@ -86,4 +98,3 @@ class DashboardViewModel(
         return SimpleDateFormat(Constants.DATE_FORMAT, Locale.getDefault()).format(Date())
     }
 }
-
