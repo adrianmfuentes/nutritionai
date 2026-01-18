@@ -90,6 +90,7 @@ fun NutritionaiTheme(
         SideEffect {
             val window = (view.context as Activity).window
             // Set status bar color to match the theme
+              @Suppress("DEPRECATION")
             window.statusBarColor = if (darkTheme) BackgroundDark.toArgb() else Background.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }

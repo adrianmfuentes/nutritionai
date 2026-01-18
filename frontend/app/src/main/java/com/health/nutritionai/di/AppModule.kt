@@ -16,7 +16,7 @@ import com.health.nutritionai.ui.history.HistoryViewModel
 import com.health.nutritionai.ui.settings.SettingsViewModel
 import com.health.nutritionai.ui.textinput.TextInputViewModel
 import org.koin.android.ext.koin.androidContext
-import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 val appModule = module {
@@ -28,7 +28,7 @@ val appModule = module {
             AppDatabase::class.java,
             "nutrition_database"
         )
-            .fallbackToDestructiveMigration()
+            .fallbackToDestructiveMigration(true)
             .build()
     }
 
@@ -74,11 +74,10 @@ val appModule = module {
 
     // ViewModels
     viewModel { AuthViewModel(get()) }
-    viewModel { DashboardViewModel(get()) }
+    viewModel { DashboardViewModel(get(), get(), get()) }
     viewModel { CameraViewModel(get()) }
     viewModel { TextInputViewModel(get()) }
     viewModel { ChatViewModel(get(), get(), get()) }
     viewModel { HistoryViewModel(get(), get()) }
     viewModel { SettingsViewModel(get()) }
 }
-

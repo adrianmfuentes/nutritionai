@@ -235,6 +235,37 @@ fun DetailedMealCard(
                 }
             }
 
+            // Health score badge
+            meal.healthScore?.let { score ->
+                Spacer(modifier = Modifier.height(4.dp))
+                val scoreColor = when {
+                    score >= 8.0 -> Success
+                    score >= 6.0 -> Warning
+                    else -> Error
+                }
+                Surface(
+                    shape = RoundedCornerShape(6.dp),
+                    color = scoreColor.copy(alpha = 0.1f)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "💪",
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text(
+                            text = if (score % 1 == 0.0) "${score.toInt()}/10" else "${score}/10",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = scoreColor
+                        )
+                    }
+                }
+            }
+
             // Meal image if available (smaller for compact view)
             if (!meal.imageUrl.isNullOrEmpty()) {
                 Spacer(modifier = Modifier.height(6.dp))
@@ -344,7 +375,7 @@ private fun EditMealDialog(
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .menuAnchor(MenuAnchorType.PrimaryNotEditable, true),
+                            .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, true),
                         colors = OutlinedTextFieldDefaults.colors()
                     )
                     ExposedDropdownMenu(

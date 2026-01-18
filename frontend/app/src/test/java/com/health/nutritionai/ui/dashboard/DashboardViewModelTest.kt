@@ -2,7 +2,9 @@ package com.health.nutritionai.ui.dashboard
 
 import app.cash.turbine.test
 import com.health.nutritionai.data.model.*
+import com.health.nutritionai.data.repository.MealRepository
 import com.health.nutritionai.data.repository.NutritionRepository
+import com.health.nutritionai.data.repository.UserRepository
 import com.health.nutritionai.util.Constants
 import com.health.nutritionai.util.NetworkResult
 import io.mockk.coEvery
@@ -25,6 +27,8 @@ class DashboardViewModelTest {
 
     private lateinit var viewModel: DashboardViewModel
     private lateinit var nutritionRepository: NutritionRepository
+    private lateinit var mealRepository: MealRepository
+    private lateinit var userRepository: UserRepository
     private val testDispatcher = StandardTestDispatcher()
 
     private val mockNutritionSummary = NutritionSummary(
@@ -43,6 +47,8 @@ class DashboardViewModelTest {
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         nutritionRepository = mockk()
+        mealRepository = mockk()
+        userRepository = mockk()
     }
 
     @After
@@ -56,7 +62,7 @@ class DashboardViewModelTest {
     fun `initial state is Loading`() = runTest {
         coEvery { nutritionRepository.getDailyNutrition(any()) } returns NetworkResult.Loading()
 
-        viewModel = DashboardViewModel(nutritionRepository)
+        viewModel = DashboardViewModel(nutritionRepository, mealRepository, userRepository)
 
         assertEquals(DashboardUiState.Loading, viewModel.uiState.value)
     }
@@ -65,7 +71,7 @@ class DashboardViewModelTest {
     fun `loadDailyNutrition success updates state with nutrition summary`() = runTest {
         coEvery { nutritionRepository.getDailyNutrition(any()) } returns NetworkResult.Success(mockNutritionSummary)
 
-        viewModel = DashboardViewModel(nutritionRepository)
+        viewModel = DashboardViewModel(nutritionRepository, mealRepository, userRepository)
         testDispatcher.scheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value
@@ -77,7 +83,7 @@ class DashboardViewModelTest {
     fun `loadDailyNutrition error updates state with error message`() = runTest {
         coEvery { nutritionRepository.getDailyNutrition(any()) } returns NetworkResult.Error("Error de conexión")
 
-        viewModel = DashboardViewModel(nutritionRepository)
+        viewModel = DashboardViewModel(nutritionRepository, mealRepository, userRepository)
         testDispatcher.scheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value
@@ -91,7 +97,7 @@ class DashboardViewModelTest {
         val nullResult = NetworkResult.Success(null) as NetworkResult<NutritionSummary>
         coEvery { nutritionRepository.getDailyNutrition(any()) } returns nullResult
 
-        viewModel = DashboardViewModel(nutritionRepository)
+        viewModel = DashboardViewModel(nutritionRepository, mealRepository, userRepository)
         testDispatcher.scheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value
@@ -105,7 +111,7 @@ class DashboardViewModelTest {
         coEvery { nutritionRepository.getDailyNutrition(testDate) } returns NetworkResult.Success(mockNutritionSummary)
         coEvery { nutritionRepository.getDailyNutrition(any()) } returns NetworkResult.Success(mockNutritionSummary)
 
-        viewModel = DashboardViewModel(nutritionRepository)
+        viewModel = DashboardViewModel(nutritionRepository, mealRepository, userRepository)
         testDispatcher.scheduler.advanceUntilIdle()
 
         viewModel.loadDailyNutrition(testDate)
@@ -120,7 +126,7 @@ class DashboardViewModelTest {
     fun `refresh reloads current date data`() = runTest {
         coEvery { nutritionRepository.getDailyNutrition(any()) } returns NetworkResult.Success(mockNutritionSummary)
 
-        viewModel = DashboardViewModel(nutritionRepository)
+        viewModel = DashboardViewModel(nutritionRepository, mealRepository, userRepository)
         testDispatcher.scheduler.advanceUntilIdle()
 
         viewModel.refresh()
@@ -136,7 +142,7 @@ class DashboardViewModelTest {
     fun `selectPreviousDay navigates to previous day`() = runTest {
         coEvery { nutritionRepository.getDailyNutrition(any()) } returns NetworkResult.Success(mockNutritionSummary)
 
-        viewModel = DashboardViewModel(nutritionRepository)
+        viewModel = DashboardViewModel(nutritionRepository, mealRepository, userRepository)
         testDispatcher.scheduler.advanceUntilIdle()
 
         val currentDate = viewModel.selectedDate.value
@@ -151,7 +157,7 @@ class DashboardViewModelTest {
     fun `selectNextDay does not navigate to future date`() = runTest {
         coEvery { nutritionRepository.getDailyNutrition(any()) } returns NetworkResult.Success(mockNutritionSummary)
 
-        viewModel = DashboardViewModel(nutritionRepository)
+        viewModel = DashboardViewModel(nutritionRepository, mealRepository, userRepository)
         testDispatcher.scheduler.advanceUntilIdle()
 
         val todayDate = getCurrentDate()
@@ -170,7 +176,7 @@ class DashboardViewModelTest {
     fun `selectNextDay navigates to next day when not today`() = runTest {
         coEvery { nutritionRepository.getDailyNutrition(any()) } returns NetworkResult.Success(mockNutritionSummary)
 
-        viewModel = DashboardViewModel(nutritionRepository)
+        viewModel = DashboardViewModel(nutritionRepository, mealRepository, userRepository)
         testDispatcher.scheduler.advanceUntilIdle()
 
         // First go to a previous day
@@ -192,7 +198,7 @@ class DashboardViewModelTest {
     fun `uiState emits loading then success`() = runTest {
         coEvery { nutritionRepository.getDailyNutrition(any()) } returns NetworkResult.Success(mockNutritionSummary)
 
-        viewModel = DashboardViewModel(nutritionRepository)
+        viewModel = DashboardViewModel(nutritionRepository, mealRepository, userRepository)
 
         viewModel.uiState.test {
             assertEquals(DashboardUiState.Loading, awaitItem())
@@ -208,7 +214,7 @@ class DashboardViewModelTest {
     fun `selectedDate initial value is today`() = runTest {
         coEvery { nutritionRepository.getDailyNutrition(any()) } returns NetworkResult.Success(mockNutritionSummary)
 
-        viewModel = DashboardViewModel(nutritionRepository)
+        viewModel = DashboardViewModel(nutritionRepository, mealRepository, userRepository)
 
         assertEquals(getCurrentDate(), viewModel.selectedDate.value)
     }
@@ -219,7 +225,7 @@ class DashboardViewModelTest {
     fun `success state contains correct meal count`() = runTest {
         coEvery { nutritionRepository.getDailyNutrition(any()) } returns NetworkResult.Success(mockNutritionSummary)
 
-        viewModel = DashboardViewModel(nutritionRepository)
+        viewModel = DashboardViewModel(nutritionRepository, mealRepository, userRepository)
         testDispatcher.scheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value as DashboardUiState.Success
@@ -230,7 +236,7 @@ class DashboardViewModelTest {
     fun `success state contains correct nutrition totals`() = runTest {
         coEvery { nutritionRepository.getDailyNutrition(any()) } returns NetworkResult.Success(mockNutritionSummary)
 
-        viewModel = DashboardViewModel(nutritionRepository)
+        viewModel = DashboardViewModel(nutritionRepository, mealRepository, userRepository)
         testDispatcher.scheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value as DashboardUiState.Success
@@ -242,7 +248,7 @@ class DashboardViewModelTest {
     fun `success state contains correct progress percentages`() = runTest {
         coEvery { nutritionRepository.getDailyNutrition(any()) } returns NetworkResult.Success(mockNutritionSummary)
 
-        viewModel = DashboardViewModel(nutritionRepository)
+        viewModel = DashboardViewModel(nutritionRepository, mealRepository, userRepository)
         testDispatcher.scheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value as DashboardUiState.Success
@@ -255,4 +261,3 @@ class DashboardViewModelTest {
         return SimpleDateFormat(Constants.DATE_FORMAT, Locale.getDefault()).format(Date())
     }
 }
-
