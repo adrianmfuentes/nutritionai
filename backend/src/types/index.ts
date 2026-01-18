@@ -74,15 +74,26 @@ export interface VisionAnalysisFood {
   portion: Portion;
   nutrition: NutritionData;
   category: string;
+  detected_ingredients?: string[];
+  portion_display?: string;
+  portion_grams?: number;
 }
 
 export interface VisionAnalysisResult {
+  is_food: boolean;
+  error: string | null;
+  reasoning: string;
   foods: VisionAnalysisFood[];
-  totalNutrition: NutritionData;
-  mealContext: {
+  meal_analysis: {
+    health_score: number;
+    health_feedback: string;
+    dominant_macro: string;
+  };
+  mealContext?: {
     estimatedMealType: string;
     portionSize: string;
     healthScore: number;
   };
-  notes: string;
+  notes?: string;
+  totalNutrition: NutritionData;
 }

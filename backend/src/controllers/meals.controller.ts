@@ -149,14 +149,18 @@ export class MealsController {
       logger.info(`Analizando comida para usuario: ${userId}`);
       // Analizar imagen con IA
       const analysis = await this.visionService.analyzeMealImage(imagePath);
-      if (!analysis.foods || analysis.foods.length === 0) {
-        throw new HttpError(
-          422,
-          'No se detectaron alimentos en la imagen. Intenta con otra foto más clara.',
-          'MEAL_NOT_DETECTED',
-          { inputType: 'image' }
-        );
-      }
+      // Calcular totales nutricionales
+      const totalNutrition = analysis.foods.reduce(
+        (acc, food) => {
+          acc.calories += food.nutrition.calories || 0;
+          acc.protein += food.nutrition.protein || 0;
+          acc.carbs += food.nutrition.carbs || 0;
+          acc.fat += food.nutrition.fat || 0;
+          if (food.nutrition.fiber) acc.fiber += food.nutrition.fiber;
+          return acc;
+        },
+        { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 }
+      );
       // Guardar imagen permanentemente
       const imageUrl = await this.storageService.saveImage(imagePath, userId);
       // Eliminar imagen temporal después de guardar (solo si está bajo uploads)
@@ -189,12 +193,13 @@ export class MealsController {
       const mealDate = consumedAt.toISOString().split('T')[0];
       // Sanitize meal type
       const sanitizeMealType = (type: string) => this.normalizeMealType(type);
-      const healthScore = this.ensureHealthScore(analysis);
-      if (!analysis.mealContext) {
-        analysis.mealContext = { estimatedMealType: 'snack', portionSize: 'medium', healthScore };
-      } else {
-        analysis.mealContext.healthScore = healthScore;
-      }
+      const healthScore = this.computeHealthScoreFromTotals(totalNutrition);
+      // Crear mealContext simulado
+      const mealContext = {
+        estimatedMealType: 'snack' as const,
+        portionSize: 'medium' as const,
+        healthScore
+      };
       // Insertar meal
       const mealResult = await client.query(
         `INSERT INTO meals (
@@ -204,13 +209,13 @@ export class MealsController {
         RETURNING *`,
         [
           userId,
-          sanitizeMealType(mealType || analysis.mealContext.estimatedMealType),
+          sanitizeMealType(mealType || mealContext.estimatedMealType),
           imageUrl,
-          analysis.totalNutrition.calories,
-          analysis.totalNutrition.protein,
-          analysis.totalNutrition.carbs,
-          analysis.totalNutrition.fat,
-          analysis.totalNutrition.fiber || null,
+          totalNutrition.calories,
+          totalNutrition.protein,
+          totalNutrition.carbs,
+          totalNutrition.fat,
+          totalNutrition.fiber || null,
           healthScore,
           mealDate,
           consumedAt,
