@@ -49,13 +49,14 @@ fun DetailedMealCard(
     // Delete confirmation dialog
     if (showDeleteConfirmation) {
         AlertDialog(
-            onDismissRequest = { },
+            onDismissRequest = { showDeleteConfirmation = false },
             title = { Text("Eliminar comida") },
             text = { Text("¿Estás seguro de que deseas eliminar esta comida? Esta acción no se puede deshacer.") },
             confirmButton = {
                 TextButton(
                     onClick = {
                         onDelete?.invoke()
+                        showDeleteConfirmation = false
                     },
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = MaterialTheme.colorScheme.error
@@ -65,7 +66,7 @@ fun DetailedMealCard(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { }) {
+                TextButton(onClick = { showDeleteConfirmation = false }) {
                     Text("Cancelar")
                 }
             }
@@ -76,13 +77,14 @@ fun DetailedMealCard(
     if (showEditDialog) {
         EditMealDialog(
             meal = meal,
-            onDismiss = { },
+            onDismiss = { showEditDialog = false },
             onSave = { updatedMeal, shouldDelete ->
                 if (shouldDelete) {
                     onDelete?.invoke()
                 } else {
                     onEdit?.invoke(updatedMeal)
                 }
+                showEditDialog = false
             }
         )
     }
@@ -91,7 +93,7 @@ fun DetailedMealCard(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .height(220.dp)
+            .height(180.dp)
             .shadow(
                 elevation = 4.dp,
                 shape = RoundedCornerShape(16.dp),
@@ -172,6 +174,7 @@ fun DetailedMealCard(
                                     text = { Text("Editar") },
                                     onClick = {
                                         showMenu = false
+                                        showEditDialog = true
                                     },
                                     leadingIcon = {
                                         Icon(
@@ -186,6 +189,7 @@ fun DetailedMealCard(
                                     text = { Text("Eliminar", color = MaterialTheme.colorScheme.error) },
                                     onClick = {
                                         showMenu = false
+                                        showDeleteConfirmation = true
                                     },
                                     leadingIcon = {
                                         Icon(
@@ -464,7 +468,7 @@ private fun EditMealDialog(
             onAdd = { newFood ->
                 foods = foods.toMutableList().apply { add(newFood) }
             },
-            onDismiss = { }
+            onDismiss = { showAddFoodDialog = false }
         )
     }
 }
@@ -773,4 +777,3 @@ private fun formatTimestamp(timestamp: String): String {
         timestamp
     }
 }
-
