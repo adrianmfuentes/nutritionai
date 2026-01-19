@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <style name="Theme.Nutritionai" parent="Theme.MaterialComponents.DayNight.NoActionBar">
 
-    <style name="Theme.Nutritionai" parent="android:Theme.Material.Light.NoActionBar">
-        <!-- Background and surface -->
         <item name="android:colorBackground">@color/background</item>
 
-        <!-- Text colors for proper contrast -->
         <item name="android:textColorPrimary">@color/on_background</item>
         <item name="android:textColorSecondary">@color/on_surface_variant</item>
 
-        <!-- Status bar -->
         <item name="android:statusBarColor">@color/background</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>

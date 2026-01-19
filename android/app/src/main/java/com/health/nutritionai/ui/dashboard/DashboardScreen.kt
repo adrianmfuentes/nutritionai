@@ -47,6 +47,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -70,6 +71,7 @@ import com.health.nutritionai.ui.theme.SecondaryContainer
 import com.health.nutritionai.ui.theme.Tertiary
 import com.health.nutritionai.ui.theme.TertiaryContainer
 import org.koin.androidx.compose.koinViewModel
+import com.health.nutritionai.R
 
 @Composable
 fun DashboardScreen(
@@ -143,7 +145,7 @@ fun DashboardScreen(
             ) {
                 Icon(
                     Icons.Default.Add,
-                    contentDescription = "Agregar comida",
+                    contentDescription = stringResource(R.string.add_meal_fab),
                     tint = OnPrimary,
                     modifier = Modifier.size(32.dp)
                 )
@@ -184,7 +186,7 @@ fun DashboardScreen(
                                 containerColor = MaterialTheme.colorScheme.primary
                             )
                         ) {
-                            Text("Reintentar")
+                            Text(stringResource(R.string.retry))
                         }
                     }
                 }
@@ -233,7 +235,7 @@ fun DashboardScreen(
                                 ) {
                                     Icon(
                                         Icons.AutoMirrored.Filled.ArrowBack,
-                                        contentDescription = "Día anterior",
+                                        contentDescription = stringResource(R.string.previous_day),
                                         tint = Primary
                                     )
                                 }
@@ -261,7 +263,7 @@ fun DashboardScreen(
                                 ) {
                                     Icon(
                                         Icons.AutoMirrored.Filled.ArrowForward,
-                                        contentDescription = "Día siguiente",
+                                        contentDescription = stringResource(R.string.next_day),
                                         tint = Primary
                                     )
                                 }
@@ -289,7 +291,7 @@ fun DashboardScreen(
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "Macronutrientes",
+                                text = stringResource(R.string.macronutrients_title),
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onBackground
@@ -304,18 +306,18 @@ fun DashboardScreen(
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             MacroCard(
-                                title = "Proteína",
+                                title = stringResource(R.string.protein_label),
                                 current = nutritionSummary.totals.protein,
                                 goal = nutritionSummary.goals.protein,
-                                unit = "g",
+                                unit = stringResource(R.string.g),
                                 color = ProteinColor,
                                 modifier = Modifier.weight(1f)
                             )
                             MacroCard(
-                                title = "Carbos",
+                                title = stringResource(R.string.carbs_label),
                                 current = nutritionSummary.totals.carbs,
                                 goal = nutritionSummary.goals.carbs,
-                                unit = "g",
+                                unit = stringResource(R.string.g),
                                 color = CarbsColor,
                                 modifier = Modifier.weight(1f)
                             )
@@ -324,10 +326,10 @@ fun DashboardScreen(
 
                     item {
                         MacroCard(
-                            title = "Grasas",
+                            title = stringResource(R.string.fat_label),
                             current = nutritionSummary.totals.fat,
                             goal = nutritionSummary.goals.fat,
-                            unit = "g",
+                            unit = stringResource(R.string.g),
                             color = FatColor,
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -370,7 +372,7 @@ fun DashboardScreen(
                     }
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
-                        "Añadir Comida",
+                        stringResource(R.string.add_meal_title),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -381,7 +383,7 @@ fun DashboardScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text(
-                        "¿Cómo quieres añadir tu comida?",
+                        stringResource(R.string.add_meal_question),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(bottom = 8.dp)
@@ -420,13 +422,13 @@ fun DashboardScreen(
                             }
                             Column {
                                 Text(
-                                    "Tomar Foto",
+                                    stringResource(R.string.take_photo),
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = OnPrimaryContainer
                                 )
                                 Text(
-                                    "Captura una imagen de tu comida",
+                                    stringResource(R.string.capture_image_description),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = OnPrimaryContainer.copy(alpha = 0.7f)
                                 )
@@ -469,13 +471,13 @@ fun DashboardScreen(
                             }
                             Column {
                                 Text(
-                                    "Descripción",
+                                    stringResource(R.string.description_option),
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = OnSecondaryContainer
                                 )
                                 Text(
-                                    "Escribe o graba la descripción",
+                                    stringResource(R.string.write_or_record_description),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = OnSecondaryContainer.copy(alpha = 0.7f)
                                 )
@@ -516,13 +518,13 @@ fun DashboardScreen(
                             }
                             Column {
                                 Text(
-                                    "Chat con IA",
+                                    stringResource(R.string.chat_with_ai),
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = OnTertiaryContainer
                                 )
                                 Text(
-                                    "Habla con el asistente nutricional",
+                                    stringResource(R.string.talk_to_nutrition_assistant),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = OnTertiaryContainer.copy(alpha = 0.7f)
                                 )

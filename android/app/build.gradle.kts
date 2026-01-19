@@ -97,12 +97,14 @@ dependencies {
     // Accompanist Permissions
     implementation(libs.accompanist.permissions)
 
+    implementation(libs.material)
+
     // Testing
     testImplementation(libs.junit)
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
-    testImplementation("io.mockk:mockk:1.14.7")
-    testImplementation("app.cash.turbine:turbine:1.2.1")
-    testImplementation("org.robolectric:robolectric:4.16")
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockk)
+    testImplementation(libs.turbine)
+    testImplementation(libs.robolectric)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

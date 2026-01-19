@@ -22,11 +22,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
+import com.health.nutritionai.R
 import com.health.nutritionai.data.model.Food
 import com.health.nutritionai.data.model.Meal
 import com.health.nutritionai.data.model.Nutrition
@@ -50,8 +52,8 @@ fun DetailedMealCard(
     if (showDeleteConfirmation) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirmation = false },
-            title = { Text("Eliminar comida") },
-            text = { Text("¿Estás seguro de que deseas eliminar esta comida? Esta acción no se puede deshacer.") },
+            title = { Text(stringResource(R.string.delete_meal)) },
+            text = { Text(stringResource(R.string.delete_meal_confirmation)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -62,12 +64,12 @@ fun DetailedMealCard(
                         contentColor = MaterialTheme.colorScheme.error
                     )
                 ) {
-                    Text("Eliminar")
+                    Text(stringResource(R.string.delete))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteConfirmation = false }) {
-                    Text("Cancelar")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -161,7 +163,7 @@ fun DetailedMealCard(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.MoreVert,
-                                contentDescription = "Opciones",
+                                contentDescription = stringResource(R.string.options),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }

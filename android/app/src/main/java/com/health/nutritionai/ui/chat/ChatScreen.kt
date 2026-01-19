@@ -1,6 +1,7 @@
 package com.health.nutritionai.ui.chat
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.speech.RecognizerIntent
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -19,6 +20,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,7 +32,9 @@ import com.health.nutritionai.data.remote.dto.ChatMessage
 import com.health.nutritionai.util.UserFeedback
 import org.koin.androidx.compose.koinViewModel
 import kotlinx.coroutines.launch
+import com.health.nutritionai.R
 
+@SuppressLint("LocalContextGetResourceValueCall")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun ChatScreen(
@@ -96,7 +101,7 @@ fun ChatScreen(
             TopAppBar(
                 title = {
                     Text(
-                        "Chat Nutricional",
+                        stringResource(R.string.nutritional_chat),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -105,7 +110,7 @@ fun ChatScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Volver",
+                            contentDescription = stringResource(R.string.back),
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -114,7 +119,7 @@ fun ChatScreen(
                     IconButton(onClick = { viewModel.clearConversation() }) {
                         Icon(
                             Icons.Default.Refresh,
-                            contentDescription = "Reiniciar conversación",
+                            contentDescription = stringResource(R.string.restart_conversation),
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -133,13 +138,14 @@ fun ChatScreen(
                         .padding(horizontal = 16.dp, vertical = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Voice input button
+                    val context = LocalContext.current
+
                     IconButton(
                         onClick = {
                             if (audioPermission.status.isGranted) {
                                 val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
                                     putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                                    putExtra(RecognizerIntent.EXTRA_PROMPT, "Describe tu comida...")
+                                    putExtra(RecognizerIntent.EXTRA_PROMPT, context.getString(R.string.describe_food_prompt))
                                 }
                                 speechRecognizerLauncher.launch(intent)
                             } else {
@@ -161,7 +167,7 @@ fun ChatScreen(
                         value = userInput,
                         onValueChange = { userInput = it },
                         modifier = Modifier.weight(1f),
-                        placeholder = { Text("Escribe tu comida...") },
+                        placeholder = { Text(stringResource(R.string.write_food)) },
                         singleLine = true,
                         enabled = (uiState as? ChatUiState.Success)?.isProcessing != true
                     )
@@ -180,7 +186,7 @@ fun ChatScreen(
                     ) {
                         Icon(
                             Icons.AutoMirrored.Filled.Send,
-                            contentDescription = "Enviar",
+                            contentDescription = stringResource(R.string.send),
                             tint = if (userInput.isNotBlank() && (uiState as? ChatUiState.Success)?.isProcessing != true)
                                 MaterialTheme.colorScheme.primary
                             else MaterialTheme.colorScheme.onSurfaceVariant
@@ -212,12 +218,12 @@ fun ChatScreen(
                             )
                             Spacer(modifier = Modifier.height(16.dp))
                             Text(
-                                "Comienza la conversación",
+                                stringResource(R.string.start_conversation),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                "Cuéntame qué has comido",
+                                stringResource(R.string.tell_me_what_you_ate),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -293,7 +299,7 @@ fun ChatScreen(
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            "Error",
+                            stringResource(R.string.error),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
@@ -396,4 +402,3 @@ fun ChatMessageBubble(message: ChatMessage) {
         }
     }
 }
-

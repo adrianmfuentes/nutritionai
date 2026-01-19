@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -17,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -25,7 +27,8 @@ import com.health.nutritionai.ui.navigation.NavGraph
 import com.health.nutritionai.ui.navigation.Screen
 import com.health.nutritionai.ui.theme.NutritionaiTheme
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -57,6 +60,13 @@ fun MainScreen() {
         Screen.Camera.route,
         Screen.History.route,
         Screen.Settings.route
+    )
+
+    val bottomNavItems = listOf(
+        BottomNavItem(Screen.Dashboard.route, Icons.Default.Home, stringResource(R.string.nav_home)),
+        BottomNavItem(Screen.Camera.route, Icons.Default.Add, stringResource(R.string.nav_camera)),
+        BottomNavItem(Screen.History.route, Icons.AutoMirrored.Filled.List, stringResource(R.string.nav_history)),
+        BottomNavItem(Screen.Settings.route, Icons.Default.Settings, stringResource(R.string.nav_settings))
     )
 
     Scaffold(
@@ -96,11 +106,4 @@ data class BottomNavItem(
     val route: String,
     val icon: ImageVector,
     val label: String
-)
-
-val bottomNavItems = listOf(
-    BottomNavItem(Screen.Dashboard.route, Icons.Default.Home, "Inicio"),
-    BottomNavItem(Screen.Camera.route, Icons.Default.Add, "Cámara"),
-    BottomNavItem(Screen.History.route, Icons.AutoMirrored.Filled.List, "Historial"),
-    BottomNavItem(Screen.Settings.route, Icons.Default.Settings, "Ajustes")
 )
