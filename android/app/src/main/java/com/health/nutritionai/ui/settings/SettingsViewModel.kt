@@ -62,7 +62,7 @@ class SettingsViewModel(
     private val _selectedLanguage = MutableStateFlow("Español")
     val selectedLanguage: StateFlow<String> = _selectedLanguage.asStateFlow()
 
-    private val _selectedUnits = MutableStateFlow("Métrico (g, kg)")
+    private val _selectedUnits = MutableStateFlow("metric")
     val selectedUnits: StateFlow<String> = _selectedUnits.asStateFlow()
 
     private val _languageChanged = MutableSharedFlow<String>()

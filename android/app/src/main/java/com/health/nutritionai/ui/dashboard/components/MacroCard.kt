@@ -10,7 +10,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -19,9 +18,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.health.nutritionai.ui.theme.*
+import androidx.compose.ui.res.stringResource
+import com.health.nutritionai.R
 
 @Composable
 fun MacroCard(
@@ -131,7 +131,7 @@ fun MacroCard(
                 horizontalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "Meta: ${goal.toInt()} $unit",
+                    text = stringResource(R.string.macro_goal, goal.toInt(), unit),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -200,7 +200,7 @@ fun CaloriesCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "🔥 Calorías",
+                    text = "🔥 ${stringResource(R.string.calories)}",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -211,7 +211,7 @@ fun CaloriesCard(
                     color = if (isGoalReached) Success.copy(alpha = 0.15f) else CaloriesColor.copy(alpha = 0.1f)
                 ) {
                     Text(
-                        text = if (isGoalReached) "✓ Meta" else "${(progress * 100).toInt()}%",
+                        text = if (isGoalReached) "✓ ${stringResource(R.string.goal_reached)}" else "${(progress * 100).toInt()}%",
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold,
                         color = if (isGoalReached) Success else CaloriesColor,
@@ -265,7 +265,7 @@ fun CaloriesCard(
                         color = CaloriesColor
                     )
                     Text(
-                        text = "de $goal kcal",
+                        text = stringResource(R.string.of_kcal, goal),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -288,7 +288,7 @@ fun CaloriesCard(
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = "Consumidas",
+                            text = stringResource(R.string.calories_consumed),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -315,7 +315,7 @@ fun CaloriesCard(
 
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = if (isGoalReached) "Excedido" else "Restantes",
+                            text = if (isGoalReached) stringResource(R.string.calories_exceeded) else stringResource(R.string.calories_remaining),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -331,4 +331,3 @@ fun CaloriesCard(
         }
     }
 }
-

@@ -139,7 +139,13 @@ fun DetailedMealCard(
                     Spacer(modifier = Modifier.width(6.dp))
                     Column {
                         Text(
-                            text = meal.mealType?.replaceFirstChar { it.uppercase() } ?: "Comida",
+                            text = when (meal.mealType?.lowercase()) {
+                                "breakfast", "desayuno" -> stringResource(R.string.meal_breakfast)
+                                "lunch", "almuerzo", "comida" -> stringResource(R.string.meal_lunch)
+                                "dinner", "cena" -> stringResource(R.string.meal_dinner)
+                                "snack", "merienda", "snacks" -> stringResource(R.string.meal_snack)
+                                else -> meal.mealType?.replaceFirstChar { it.uppercase() } ?: stringResource(R.string.meal)
+                            },
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface,
@@ -321,15 +327,18 @@ private fun EditMealDialog(
     var notes by remember { mutableStateOf(meal.notes ?: "") }
     var expanded by remember { mutableStateOf(false) }
     val mealTypes = listOf("breakfast", "lunch", "dinner", "snack")
+
+    @Composable
     fun mealTypeLabel(type: String): String {
         return when (type) {
-            "breakfast" -> "Desayuno"
-            "lunch" -> "Comida"
-            "dinner" -> "Cena"
-            "snack" -> "Snack"
+            "breakfast" -> stringResource(R.string.meal_breakfast)
+            "lunch" -> stringResource(R.string.meal_lunch)
+            "dinner" -> stringResource(R.string.meal_dinner)
+            "snack" -> stringResource(R.string.meal_snack)
             else -> type.replaceFirstChar { it.uppercase() }
         }
     }
+
     // Edición de alimentos
     var foods by remember { mutableStateOf(meal.detectedFoods.toMutableList()) }
     var showAddFoodDialog by remember { mutableStateOf(false) }

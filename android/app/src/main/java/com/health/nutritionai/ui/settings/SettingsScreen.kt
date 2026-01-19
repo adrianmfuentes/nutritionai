@@ -366,7 +366,11 @@ private fun PreferencesSection(
             SettingsItem(
                 icon = Icons.Default.Build,
                 title = stringResource(R.string.units),
-                subtitle = selectedUnits,
+                subtitle = when (selectedUnits) {
+                    "metric" -> stringResource(R.string.units_metric)
+                    "imperial" -> stringResource(R.string.units_imperial)
+                    else -> selectedUnits
+                },
                 onClick = onUnitsClick
             )
         }
@@ -607,24 +611,27 @@ private fun UnitsDialog(
     onDismiss: () -> Unit,
     onSelect: (String) -> Unit
 ) {
-    val unitOptions = listOf(stringResource(R.string.units_metric), stringResource(R.string.units_imperial))
+    val unitOptions = listOf(
+        "metric" to stringResource(R.string.units_metric),
+        "imperial" to stringResource(R.string.units_imperial)
+    )
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.select_units)) },
         text = {
             Column {
-                unitOptions.forEach { unit ->
+                unitOptions.forEach { (key, display) ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { onSelect(unit) }
+                            .clickable { onSelect(key) }
                             .padding(vertical = 12.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(unit)
-                        if (unit == selectedUnits) {
+                        Text(display)
+                        if (key == selectedUnits) {
                             Icon(
                                 Icons.Default.Check,
                                 contentDescription = null,
@@ -719,6 +726,8 @@ private fun ChangePasswordDialog(
         }
     )
 }
+
+
 
 
 

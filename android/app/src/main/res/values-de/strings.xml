@@ -48,6 +48,13 @@
     <string name="chat_with_ai">KI-Chat</string>
     <string name="talk_to_nutrition_assistant">Sprechen Sie mit dem Ernährungsassistenten</string>
 
+    <string name="calories_consumed">Verbraucht</string>
+    <string name="calories_remaining">Übrig</string>
+    <string name="calories_exceeded">Überschritten</string>
+    <string name="goal_reached">Ziel</string>
+    <string name="of_kcal">von %1$d kcal</string>
+    <string name="macro_goal">Ziel: %1$d %2$s</string>
+
     <string name="nutrition_goals">Ernährungsziele</string>
     <string name="preferences">Einstellungen</string>
     <string name="account">Konto</string>
@@ -121,6 +128,11 @@
     <string name="moderate_option">Mäßige Wahl</string>
     <string name="could_improve">Könnte verbessert werden</string>
     <string name="consider_healthier_options">Erwägen Sie gesündere Optionen</string>
+
+    <string name="meal_breakfast">Frühstück</string>
+    <string name="meal_lunch">Mittagessen</string>
+    <string name="meal_dinner">Abendessen</string>
+    <string name="meal_snack">Snack</string>
 
     <string name="chat_placeholder">Nachricht eingeben…</string>
     <string name="send">Senden</string>
