@@ -13,7 +13,7 @@ Aplicación completa de seguimiento nutricional que utiliza Inteligencia Artific
 
 ## ✨ Características Principales
 
-### Frontend Android
+### Android
 
 - 📸 Captura de fotos de comidas
 - 🤖 Análisis automático de alimentos con IA
@@ -38,7 +38,7 @@ Aplicación completa de seguimiento nutricional que utiliza Inteligencia Artific
 ### Requisitos Previos
 
 - Docker y Docker Compose
-- Android Studio (para frontend)
+- Android Studio (para android)
 - API Key de Groq (gratis en https://console.groq.com/)
 
 ### 📱 Opción 1: Pruebas Locales (Recomendado)
@@ -65,11 +65,11 @@ nano .env  # Añade tu GROQ_API_KEY
 docker-compose up -d --build
 
 # 5. Configura la app Android con tu IP local
-# Edita: frontend/app/src/main/.../ApiConfig.kt
+# Edita: android/app/src/main/.../ApiConfig.kt
 # Cambia BASE_URL a: http://TU_IP:3000/v1/
 
 # 6. Compila e instala en tu móvil
-cd ../frontend
+cd ../android
 ./gradlew installDebug
 ```
 
@@ -95,10 +95,10 @@ docker-compose up -d --build
 curl http://localhost:3000/health
 ```
 
-### Configuración Frontend
+### Configuración Android
 
 ```bash
-cd frontend
+cd android
 
 # Abrir en Android Studio
 # Configurar API URL en ApiConfig.kt
@@ -109,7 +109,7 @@ cd frontend
 
 ```
 nutrition-app/
-├── frontend/              # Aplicación Android
+├── android/              # Aplicación Android
 │   ├── app/
 │   │   └── src/
 │   │       ├── main/
@@ -161,7 +161,7 @@ PUT    /v1/nutrition/goals  - Actualizar objetivos
 
 ## 🛠️ Tecnologías Utilizadas
 
-### Frontend
+### Android
 
 - Kotlin
 - Jetpack Compose
@@ -240,8 +240,8 @@ PUT    /v1/nutrition/goals  - Actualizar objetivos
 cd backend
 docker-compose up -d
 
-# Frontend
-cd frontend
+# Android
+cd android
 ./gradlew installDebug
 ```
 
@@ -263,14 +263,14 @@ npm test
 # Test manual con cURL
 ./test-full-flow.sh
 
-# Frontend
-cd frontend
+# Android
+cd android
 ./gradlew test
 ```
 
 ## 📝 Configuración
 
-### Configuración Frontend
+### Configuración Android
 
 ```kotlin
 // ApiConfig.kt
