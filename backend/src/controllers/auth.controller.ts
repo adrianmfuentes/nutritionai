@@ -233,12 +233,48 @@ export class AuthController {
       const userId = (req as any).user?.id;
       const validatedData = UpdateProfileSchema.parse(req.body);
 
+      let imageUrl: string | undefined;
+
+      // Si se proporciona una imagen, guardarla
+      if (req.file) {
+        imageUrl = await this.storageService.saveProfileImage(req.file.path, userId);
+
+        // Obtener la foto anterior para eliminarla
+        const currentUser = await pool.query(
+          'SELECT profile_photo FROM users WHERE id = $1',
+          [userId]
+        );
+
+        if (currentUser.rows[0]?.profile_photo) {
+          await this.storageService.deleteImage(currentUser.rows[0].profile_photo);
+        }
+      }
+
+      // Actualizar usuario
+      const updateFields = [];
+      const updateValues = [];
+      let paramIndex = 1;
+
+      if (validatedData.name !== undefined) {
+        updateFields.push(`name = $${paramIndex++}`);
+        updateValues.push(validatedData.name);
+      }
+
+      if (imageUrl !== undefined) {
+        updateFields.push(`profile_photo = $${paramIndex++}`);
+        updateValues.push(imageUrl);
+      }
+
+      updateFields.push(`updated_at = CURRENT_TIMESTAMP`);
+
+      updateValues.push(userId); // Para WHERE id = $paramIndex
+
       const updatedUser = await pool.query(
         `UPDATE users 
-         SET name = $1, updated_at = CURRENT_TIMESTAMP 
-         WHERE id = $2 
+         SET ${updateFields.join(', ')} 
+         WHERE id = $${paramIndex} 
          RETURNING id, email, name, profile_photo, created_at, updated_at`,
-        [validatedData.name, userId]
+        updateValues
       );
 
       if (updatedUser.rows.length === 0) {
