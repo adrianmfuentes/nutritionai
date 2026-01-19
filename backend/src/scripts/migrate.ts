@@ -86,7 +86,13 @@ async function migrate() {
     const migrations = [
       `ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_photo VARCHAR(255);`,
       `ALTER TABLE nutrition_goals DROP CONSTRAINT IF EXISTS nutrition_goals_user_id_key;`,
-      `ALTER TABLE nutrition_goals ADD CONSTRAINT nutrition_goals_user_id_active_from_key UNIQUE (user_id, active_from);`
+      `DO $$
+         BEGIN
+           IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'nutrition_goals_user_id_active_from_key') THEN
+             ALTER TABLE nutrition_goals ADD CONSTRAINT nutrition_goals_user_id_active_from_key UNIQUE (user_id, active_from);
+           END IF;
+         END
+         $$;`
     ];
 
     for (const migration of migrations) {
