@@ -181,4 +181,11 @@
     <string name="delete_food">Lebensmittel löschen</string>
     <string name="delete_meal_button">Mahlzeit löschen</string>
     <string name="add_food">Lebensmittel hinzufügen</string>
+    <string name="food_name_label">Name</string>
+    <string name="amount_label">Menge</string>
+    <string name="unit_label">Einheit</string>
+    <string name="calories_label">Kalorien</string>
+    <string name="fiber_label">Ballaststoffe (g)</string>
+    <string name="category_label">Kategorie</string>
+    <string name="add_button">Hinzufügen</string>
 </resources>
