@@ -188,4 +188,6 @@
     <string name="fiber_label">Fibres (g)</string>
     <string name="category_label">Catégorie</string>
     <string name="add_button">Ajouter</string>
+    <string name="chat_intro_message">Salut ! Je suis ton assistant nutritionnel. Je suis là pour répondre à tes questions et te donner des conseils sur une alimentation saine.</string>
+    <string name="chat_reset_message">Conversation réinitialisée. Comment puis-je t\'aider avec la nutrition ?</string>
 </resources>

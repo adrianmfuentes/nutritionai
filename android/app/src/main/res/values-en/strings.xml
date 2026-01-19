@@ -108,7 +108,8 @@
     <string name="delete">Delete</string>
     <string name="retry">Retry</string>
     <string name="delete_meal">Delete Meal</string>
-    <string name="delete_meal_confirmation">Are you sure you want to delete this meal? This action cannot be undone.</string>
+    <string name="delete_meal_confirmation">Are you sure you want to delete this meal? This action
+        cannot be undone.</string>
     <string name="options">Options</string>
     <string name="edit">Edit</string>
     <string name="meal">Meal</string>
@@ -149,7 +150,8 @@
     <string name="error">Error</string>
 
     <string name="food_description_label">Food Description</string>
-    <string name="food_description_placeholder">Ex: 200g grilled chicken, 150g brown rice, mixed salad</string>
+    <string name="food_description_placeholder">Ex: 200g grilled chicken, 150g brown rice, mixed
+        salad</string>
     <string name="characters_limit">characters</string>
     <string name="tap_to_record">Tap to record</string>
     <string name="analyzing_description">Analyzing description…</string>
@@ -158,7 +160,8 @@
     <string name="describe_food_prompt">Describe your meal…</string>
     <string name="add_by_description">Add by Description</string>
     <string name="describe_your_meal">Describe Your Meal</string>
-    <string name="description_instructions">Type or record a description of what you ate. Include food names and amounts (e.g., "200g rice with chicken and salad")</string>
+    <string name="description_instructions">Type or record a description of what you ate. Include
+        food names and amounts (e.g., "200g rice with chicken and salad")</string>
 
     <string name="change_password_title">Change Password</string>
     <string name="notifications_label">Notifications</string>
@@ -187,4 +190,7 @@
     <string name="fiber_label">Fiber (g)</string>
     <string name="category_label">Category</string>
     <string name="add_button">Add</string>
+    <string name="chat_intro_message">Hello! I am your nutritional assistant. I am here to answer
+        your questions and give you advice on healthy eating.</string>
+    <string name="chat_reset_message">Conversation reset. How can I help you with nutrition?</string>
 </resources>

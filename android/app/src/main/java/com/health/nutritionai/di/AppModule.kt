@@ -77,7 +77,7 @@ val appModule = module {
     viewModel { DashboardViewModel(get(), get(), get()) }
     viewModel { CameraViewModel(get()) }
     viewModel { TextInputViewModel(get()) }
-    viewModel { ChatViewModel(get(), get(), get()) }
+    viewModel { ChatViewModel(androidContext() as android.app.Application, get(), get(), get()) }
     viewModel { HistoryViewModel(get(), get()) }
     viewModel { SettingsViewModel(get()) }
 }
