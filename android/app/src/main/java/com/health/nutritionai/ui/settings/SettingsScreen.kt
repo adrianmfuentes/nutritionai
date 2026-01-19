@@ -1,5 +1,8 @@
 package com.health.nutritionai.ui.settings
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,16 +16,19 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.health.nutritionai.data.model.NutritionGoals
 import com.health.nutritionai.data.model.UserProfile
+import com.health.nutritionai.util.ImageUtils
+import java.io.File
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import com.health.nutritionai.R
 import androidx.compose.ui.layout.ContentScale
-import coil.compose.AsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -202,8 +208,8 @@ fun SettingsScreen(
                     EditProfileDialog(
                         userProfile = userProfile,
                         onDismiss = { viewModel.hideEditProfileDialog() },
-                        onSave = { name, photoUrl ->
-                            viewModel.updateUserProfile(name, photoUrl)
+                        onSave = { name, photoFile ->
+                            viewModel.updateUserProfileWithImage(name, photoFile)
                         }
                     )
                 }
@@ -766,10 +772,20 @@ private fun ChangePasswordDialog(
 private fun EditProfileDialog(
     userProfile: UserProfile,
     onDismiss: () -> Unit,
-    onSave: (String, String?) -> Unit
+    onSave: (String, File?) -> Unit
 ) {
     var name by remember { mutableStateOf(userProfile.name) }
-    var photoUrl by remember { mutableStateOf(userProfile.photoUrl) }
+    var selectedImageFile by remember { mutableStateOf<File?>(null) }
+    val context = LocalContext.current
+
+    // Image picker launcher
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            // Convert Uri to File
+            val file = ImageUtils.uriToFile(context, it, "profile_image.jpg")
+            selectedImageFile = file
+        }
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -791,18 +807,36 @@ private fun EditProfileDialog(
                     modifier = Modifier.fillMaxWidth(),
                     enabled = false
                 )
-                OutlinedTextField(
-                    value = photoUrl ?: "",
-                    onValueChange = { photoUrl = it },
-                    label = { Text(stringResource(R.string.photo_url)) },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                // Profile photo selection
+                Column {
+                    Text(
+                        text = stringResource(R.string.select_profile_photo),
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    Button(
+                        onClick = { launcher.launch("image/*") },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(Icons.Default.Photo, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(stringResource(R.string.select_image))
+                    }
+                    if (selectedImageFile != null) {
+                        Text(
+                            text = stringResource(R.string.image_selected),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                }
             }
         },
         confirmButton = {
             TextButton(
                 onClick = {
-                    onSave(name, photoUrl)
+                    onSave(name, selectedImageFile)
                 }
             ) {
                 Text(stringResource(R.string.save))

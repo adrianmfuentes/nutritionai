@@ -12,6 +12,11 @@ import com.health.nutritionai.util.NetworkResult
 import androidx.core.content.edit
 import com.health.nutritionai.util.ErrorContext
 import com.health.nutritionai.util.ErrorMapper
+import okhttp3.MultipartBody
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.File
 
 class UserRepository(
     context: Context,
@@ -139,6 +144,35 @@ class UserRepository(
                 photoUrl = photoUrl
             )
             val response = apiService.updateProfile(request)
+
+            val userDto = response.user
+            val goalsDto = response.goals
+
+            val userProfile = UserProfile(
+                userId = userDto.id,
+                email = userDto.email,
+                name = userDto.name,
+                photoUrl = userDto.photoUrl,
+                goals = goalsDto?.let {
+                    NutritionGoals(it.calories, it.protein, it.carbs, it.fat)
+                }
+            )
+
+            NetworkResult.Success(userProfile)
+        } catch (e: Exception) {
+            val userFriendlyMessage = ErrorMapper.mapErrorToMessage(e, ErrorContext.USER_PROFILE)
+            NetworkResult.Error(userFriendlyMessage)
+        }
+    }
+
+    suspend fun updateProfileWithImage(name: String? = null, imageFile: File?): NetworkResult<UserProfile> {
+        return try {
+            val namePart = name?.toRequestBody("text/plain".toMediaTypeOrNull())
+            val imagePart = imageFile?.let {
+                val requestFile = it.asRequestBody("image/*".toMediaTypeOrNull())
+                MultipartBody.Part.createFormData("image", it.name, requestFile)
+            }
+            val response = apiService.updateProfileWithImage(namePart, imagePart)
 
             val userDto = response.user
             val goalsDto = response.goals

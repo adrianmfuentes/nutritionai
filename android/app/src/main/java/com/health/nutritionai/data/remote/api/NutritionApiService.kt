@@ -65,6 +65,13 @@ interface NutritionApiService {
     @PUT("profile")
     suspend fun updateProfile(@Body request: UpdateProfileRequest): ProfileResponse
 
+    @Multipart
+    @PUT("profile")
+    suspend fun updateProfileWithImage(
+        @Part("name") name: RequestBody?,
+        @Part image: MultipartBody.Part?
+    ): ProfileResponse
+
     @PUT("nutrition/goals")
     suspend fun updateGoals(@Body request: UpdateGoalsRequest): GoalsResponse
 

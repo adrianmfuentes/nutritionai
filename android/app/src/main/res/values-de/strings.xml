@@ -207,4 +207,7 @@
     <string name="edit_profile">Profil bearbeiten</string>
     <string name="name">Name</string>
     <string name="photo_url">Foto-URL</string>
+    <string name="select_profile_photo">Profilbild auswählen</string>
+    <string name="select_image">Bild auswählen</string>
+    <string name="image_selected">Bild ausgewählt</string>
 </resources>

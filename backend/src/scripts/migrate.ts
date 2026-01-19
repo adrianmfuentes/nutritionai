@@ -38,7 +38,7 @@ async function migrate() {
         is_active BOOLEAN DEFAULT TRUE,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE(user_id)
+        UNIQUE(user_id, active_from)
       );`,
       `CREATE TABLE IF NOT EXISTS meals (
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -84,7 +84,9 @@ async function migrate() {
 
     // Migraciones adicionales
     const migrations = [
-      `ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_photo VARCHAR(255);`
+      `ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_photo VARCHAR(255);`,
+      `ALTER TABLE nutrition_goals DROP CONSTRAINT IF EXISTS nutrition_goals_user_id_key;`,
+      `ALTER TABLE nutrition_goals ADD CONSTRAINT nutrition_goals_user_id_active_from_key UNIQUE (user_id, active_from);`
     ];
 
     for (const migration of migrations) {
