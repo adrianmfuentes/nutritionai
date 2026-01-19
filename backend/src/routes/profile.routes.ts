@@ -14,7 +14,7 @@ router.get('/', (req, res, next) =>
   authController.getProfile(req, res, next)
 );
 
-router.put('/', upload.single('photo'), (req, res, next) =>
+router.put('/', upload.any(), (req, res, next) =>
   authController.updateProfile(req, res, next)
 );
 
