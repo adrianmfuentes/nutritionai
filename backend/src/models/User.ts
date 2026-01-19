@@ -5,7 +5,7 @@ import { User } from '../types';
 export class UserModel {
   static async findById(id: string): Promise<User | null> {
     const result = await pool.query(
-      'SELECT id, email, name, created_at, updated_at FROM users WHERE id = $1',
+      'SELECT id, email, name, profile_photo, created_at, updated_at FROM users WHERE id = $1',
       [id]
     );
     return result.rows[0] || null;
@@ -23,7 +23,7 @@ export class UserModel {
     const result = await pool.query(
       `INSERT INTO users (email, password_hash, name) 
        VALUES ($1, $2, $3) 
-       RETURNING id, email, name, created_at, updated_at`,
+       RETURNING id, email, name, profile_photo, created_at, updated_at`,
       [email, passwordHash, name]
     );
     return result.rows[0];
@@ -34,9 +34,14 @@ export class UserModel {
     const values = [];
     let paramIndex = 1;
 
-    if (updates.name) {
+    if (updates.name !== undefined) {
       fields.push(`name = $${paramIndex++}`);
       values.push(updates.name);
+    }
+
+    if (updates.profile_photo !== undefined) {
+      fields.push(`profile_photo = $${paramIndex++}`);
+      values.push(updates.profile_photo);
     }
 
     if (fields.length === 0) return null;
@@ -46,7 +51,7 @@ export class UserModel {
       UPDATE users 
       SET ${fields.join(', ')}, updated_at = CURRENT_TIMESTAMP 
       WHERE id = $${paramIndex}
-      RETURNING id, email, name, created_at, updated_at
+      RETURNING id, email, name, profile_photo, created_at, updated_at
     `;
 
     const result = await pool.query(query, values);
