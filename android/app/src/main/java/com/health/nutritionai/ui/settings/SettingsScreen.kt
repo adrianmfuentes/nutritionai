@@ -1,5 +1,7 @@
 package com.health.nutritionai.ui.settings
 
+import android.app.Activity
+import android.content.Intent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.health.nutritionai.data.model.NutritionGoals
@@ -28,7 +31,6 @@ fun SettingsScreen(
     onLogout: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val feedback by viewModel.feedback.collectAsState()
     val showGoalsDialog by viewModel.showGoalsDialog.collectAsState()
     val showNotificationsDialog by viewModel.showNotificationsDialog.collectAsState()
     val showLanguageDialog by viewModel.showLanguageDialog.collectAsState()
@@ -39,24 +41,14 @@ fun SettingsScreen(
     val selectedUnits by viewModel.selectedUnits.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Show feedback messages
-    LaunchedEffect(feedback) {
-        when (feedback) {
-            is UserFeedback.Success -> {
-                snackbarHostState.showSnackbar(
-                    message = (feedback as UserFeedback.Success).message,
-                    duration = SnackbarDuration.Short
-                )
-                viewModel.clearFeedback()
-            }
-            is UserFeedback.Error -> {
-                snackbarHostState.showSnackbar(
-                    message = (feedback as UserFeedback.Error).message,
-                    duration = SnackbarDuration.Long
-                )
-                viewModel.clearFeedback()
-            }
-            else -> {}
+    // Restart activity on language change
+    val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        viewModel.languageChanged.collect {
+            val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
+            intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(intent)
+            (context as? Activity)?.finish()
         }
     }
 
@@ -734,4 +726,5 @@ private fun ChangePasswordDialog(
         }
     )
 }
+
 
