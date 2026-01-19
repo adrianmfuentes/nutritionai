@@ -90,8 +90,8 @@ fun DetailedMealCard(
     }
 
     Card(
-        onClick = onClick,
         modifier = modifier
+            .clickable(onClick = onClick)
             .fillMaxWidth()
             .height(180.dp)
             .shadow(
