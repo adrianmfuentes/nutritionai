@@ -1,7 +1,9 @@
 package com.health.nutritionai.ui.auth
 
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.health.nutritionai.R
 import com.health.nutritionai.data.repository.UserRepository
 import com.health.nutritionai.util.ErrorMapper
 import com.health.nutritionai.util.SuccessAction
@@ -18,7 +20,8 @@ sealed class AuthUiState {
 }
 
 class AuthViewModel(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val application: Application
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<AuthUiState>(AuthUiState.Idle)
@@ -33,12 +36,12 @@ class AuthViewModel(
 
             // Validar entrada
             if (cleanEmail.isBlank() || cleanPassword.isBlank()) {
-                _uiState.value = AuthUiState.Error("Por favor, completa todos los campos")
+                _uiState.value = AuthUiState.Error(application.getString(R.string.error_fill_all_fields))
                 return@launch
             }
 
             if (!android.util.Patterns.EMAIL_ADDRESS.matcher(cleanEmail).matches()) {
-                _uiState.value = AuthUiState.Error("Correo electrónico inválido")
+                _uiState.value = AuthUiState.Error(application.getString(R.string.error_invalid_email))
                 return@launch
             }
 
@@ -50,7 +53,7 @@ class AuthViewModel(
                     _uiState.value = AuthUiState.Success(userId, successMessage)
                 }
                 is com.health.nutritionai.util.NetworkResult.Error -> {
-                    _uiState.value = AuthUiState.Error(result.message ?: "Error al iniciar sesión")
+                    _uiState.value = AuthUiState.Error(result.message ?: application.getString(R.string.error_login_generic))
                 }
                 is com.health.nutritionai.util.NetworkResult.Loading -> {
                     // Already in loading state
@@ -69,22 +72,22 @@ class AuthViewModel(
 
             // Validar entrada
             if (cleanName.isBlank() || cleanEmail.isBlank() || cleanPassword.isBlank()) {
-                _uiState.value = AuthUiState.Error("Por favor, completa todos los campos")
+                _uiState.value = AuthUiState.Error(application.getString(R.string.error_fill_all_fields))
                 return@launch
             }
 
             if (!android.util.Patterns.EMAIL_ADDRESS.matcher(cleanEmail).matches()) {
-                _uiState.value = AuthUiState.Error("Correo electrónico inválido")
+                _uiState.value = AuthUiState.Error(application.getString(R.string.error_invalid_email))
                 return@launch
             }
 
             if (cleanName.length < 2) {
-                _uiState.value = AuthUiState.Error("El nombre debe tener al menos 2 caracteres")
+                _uiState.value = AuthUiState.Error(application.getString(R.string.error_name_too_short))
                 return@launch
             }
 
             if (cleanPassword.length < 8) {
-                _uiState.value = AuthUiState.Error("La contraseña debe tener al menos 8 caracteres")
+                _uiState.value = AuthUiState.Error(application.getString(R.string.error_password_too_short))
                 return@launch
             }
 
@@ -96,7 +99,7 @@ class AuthViewModel(
                     _uiState.value = AuthUiState.Success(userId, successMessage)
                 }
                 is com.health.nutritionai.util.NetworkResult.Error -> {
-                    _uiState.value = AuthUiState.Error(result.message ?: "Error al registrarse")
+                    _uiState.value = AuthUiState.Error(result.message ?: application.getString(R.string.error_register_generic))
                 }
                 is com.health.nutritionai.util.NetworkResult.Loading -> {
                     // Already in loading state
@@ -106,4 +109,3 @@ class AuthViewModel(
     }
 
 }
-

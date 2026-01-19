@@ -35,6 +35,7 @@ fun SettingsScreen(
     val showLanguageDialog by viewModel.showLanguageDialog.collectAsState()
     val showUnitsDialog by viewModel.showUnitsDialog.collectAsState()
     val showChangePasswordDialog by viewModel.showChangePasswordDialog.collectAsState()
+    val showEditProfileDialog by viewModel.showEditProfileDialog.collectAsState()
     val notificationsEnabled by viewModel.notificationsEnabled.collectAsState()
     val selectedLanguage by viewModel.selectedLanguage.collectAsState()
     val selectedUnits by viewModel.selectedUnits.collectAsState()
@@ -90,7 +91,7 @@ fun SettingsScreen(
                 ) {
                     // Profile Card
                     item {
-                        ProfileCard(userProfile = userProfile)
+                        ProfileCard(userProfile = userProfile, onEditClick = { viewModel.showEditProfileDialog() })
                     }
 
                     // Nutrition Goals Section
@@ -194,15 +195,30 @@ fun SettingsScreen(
                         }
                     )
                 }
+
+                if (showEditProfileDialog) {
+                    EditProfileDialog(
+                        userProfile = userProfile,
+                        onDismiss = { viewModel.hideEditProfileDialog() },
+                        onSave = { name, photoUrl ->
+                            viewModel.updateUserProfile(name, photoUrl)
+                        }
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-private fun ProfileCard(userProfile: UserProfile) {
+private fun ProfileCard(
+    userProfile: UserProfile,
+    onEditClick: () -> Unit
+) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onEditClick),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
         )
@@ -213,35 +229,57 @@ private fun ProfileCard(userProfile: UserProfile) {
                 .padding(20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Avatar - Simple circle with icon
+            // Avatar - Show photo if available, otherwise default icon
             Box(
                 modifier = Modifier
                     .size(64.dp)
                     .clip(CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                    shape = CircleShape
-                ) {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.fillMaxSize()
+                if (userProfile.photoUrl != null) {
+                    // TODO: Load image from URL using Coil or similar
+                    // For now, show a placeholder
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                        shape = CircleShape
                     ) {
-                        Icon(
-                            Icons.Default.Person,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(32.dp)
-                        )
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            Text(
+                                text = "📷",
+                                style = MaterialTheme.typography.headlineMedium
+                            )
+                        }
+                    }
+                } else {
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                        shape = CircleShape
+                    ) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            Icon(
+                                Icons.Default.Person,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(32.dp)
+                            )
+                        }
                     }
                 }
             }
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            Column {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
                 Text(
                     text = userProfile.name,
                     style = MaterialTheme.typography.titleLarge,
@@ -253,6 +291,12 @@ private fun ProfileCard(userProfile: UserProfile) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                 )
             }
+
+            Icon(
+                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
@@ -727,7 +771,56 @@ private fun ChangePasswordDialog(
     )
 }
 
+@Composable
+private fun EditProfileDialog(
+    userProfile: UserProfile,
+    onDismiss: () -> Unit,
+    onSave: (String, String?) -> Unit
+) {
+    var name by remember { mutableStateOf(userProfile.name) }
+    var photoUrl by remember { mutableStateOf(userProfile.photoUrl) }
 
-
-
-
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.edit_profile)) },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text(stringResource(R.string.name)) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = userProfile.email,
+                    onValueChange = { },
+                    label = { Text(stringResource(R.string.email_label)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = false
+                )
+                OutlinedTextField(
+                    value = photoUrl ?: "",
+                    onValueChange = { photoUrl = it },
+                    label = { Text(stringResource(R.string.photo_url)) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onSave(name, photoUrl)
+                }
+            ) {
+                Text(stringResource(R.string.save))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
+}

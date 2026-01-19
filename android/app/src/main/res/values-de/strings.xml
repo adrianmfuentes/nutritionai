@@ -196,4 +196,15 @@
         deine Fragen zu beantworten und dir Ratschläge zu gesunder Ernährung zu geben.</string>
     <string name="chat_reset_message">Unterhaltung zurückgesetzt. Wie kann ich dir bei der Ernährung
         helfen?</string>
+
+    <string name="error_fill_all_fields">Bitte alle Felder ausfüllen</string>
+    <string name="error_invalid_email">Ungültige E-Mail-Adresse</string>
+    <string name="error_name_too_short">Der Name muss mindestens 2 Zeichen lang sein</string>
+    <string name="error_password_too_short">Das Passwort muss mindestens 8 Zeichen lang sein</string>
+    <string name="error_login_generic">Fehler beim Anmelden</string>
+    <string name="error_register_generic">Fehler beim Registrieren</string>
+
+    <string name="edit_profile">Profil bearbeiten</string>
+    <string name="name">Name</string>
+    <string name="photo_url">Foto-URL</string>
 </resources>

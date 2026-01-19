@@ -50,12 +50,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.health.nutritionai.R
 import com.health.nutritionai.ui.theme.Error
 import com.health.nutritionai.ui.theme.Secondary
 import com.health.nutritionai.ui.theme.SecondaryLight
@@ -143,14 +145,14 @@ fun RegisterScreen(
                 Spacer(modifier = Modifier.height(20.dp))
 
                 Text(
-                    text = "Crear Cuenta",
+                    text = stringResource(R.string.register_title),
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
 
                 Text(
-                    text = "Comienza tu viaje nutricional",
+                    text = stringResource(R.string.register_subtitle),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
@@ -181,7 +183,7 @@ fun RegisterScreen(
                         OutlinedTextField(
                             value = name,
                             onValueChange = { name = it },
-                            label = { Text("Nombre") },
+                            label = { Text(stringResource(R.string.name_label)) },
                             leadingIcon = {
                                 Icon(
                                     Icons.Default.Person,
@@ -204,7 +206,7 @@ fun RegisterScreen(
                         OutlinedTextField(
                             value = email,
                             onValueChange = { email = it },
-                            label = { Text("Correo electrónico") },
+                            label = { Text(stringResource(R.string.email_label)) },
                             leadingIcon = {
                                 Icon(
                                     Icons.Default.Email,
@@ -230,7 +232,7 @@ fun RegisterScreen(
                         OutlinedTextField(
                             value = password,
                             onValueChange = { password = it },
-                            label = { Text("Contraseña") },
+                            label = { Text(stringResource(R.string.password_label)) },
                             leadingIcon = {
                                 Icon(
                                     Icons.Default.Lock,
@@ -266,7 +268,7 @@ fun RegisterScreen(
                         OutlinedTextField(
                             value = confirmPassword,
                             onValueChange = { confirmPassword = it },
-                            label = { Text("Confirmar contraseña") },
+                            label = { Text(stringResource(R.string.confirm_password_label)) },
                             leadingIcon = {
                                 Icon(
                                     Icons.Default.Lock,
@@ -305,7 +307,7 @@ fun RegisterScreen(
                             exit = fadeOut()
                         ) {
                             Text(
-                                text = "Las contraseñas no coinciden",
+                                text = stringResource(R.string.passwords_dont_match),
                                 color = Error,
                                 style = MaterialTheme.typography.bodySmall,
                                 modifier = Modifier
@@ -371,7 +373,7 @@ fun RegisterScreen(
                     )
                             } else {
                                 Text(
-                                    text = "Crear Cuenta",
+                                    text = stringResource(R.string.register_button),
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.SemiBold
                                 )
@@ -388,13 +390,13 @@ fun RegisterScreen(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = "¿Ya tienes cuenta?",
+                        text = stringResource(R.string.have_account),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     TextButton(onClick = onNavigateToLogin) {
                         Text(
-                            text = "Inicia Sesión",
+                            text = stringResource(R.string.login_link),
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.SemiBold,
                             color = Secondary
@@ -407,4 +409,3 @@ fun RegisterScreen(
         }
     }
 }
-

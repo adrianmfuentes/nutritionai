@@ -20,12 +20,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.health.nutritionai.R
 import com.health.nutritionai.ui.theme.*
 import org.koin.androidx.compose.koinViewModel
 
@@ -104,7 +106,7 @@ fun LoginScreen(
             )
 
             Text(
-                text = "Tu asistente de nutrición inteligente",
+                text = stringResource(R.string.login_subtitle),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -132,7 +134,7 @@ fun LoginScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Iniciar Sesión",
+                        text = stringResource(R.string.login_button),
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface
@@ -144,7 +146,7 @@ fun LoginScreen(
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
-                        label = { Text("Correo electrónico") },
+                        label = { Text(stringResource(R.string.email_label)) },
                         leadingIcon = {
                             Icon(
                                 Icons.Default.Email,
@@ -172,7 +174,7 @@ fun LoginScreen(
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
-                        label = { Text("Contraseña") },
+                        label = { Text(stringResource(R.string.password_label)) },
                         leadingIcon = {
                             Icon(
                                 Icons.Default.Lock,
@@ -256,7 +258,7 @@ fun LoginScreen(
                             )
                         } else {
                             Text(
-                                text = "Iniciar Sesión",
+                                text = stringResource(R.string.login_button),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.SemiBold
                             )
@@ -273,13 +275,13 @@ fun LoginScreen(
                 horizontalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "¿No tienes cuenta?",
+                    text = stringResource(R.string.no_account),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 TextButton(onClick = onNavigateToRegister) {
                     Text(
-                        text = "Regístrate",
+                        text = stringResource(R.string.register_link),
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = Primary
@@ -291,4 +293,3 @@ fun LoginScreen(
         }
     }
 }
-
