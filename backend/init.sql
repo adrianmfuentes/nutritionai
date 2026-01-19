@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS users (
     gender VARCHAR(20),
     activity_level VARCHAR(50),
     caloric_goal INTEGER,
+    profile_photo VARCHAR(255),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
