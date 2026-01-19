@@ -190,4 +190,15 @@
     <string name="add_button">Ajouter</string>
     <string name="chat_intro_message">Salut ! Je suis ton assistant nutritionnel. Je suis là pour répondre à tes questions et te donner des conseils sur une alimentation saine.</string>
     <string name="chat_reset_message">Conversation réinitialisée. Comment puis-je t\'aider avec la nutrition ?</string>
+
+    <string name="error_fill_all_fields">Veuillez remplir tous les champs</string>
+    <string name="error_invalid_email">Adresse e-mail invalide</string>
+    <string name="error_name_too_short">Le nom doit contenir au moins 2 caractères</string>
+    <string name="error_password_too_short">Le mot de passe doit contenir au moins 8 caractères</string>
+    <string name="error_login_generic">Erreur lors de la connexion</string>
+    <string name="error_register_generic">Erreur lors de l\'inscription</string>
+
+    <string name="edit_profile">Modifier le profil</string>
+    <string name="name">Nom</string>
+    <string name="photo_url">URL de la photo</string>
 </resources>

@@ -73,7 +73,7 @@ val appModule = module {
     single { NutritionRepository(get()) }
 
     // ViewModels
-    viewModel { AuthViewModel(get()) }
+    viewModel { AuthViewModel(get(), androidContext() as android.app.Application) }
     viewModel { DashboardViewModel(get(), get(), get()) }
     viewModel { CameraViewModel(get()) }
     viewModel { TextInputViewModel(get()) }

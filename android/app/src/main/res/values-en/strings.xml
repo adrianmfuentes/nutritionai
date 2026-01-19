@@ -193,4 +193,15 @@
     <string name="chat_intro_message">Hello! I am your nutritional assistant. I am here to answer
         your questions and give you advice on healthy eating.</string>
     <string name="chat_reset_message">Conversation reset. How can I help you with nutrition?</string>
+
+    <string name="error_fill_all_fields">Please fill in all fields</string>
+    <string name="error_invalid_email">Invalid email</string>
+    <string name="error_name_too_short">Name must be at least 2 characters long</string>
+    <string name="error_password_too_short">Password must be at least 8 characters long</string>
+    <string name="error_login_generic">Error logging in</string>
+    <string name="error_register_generic">Error registering</string>
+
+    <string name="edit_profile">Edit Profile</string>
+    <string name="name">Name</string>
+    <string name="photo_url">Photo URL</string>
 </resources>

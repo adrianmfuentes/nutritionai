@@ -56,6 +56,9 @@ class SettingsViewModel(
     private val _showChangePasswordDialog = MutableStateFlow(false)
     val showChangePasswordDialog: StateFlow<Boolean> = _showChangePasswordDialog.asStateFlow()
 
+    private val _showEditProfileDialog = MutableStateFlow(false)
+    val showEditProfileDialog: StateFlow<Boolean> = _showEditProfileDialog.asStateFlow()
+
     private val _notificationsEnabled = MutableStateFlow(true)
     val notificationsEnabled: StateFlow<Boolean> = _notificationsEnabled.asStateFlow()
 
@@ -170,6 +173,14 @@ class SettingsViewModel(
         _showChangePasswordDialog.value = false
     }
 
+    fun showEditProfileDialog() {
+        _showEditProfileDialog.value = true
+    }
+
+    fun hideEditProfileDialog() {
+        _showEditProfileDialog.value = false
+    }
+
     fun updateNotifications(enabled: Boolean) {
         viewModelScope.launch {
             _notificationsEnabled.value = enabled
@@ -215,6 +226,26 @@ class SettingsViewModel(
                 }
                 else -> {
                     _feedback.emit(UserFeedback.Error("Error al cambiar contraseña"))
+                }
+            }
+        }
+    }
+
+    fun updateUserProfile(name: String, photoUrl: String? = null) {
+        viewModelScope.launch {
+            when (val result = userRepository.updateProfile(name = name, photoUrl = photoUrl)) {
+                is NetworkResult.Success -> {
+                    loadUserProfile()
+                    _showEditProfileDialog.value = false
+                    _feedback.emit(UserFeedback.Success(
+                        ErrorMapper.getSuccessMessage(SuccessAction.PROFILE_UPDATED)
+                    ))
+                }
+                is NetworkResult.Error -> {
+                    _feedback.emit(UserFeedback.Error(result.message ?: "Error al actualizar perfil"))
+                }
+                else -> {
+                    _feedback.emit(UserFeedback.Error("Error al actualizar perfil"))
                 }
             }
         }

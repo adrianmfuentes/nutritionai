@@ -29,7 +29,8 @@ class UserRepository(
                     userId = dto.id,
                     email = dto.email,
                     name = dto.name,
-                    goals = dto.goals?.let { 
+                    photoUrl = dto.photoUrl,
+                    goals = dto.goals?.let {
                         NutritionGoals(it.calories, it.protein, it.carbs, it.fat)
                     }
                 )
@@ -61,7 +62,8 @@ class UserRepository(
                     userId = dto.id,
                     email = dto.email,
                     name = dto.name,
-                    goals = dto.goals?.let { 
+                    photoUrl = dto.photoUrl,
+                    goals = dto.goals?.let {
                         NutritionGoals(it.calories, it.protein, it.carbs, it.fat)
                     }
                 )
@@ -93,6 +95,7 @@ class UserRepository(
                 userId = userDto.id,
                 email = userDto.email,
                 name = userDto.name,
+                photoUrl = userDto.photoUrl,
                 goals = goalsDto?.let {
                     NutritionGoals(it.calories, it.protein, it.carbs, it.fat)
                 } ?: NutritionGoals(2000, 150.0, 200.0, 65.0) // Default goals if null
@@ -126,6 +129,34 @@ class UserRepository(
             NetworkResult.Success(updatedGoals)
         } catch (e: Exception) {
             NetworkResult.Error(e.message ?: "Error al actualizar los objetivos")
+        }
+    }
+
+    suspend fun updateProfile(name: String? = null, photoUrl: String? = null): NetworkResult<UserProfile> {
+        return try {
+            val request = com.health.nutritionai.data.remote.dto.UpdateProfileRequest(
+                name = name,
+                photoUrl = photoUrl
+            )
+            val response = apiService.updateProfile(request)
+
+            val userDto = response.user
+            val goalsDto = response.goals
+
+            val userProfile = UserProfile(
+                userId = userDto.id,
+                email = userDto.email,
+                name = userDto.name,
+                photoUrl = userDto.photoUrl,
+                goals = goalsDto?.let {
+                    NutritionGoals(it.calories, it.protein, it.carbs, it.fat)
+                }
+            )
+
+            NetworkResult.Success(userProfile)
+        } catch (e: Exception) {
+            val userFriendlyMessage = ErrorMapper.mapErrorToMessage(e, ErrorContext.USER_PROFILE)
+            NetworkResult.Error(userFriendlyMessage)
         }
     }
 
@@ -193,4 +224,3 @@ class UserRepository(
         }
     }
 }
-

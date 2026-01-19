@@ -4,6 +4,7 @@ data class UserProfile(
     val userId: String,
     val email: String,
     val name: String,
+    val photoUrl: String? = null,
     val goals: NutritionGoals? = null
 )
 

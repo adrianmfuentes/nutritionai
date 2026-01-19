@@ -62,6 +62,9 @@ interface NutritionApiService {
     @GET("profile")
     suspend fun getProfile(): ProfileResponse
 
+    @PUT("profile")
+    suspend fun updateProfile(@Body request: UpdateProfileRequest): ProfileResponse
+
     @PUT("nutrition/goals")
     suspend fun updateGoals(@Body request: UpdateGoalsRequest): GoalsResponse
 

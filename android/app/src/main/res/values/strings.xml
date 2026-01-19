@@ -4,8 +4,8 @@
     <string name="app_description">Análisis nutricional con IA</string>
 
     <!-- Auth Screens -->
-    <string name="login_title">NutritionAI</string>
-    <string name="login_subtitle">Analiza tu comida con IA</string>
+    <string name="login_title">Iniciar Sesión</string>
+    <string name="login_subtitle">Tu asistente de nutrición inteligente</string>
     <string name="email_label">Correo electrónico</string>
     <string name="password_label">Contraseña</string>
     <string name="show_password">Mostrar</string>
@@ -207,4 +207,17 @@
         tus dudas y darte consejos sobre alimentación saludable.</string>
     <string name="chat_reset_message">Conversación reiniciada. ¿En qué puedo ayudarte sobre
         nutrición?</string>
+
+    <!-- Error Messages -->
+    <string name="error_fill_all_fields">Por favor, completa todos los campos</string>
+    <string name="error_invalid_email">Correo electrónico inválido</string>
+    <string name="error_name_too_short">El nombre debe tener al menos 2 caracteres</string>
+    <string name="error_password_too_short">La contraseña debe tener al menos 8 caracteres</string>
+    <string name="error_login_generic">Error al iniciar sesión</string>
+    <string name="error_register_generic">Error al registrarse</string>
+
+    <!-- Profile Editing -->
+    <string name="edit_profile">Editar Perfil</string>
+    <string name="name">Nombre</string>
+    <string name="photo_url">URL de Foto</string>
 </resources>
