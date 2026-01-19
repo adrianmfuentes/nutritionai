@@ -2,8 +2,6 @@ package com.health.nutritionai.ui.chat
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.health.nutritionai.data.local.entity.FoodEntity
-import com.health.nutritionai.data.local.entity.MealEntity
 import com.health.nutritionai.data.remote.api.NutritionApiService
 import com.health.nutritionai.data.remote.dto.ChatMessage
 import com.health.nutritionai.data.remote.dto.ChatRequest
@@ -11,13 +9,12 @@ import com.health.nutritionai.data.repository.MealRepository
 import com.health.nutritionai.data.repository.UserRepository
 import com.health.nutritionai.util.ErrorMapper
 import com.health.nutritionai.util.ErrorContext
-import com.health.nutritionai.util.SuccessAction
 import com.health.nutritionai.util.UserFeedback
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.util.UUID
+import java.util.Locale
 
 sealed class ChatUiState {
     data object Loading : ChatUiState()
@@ -38,6 +35,13 @@ class ChatViewModel(
     val feedback: StateFlow<UserFeedback> = _feedback.asStateFlow()
 
     private val conversationHistory = mutableListOf<ChatMessage>()
+
+    private val supportedLanguages = setOf("es", "en", "fr", "de")
+
+    private fun getUserLanguage(): String {
+        val deviceLanguage = Locale.getDefault().language
+        return if (supportedLanguages.contains(deviceLanguage)) deviceLanguage else "es"
+    }
 
     init {
         // Mensaje inicial solo de asesoramiento
@@ -64,7 +68,8 @@ class ChatViewModel(
             try {
                 val request = ChatRequest(
                     message = userMessage,
-                    conversationHistory = conversationHistory.takeLast(10)
+                    conversationHistory = conversationHistory.takeLast(10),
+                    language = getUserLanguage()
                 )
 
                 val response = apiService.chat(request)
@@ -107,4 +112,3 @@ class ChatViewModel(
         _uiState.value = ChatUiState.Success(conversationHistory.toList())
     }
 }
-

@@ -127,6 +127,11 @@
     <string name="could_improve">Podría mejorar</string>
     <string name="consider_healthier_options">Considera opciones más saludables</string>
 
+    <string name="meal_breakfast">Desayuno</string>
+    <string name="meal_lunch">Comida</string>
+    <string name="meal_dinner">Cena</string>
+    <string name="meal_snack">Snack</string>
+
     <!-- Chat -->
     <string name="chat_placeholder">Escribe tu mensaje…</string>
     <string name="send">Enviar</string>
@@ -164,4 +169,11 @@
     <string name="nav_camera">Cámara</string>
     <string name="nav_history">Historial</string>
     <string name="nav_settings">Ajustes</string>
+
+    <string name="calories_consumed">Consumidas</string>
+    <string name="calories_remaining">Restantes</string>
+    <string name="calories_exceeded">Excedido</string>
+    <string name="goal_reached">Meta alcanzada</string>
+    <string name="of_kcal">de %1$d kcal</string>
+    <string name="macro_goal">Meta: %1$d %2$s</string>
 </resources>

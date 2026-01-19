@@ -48,6 +48,13 @@
     <string name="chat_with_ai">Chat avec l\'IA</string>
     <string name="talk_to_nutrition_assistant">Parlez à l\'assistant nutritionnel</string>
 
+    <string name="calories_consumed">Consommées</string>
+    <string name="calories_remaining">Restantes</string>
+    <string name="calories_exceeded">Dépassé</string>
+    <string name="goal_reached">Objectif</string>
+    <string name="of_kcal">sur %1$d kcal</string>
+    <string name="macro_goal">Objectif : %1$d %2$s</string>
+
     <string name="nutrition_goals">Objectifs nutritionnels</string>
     <string name="preferences">Préférences</string>
     <string name="account">Compte</string>
@@ -121,6 +128,11 @@
     <string name="moderate_option">Option modérée</string>
     <string name="could_improve">Pourrait être amélioré</string>
     <string name="consider_healthier_options">Envisagez des options plus saines</string>
+
+    <string name="meal_breakfast">Petit-déjeuner</string>
+    <string name="meal_lunch">Déjeuner</string>
+    <string name="meal_dinner">Dîner</string>
+    <string name="meal_snack">Collation</string>
 
     <string name="chat_placeholder">Écrivez votre message…</string>
     <string name="send">Envoyer</string>
