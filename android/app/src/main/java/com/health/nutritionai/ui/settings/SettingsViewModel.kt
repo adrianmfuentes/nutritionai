@@ -1,14 +1,19 @@
 package com.health.nutritionai.ui.settings
 
+import android.util.Log
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.health.nutritionai.data.model.NutritionGoals
 import com.health.nutritionai.data.model.UserProfile
 import com.health.nutritionai.data.repository.UserRepository
 import com.health.nutritionai.util.ErrorMapper
+import com.health.nutritionai.util.LocaleHelper
 import com.health.nutritionai.util.NetworkResult
 import com.health.nutritionai.util.SuccessAction
 import com.health.nutritionai.util.UserFeedback
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -60,8 +65,8 @@ class SettingsViewModel(
     private val _selectedUnits = MutableStateFlow("Métrico (g, kg)")
     val selectedUnits: StateFlow<String> = _selectedUnits.asStateFlow()
 
-    private val _languageChanged = MutableSharedFlow<Unit>()
-    val languageChanged: SharedFlow<Unit> = _languageChanged.asSharedFlow()
+    private val _languageChanged = MutableSharedFlow<String>()
+    val languageChanged: SharedFlow<String> = _languageChanged.asSharedFlow()
 
     init {
         loadUserProfile()
@@ -172,13 +177,20 @@ class SettingsViewModel(
         }
     }
 
-    fun updateLanguage(language: String) {
-        viewModelScope.launch {
-            _selectedLanguage.value = language
-            userRepository.saveLanguage(language)
-            _showLanguageDialog.value = false
-            _languageChanged.emit(Unit)
+    fun updateLanguage(languageName: String) {
+        val code = when (languageName) {
+            "Español" -> "es"
+            "English" -> "en"
+            "Français" -> "fr"
+            "Deutsch" -> "de"
+            else -> "es"
         }
+
+        val appLocale: LocaleListCompat = LocaleListCompat.forLanguageTags(code)
+        AppCompatDelegate.setApplicationLocales(appLocale)
+
+        _selectedLanguage.value = languageName
+        _showLanguageDialog.value = false
     }
 
     fun updateUnits(units: String) {

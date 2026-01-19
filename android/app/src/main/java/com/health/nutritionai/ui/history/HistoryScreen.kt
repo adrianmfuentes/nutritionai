@@ -8,7 +8,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.health.nutritionai.R
 import com.health.nutritionai.data.model.Meal
 import com.health.nutritionai.ui.history.components.DetailedMealCard
 import com.health.nutritionai.ui.history.components.MealDetailDialog
@@ -85,7 +87,7 @@ fun HistoryScreen(
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(onClick = { viewModel.refresh() }) {
-                            Text("Reintentar")
+                            Text(stringResource(R.string.retry))
                         }
                     }
                 }
@@ -102,7 +104,7 @@ fun HistoryScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "No hay comidas registradas",
+                            text = stringResource(R.string.no_meals_registered_history),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -137,4 +139,3 @@ fun HistoryScreen(
         }
     }
 }
-

@@ -24,14 +24,30 @@
 
     <!-- Dashboard -->
     <string name="add_meal">Agregar comida</string>
+    <string name="add_meal_fab">Agregar comida</string>
+    <string name="previous_day">Día anterior</string>
+    <string name="next_day">Día siguiente</string>
     <string name="macronutrients">Macronutrientes</string>
+    <string name="macronutrients_title">Macronutrientes</string>
     <string name="protein">Proteína</string>
+    <string name="protein_label">Proteína</string>
     <string name="carbs">Carbos</string>
+    <string name="carbs_label">Carbos</string>
     <string name="fat">Grasas</string>
+    <string name="fat_label">Grasas</string>
     <string name="meals_today">Comidas de hoy</string>
     <string name="no_meals_registered">No hay comidas registradas</string>
+    <string name="no_meals_registered_history">No hay comidas registradas</string>
     <string name="add_first_meal">Toca el botón + para agregar tu primera comida</string>
     <string name="calories_of_day">Calorías del Día</string>
+    <string name="add_meal_title">Añadir Comida</string>
+    <string name="add_meal_question">¿Cómo quieres añadir tu comida?</string>
+    <string name="take_photo">Tomar Foto</string>
+    <string name="capture_image_description">Captura una imagen de tu comida</string>
+    <string name="description_option">Descripción</string>
+    <string name="write_or_record_description">Escribe o graba la descripción</string>
+    <string name="chat_with_ai">Chat con IA</string>
+    <string name="talk_to_nutrition_assistant">Habla con el asistente nutricional</string>
 
     <!-- Settings -->
     <string name="nutrition_goals">Objetivos Nutricionales</string>
@@ -89,8 +105,63 @@
     <!-- History -->
     <string name="delete">Eliminar</string>
     <string name="retry">Reintentar</string>
+    <string name="delete_meal">Eliminar comida</string>
+    <string name="delete_meal_confirmation">¿Estás seguro de que deseas eliminar esta comida? Esta acción no se puede deshacer.</string>
+    <string name="options">Opciones</string>
+    <string name="edit">Editar</string>
+    <string name="meal">Comida</string>
+    <string name="food_image">Imagen de la comida</string>
+    <string name="food">alimento</string>
+    <string name="foods">alimentos</string>
+    <string name="nutritional_information">Información Nutricional</string>
+    <string name="fiber">Fibra</string>
+    <string name="health_score">Puntuación de Salud</string>
+    <string name="score_not_calculated">Puntuación no calculada</string>
+    <string name="notes">Notas</string>
+    <string name="detected_foods">Alimentos detectados</string>
+    <string name="personalized_advice">Consejo personalizado</string>
+    <string name="excellent_choice">¡Excelente elección!</string>
+    <string name="very_good_option">Muy buena opción</string>
+    <string name="good_meal">Buena comida</string>
+    <string name="moderate_option">Opción moderada</string>
+    <string name="could_improve">Podría mejorar</string>
+    <string name="consider_healthier_options">Considera opciones más saludables</string>
+
+    <!-- Chat -->
+    <string name="chat_placeholder">Escribe tu mensaje…</string>
+    <string name="send">Enviar</string>
+    <string name="typing">Escribiendo…</string>
+    <string name="nutritional_chat">Chat Nutricional</string>
+    <string name="restart_conversation">Reiniciar conversación</string>
+    <string name="write_food">Escribe tu comida…</string>
+    <string name="start_conversation">Comienza la conversación</string>
+    <string name="tell_me_what_you_ate">Cuéntame qué has comido</string>
+    <string name="error">Error</string>
+
+    <!-- Text Input -->
+    <string name="food_description_label">Descripción de la comida</string>
+    <string name="food_description_placeholder">Ej: 200g de pollo a la plancha, 150g de arroz integral, ensalada mixta</string>
+    <string name="characters_limit">caracteres</string>
+    <string name="tap_to_record">Toca para grabar</string>
+    <string name="analyzing_description">Analizando descripción…</string>
+    <string name="listening">Escuchando…</string>
+    <string name="analyze_and_save">Analizar y Guardar</string>
+    <string name="describe_food_prompt">Describe tu comida…</string>
+    <string name="add_by_description">Añadir por Descripción</string>
+    <string name="describe_your_meal">Describe tu comida</string>
+    <string name="description_instructions">Escribe o graba la descripción de lo que comiste. Incluye el nombre de los alimentos y las cantidades (ej: "200g de arroz con pollo y ensalada")</string>
+
+    <!-- Settings -->
+    <string name="change_password_title">Cambiar Contraseña</string>
+    <string name="notifications_label">Notificaciones</string>
 
     <!-- Common -->
     <string name="kcal">kcal</string>
     <string name="g">g</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Inicio</string>
+    <string name="nav_camera">Cámara</string>
+    <string name="nav_history">Historial</string>
+    <string name="nav_settings">Ajustes</string>
 </resources>

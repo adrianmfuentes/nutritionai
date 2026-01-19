@@ -1,46 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Nutrition AI</string>
-    <string name="app_description">AI-powered nutrition analysis</string>
+    <string name="app_description">AI-powered Nutritional Analysis</string>
 
-    <!-- Auth Screens -->
     <string name="login_title">NutritionAI</string>
     <string name="login_subtitle">Analyze your food with AI</string>
     <string name="email_label">Email</string>
     <string name="password_label">Password</string>
     <string name="show_password">Show</string>
     <string name="hide_password">Hide</string>
-    <string name="login_button">Login</string>
+    <string name="login_button">Log In</string>
     <string name="no_account">Don\'t have an account?</string>
-    <string name="register_link">Sign up</string>
+    <string name="register_link">Sign Up</string>
 
     <string name="register_title">Create Account</string>
-    <string name="register_subtitle">Start your nutrition journey</string>
+    <string name="register_subtitle">Start your nutritional journey</string>
     <string name="name_label">Name</string>
-    <string name="confirm_password_label">Confirm password</string>
-    <string name="passwords_dont_match">Passwords don\'t match</string>
+    <string name="confirm_password_label">Confirm Password</string>
+    <string name="passwords_dont_match">Passwords do not match</string>
     <string name="register_button">Sign Up</string>
     <string name="have_account">Already have an account?</string>
-    <string name="login_link">Login</string>
+    <string name="login_link">Log In</string>
 
-    <!-- Dashboard -->
-    <string name="add_meal">Add meal</string>
+    <string name="add_meal">Add Meal</string>
+    <string name="add_meal_fab">Add Meal</string>
+    <string name="previous_day">Previous Day</string>
+    <string name="next_day">Next Day</string>
     <string name="macronutrients">Macronutrients</string>
+    <string name="macronutrients_title">Macronutrients</string>
     <string name="protein">Protein</string>
+    <string name="protein_label">Protein</string>
     <string name="carbs">Carbs</string>
-    <string name="fat">Fat</string>
-    <string name="meals_today">Today\'s meals</string>
+    <string name="carbs_label">Carbs</string>
+    <string name="fat">Fats</string>
+    <string name="fat_label">Fats</string>
+    <string name="meals_today">Today\'s Meals</string>
     <string name="no_meals_registered">No meals registered</string>
+    <string name="no_meals_registered_history">No meals registered</string>
     <string name="add_first_meal">Tap the + button to add your first meal</string>
     <string name="calories_of_day">Daily Calories</string>
+    <string name="add_meal_title">Add Meal</string>
+    <string name="add_meal_question">How would you like to add your meal?</string>
+    <string name="take_photo">Take Photo</string>
+    <string name="capture_image_description">Capture an image of your food</string>
+    <string name="description_option">Description</string>
+    <string name="write_or_record_description">Write or record a description</string>
+    <string name="chat_with_ai">Chat with AI</string>
+    <string name="talk_to_nutrition_assistant">Talk to the nutrition assistant</string>
 
-    <!-- Settings -->
     <string name="nutrition_goals">Nutrition Goals</string>
     <string name="preferences">Preferences</string>
     <string name="account">Account</string>
     <string name="daily_goals">Daily Goals</string>
-    <string name="edit_goals">Edit goals</string>
+    <string name="edit_goals">Edit Goals</string>
     <string name="calories">Calories</string>
-    <string name="no_goals_configured">You haven\'t configured your goals yet</string>
+    <string name="no_goals_configured">You haven\'t set your goals yet</string>
 
     <string name="notifications">Notifications</string>
     <string name="notifications_enabled">Enabled</string>
@@ -48,23 +62,22 @@
     <string name="language">Language</string>
     <string name="units">Units</string>
 
-    <string name="change_password">Change password</string>
+    <string name="change_password">Change Password</string>
     <string name="update_password">Update your password</string>
-    <string name="logout">Logout</string>
+    <string name="logout">Log Out</string>
     <string name="logout_subtitle">Sign out of your account</string>
 
-    <!-- Dialogs -->
     <string name="edit_nutrition_goals">Edit Nutrition Goals</string>
     <string name="calories_kcal">Calories (kcal)</string>
     <string name="protein_g">Protein (g)</string>
     <string name="carbs_g">Carbohydrates (g)</string>
-    <string name="fat_g">Fat (g)</string>
+    <string name="fat_g">Fats (g)</string>
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
     <string name="close">Close</string>
 
     <string name="notifications_config">Notification Settings</string>
-    <string name="meal_reminders">Get reminders to log your meals</string>
+    <string name="meal_reminders">Receive reminders to log your meals</string>
 
     <string name="select_language">Select Language</string>
     <string name="language_spanish">Español</string>
@@ -76,22 +89,69 @@
     <string name="units_metric">Metric (g, kg)</string>
     <string name="units_imperial">Imperial (oz, lb)</string>
 
-    <string name="current_password">Current password</string>
-    <string name="new_password">New password</string>
-    <string name="confirm_new_password">Confirm new password</string>
+    <string name="current_password">Current Password</string>
+    <string name="new_password">New Password</string>
+    <string name="confirm_new_password">Confirm New Password</string>
 
-    <!-- Camera -->
     <string name="capture_food">Capture Food</string>
     <string name="back">Back</string>
     <string name="analyzing_food">Analyzing food…</string>
     <string name="capture">Capture</string>
 
-    <!-- History -->
     <string name="delete">Delete</string>
     <string name="retry">Retry</string>
+    <string name="delete_meal">Delete Meal</string>
+    <string name="delete_meal_confirmation">Are you sure you want to delete this meal? This action cannot be undone.</string>
+    <string name="options">Options</string>
+    <string name="edit">Edit</string>
+    <string name="meal">Meal</string>
+    <string name="food_image">Food Image</string>
+    <string name="food">food</string>
+    <string name="foods">foods</string>
+    <string name="nutritional_information">Nutritional Information</string>
+    <string name="fiber">Fiber</string>
+    <string name="health_score">Health Score</string>
+    <string name="score_not_calculated">Score not calculated</string>
+    <string name="notes">Notes</string>
+    <string name="detected_foods">Detected Foods</string>
+    <string name="personalized_advice">Personalized Advice</string>
+    <string name="excellent_choice">Excellent choice!</string>
+    <string name="very_good_option">Very good option</string>
+    <string name="good_meal">Good meal</string>
+    <string name="moderate_option">Moderate option</string>
+    <string name="could_improve">Could be improved</string>
+    <string name="consider_healthier_options">Consider healthier options</string>
 
-    <!-- Common -->
+    <string name="chat_placeholder">Type your message…</string>
+    <string name="send">Send</string>
+    <string name="typing">Typing…</string>
+    <string name="nutritional_chat">Nutritional Chat</string>
+    <string name="restart_conversation">Restart Conversation</string>
+    <string name="write_food">Write your food…</string>
+    <string name="start_conversation">Start the conversation</string>
+    <string name="tell_me_what_you_ate">Tell me what you ate</string>
+    <string name="error">Error</string>
+
+    <string name="food_description_label">Food Description</string>
+    <string name="food_description_placeholder">Ex: 200g grilled chicken, 150g brown rice, mixed salad</string>
+    <string name="characters_limit">characters</string>
+    <string name="tap_to_record">Tap to record</string>
+    <string name="analyzing_description">Analyzing description…</string>
+    <string name="listening">Listening…</string>
+    <string name="analyze_and_save">Analyze and Save</string>
+    <string name="describe_food_prompt">Describe your meal…</string>
+    <string name="add_by_description">Add by Description</string>
+    <string name="describe_your_meal">Describe Your Meal</string>
+    <string name="description_instructions">Type or record a description of what you ate. Include food names and amounts (e.g., "200g rice with chicken and salad")</string>
+
+    <string name="change_password_title">Change Password</string>
+    <string name="notifications_label">Notifications</string>
+
     <string name="kcal">kcal</string>
     <string name="g">g</string>
-</resources>
 
+    <string name="nav_home">Home</string>
+    <string name="nav_camera">Camera</string>
+    <string name="nav_history">History</string>
+    <string name="nav_settings">Settings</string>
+</resources>

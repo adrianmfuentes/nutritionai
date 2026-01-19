@@ -1,6 +1,7 @@
 package com.health.nutritionai.ui.textinput
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.speech.RecognizerIntent
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -15,6 +16,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -22,7 +25,9 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.health.nutritionai.util.UserFeedback
 import org.koin.androidx.compose.koinViewModel
+import com.health.nutritionai.R
 
+@SuppressLint("LocalContextGetResourceValueCall")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun TextInputScreen(
@@ -75,7 +80,7 @@ fun TextInputScreen(
             TopAppBar(
                 title = {
                     Text(
-                        "Añadir por Descripción",
+                        stringResource(R.string.add_by_description),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -84,7 +89,7 @@ fun TextInputScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Volver",
+                            contentDescription = stringResource(R.string.back),
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -113,13 +118,13 @@ fun TextInputScreen(
                         modifier = Modifier.padding(16.dp)
                     ) {
                         Text(
-                            "Describe tu comida",
+                            stringResource(R.string.describe_your_meal),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            "Escribe o graba la descripción de lo que comiste. Incluye el nombre de los alimentos y las cantidades (ej: \"200g de arroz con pollo y ensalada\")",
+                            stringResource(R.string.description_instructions),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -134,22 +139,23 @@ fun TextInputScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(min = 150.dp),
-                    label = { Text("Descripción de la comida") },
-                    placeholder = { Text("Ej: 200g de pollo a la plancha, 150g de arroz integral, ensalada mixta") },
-                    supportingText = { Text("${foodDescription.length}/500 caracteres") },
+                    label = { Text(stringResource(R.string.food_description_label)) },
+                    placeholder = { Text(stringResource(R.string.food_description_placeholder)) },
+                    supportingText = { Text("${foodDescription.length}/500 ${stringResource(R.string.characters_limit)}") },
                     maxLines = 8,
                     enabled = uiState !is TextInputUiState.Analyzing
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Voice Input Button
+                val context = LocalContext.current // 1. Capturado fuera (Correcto)
+
                 FloatingActionButton(
                     onClick = {
                         if (audioPermission.status.isGranted) {
                             val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
                                 putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                                putExtra(RecognizerIntent.EXTRA_PROMPT, "Describe tu comida...")
+                                putExtra(RecognizerIntent.EXTRA_PROMPT, context.getString(R.string.describe_food_prompt))
                             }
                             viewModel.startVoiceRecognition()
                             speechRecognizerLauncher.launch(intent)
@@ -168,7 +174,7 @@ fun TextInputScreen(
                 }
 
                 Text(
-                    "Toca para grabar",
+                    stringResource(R.string.tap_to_record),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 8.dp)
@@ -188,7 +194,7 @@ fun TextInputScreen(
                                 CircularProgressIndicator()
                                 Spacer(modifier = Modifier.height(16.dp))
                                 Text(
-                                    "Analizando descripción...",
+                                    stringResource(R.string.analyzing_description),
                                     style = MaterialTheme.typography.bodyLarge
                                 )
                             }
@@ -208,7 +214,7 @@ fun TextInputScreen(
                                 CircularProgressIndicator()
                                 Spacer(modifier = Modifier.height(16.dp))
                                 Text(
-                                    "Escuchando...",
+                                    stringResource(R.string.listening),
                                     style = MaterialTheme.typography.bodyLarge,
                                     color = MaterialTheme.colorScheme.onPrimaryContainer
                                 )
@@ -225,7 +231,7 @@ fun TextInputScreen(
                             modifier = Modifier.fillMaxWidth(),
                             enabled = foodDescription.isNotBlank()
                         ) {
-                            Text("Analizar y Guardar")
+                            Text(stringResource(R.string.analyze_and_save))
                         }
                     }
                 }
@@ -233,4 +239,3 @@ fun TextInputScreen(
         }
     }
 }
-

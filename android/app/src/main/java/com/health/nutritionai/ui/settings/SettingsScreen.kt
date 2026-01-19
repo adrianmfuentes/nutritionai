@@ -1,7 +1,5 @@
 package com.health.nutritionai.ui.settings
 
-import android.app.Activity
-import android.content.Intent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,13 +13,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.health.nutritionai.data.model.NutritionGoals
 import com.health.nutritionai.data.model.UserProfile
-import com.health.nutritionai.util.UserFeedback
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import com.health.nutritionai.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,17 +39,6 @@ fun SettingsScreen(
     val selectedLanguage by viewModel.selectedLanguage.collectAsState()
     val selectedUnits by viewModel.selectedUnits.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-
-    // Restart activity on language change
-    val context = LocalContext.current
-    LaunchedEffect(Unit) {
-        viewModel.languageChanged.collect {
-            val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
-            intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-            context.startActivity(intent)
-            (context as? Activity)?.finish()
-        }
-    }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -84,7 +72,7 @@ fun SettingsScreen(
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Button(onClick = { viewModel.loadUserProfile() }) {
-                            Text("Reintentar")
+                            Text(stringResource(R.string.retry))
                         }
                     }
                 }
@@ -108,7 +96,7 @@ fun SettingsScreen(
                     // Nutrition Goals Section
                     item {
                         Text(
-                            text = "Objetivos Nutricionales",
+                            text = stringResource(R.string.nutrition_goals),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(vertical = 8.dp)
@@ -125,7 +113,7 @@ fun SettingsScreen(
                     // Preferences Section
                     item {
                         Text(
-                            text = "Preferencias",
+                            text = stringResource(R.string.preferences),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(vertical = 8.dp)
@@ -146,7 +134,7 @@ fun SettingsScreen(
                     // Account Section
                     item {
                         Text(
-                            text = "Cuenta",
+                            text = stringResource(R.string.account),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(vertical = 8.dp)
@@ -286,25 +274,25 @@ private fun NutritionGoalsCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Objetivos Diarios",
+                    text = stringResource(R.string.daily_goals),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
                 IconButton(onClick = onEditClick) {
-                    Icon(Icons.Default.Edit, contentDescription = "Editar objetivos")
+                    Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit_goals))
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             if (goals != null) {
-                GoalItem(label = "Calorías", value = "${goals.calories} kcal", icon = Icons.Default.Star)
-                GoalItem(label = "Proteína", value = "${goals.protein.toInt()} g", icon = Icons.Default.FavoriteBorder)
-                GoalItem(label = "Carbohidratos", value = "${goals.carbs.toInt()} g", icon = Icons.Default.CheckCircle)
-                GoalItem(label = "Grasas", value = "${goals.fat.toInt()} g", icon = Icons.Default.Info)
+                GoalItem(label = stringResource(R.string.calories), value = "${goals.calories} ${stringResource(R.string.kcal)}", icon = Icons.Default.Star)
+                GoalItem(label = stringResource(R.string.protein), value = "${goals.protein.toInt()} ${stringResource(R.string.g)}", icon = Icons.Default.FavoriteBorder)
+                GoalItem(label = stringResource(R.string.carbs), value = "${goals.carbs.toInt()} ${stringResource(R.string.g)}", icon = Icons.Default.CheckCircle)
+                GoalItem(label = stringResource(R.string.fat), value = "${goals.fat.toInt()} ${stringResource(R.string.g)}", icon = Icons.Default.Info)
             } else {
                 Text(
-                    text = "No has configurado tus objetivos aún",
+                    text = stringResource(R.string.no_goals_configured),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -363,21 +351,21 @@ private fun PreferencesSection(
         ) {
             SettingsItem(
                 icon = Icons.Default.Notifications,
-                title = "Notificaciones",
-                subtitle = if (notificationsEnabled) "Activadas" else "Desactivadas",
+                title = stringResource(R.string.notifications),
+                subtitle = if (notificationsEnabled) stringResource(R.string.notifications_enabled) else stringResource(R.string.notifications_disabled),
                 onClick = onNotificationsClick
             )
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
             SettingsItem(
                 icon = Icons.Default.Settings,
-                title = "Idioma",
+                title = stringResource(R.string.language),
                 subtitle = selectedLanguage,
                 onClick = onLanguageClick
             )
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
             SettingsItem(
                 icon = Icons.Default.Build,
-                title = "Unidades",
+                title = stringResource(R.string.units),
                 subtitle = selectedUnits,
                 onClick = onUnitsClick
             )
@@ -398,15 +386,15 @@ private fun AccountSection(
         ) {
             SettingsItem(
                 icon = Icons.Default.Lock,
-                title = "Cambiar contraseña",
-                subtitle = "Actualiza tu contraseña",
+                title = stringResource(R.string.change_password),
+                subtitle = stringResource(R.string.update_password),
                 onClick = onChangePassword
             )
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
             SettingsItem(
                 icon = Icons.AutoMirrored.Filled.ExitToApp,
-                title = "Cerrar sesión",
-                subtitle = "Salir de tu cuenta",
+                title = stringResource(R.string.logout),
+                subtitle = stringResource(R.string.logout_subtitle),
                 onClick = onLogout,
                 isDestructive = true
             )
@@ -473,7 +461,7 @@ private fun EditGoalsDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Editar Objetivos Nutricionales") },
+        title = { Text(stringResource(R.string.edit_nutrition_goals)) },
         text = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -481,28 +469,28 @@ private fun EditGoalsDialog(
                 OutlinedTextField(
                     value = calories,
                     onValueChange = { calories = it },
-                    label = { Text("Calorías (kcal)") },
+                    label = { Text(stringResource(R.string.calories_kcal)) },
                     leadingIcon = { Icon(Icons.Default.Star, contentDescription = null) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = protein,
                     onValueChange = { protein = it },
-                    label = { Text("Proteína (g)") },
+                    label = { Text(stringResource(R.string.protein_g)) },
                     leadingIcon = { Icon(Icons.Default.FavoriteBorder, contentDescription = null) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = carbs,
                     onValueChange = { carbs = it },
-                    label = { Text("Carbohidratos (g)") },
+                    label = { Text(stringResource(R.string.carbs_g)) },
                     leadingIcon = { Icon(Icons.Default.CheckCircle, contentDescription = null) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = fat,
                     onValueChange = { fat = it },
-                    label = { Text("Grasas (g)") },
+                    label = { Text(stringResource(R.string.fat_g)) },
                     leadingIcon = { Icon(Icons.Default.Info, contentDescription = null) },
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -520,12 +508,12 @@ private fun EditGoalsDialog(
                     onSave(goals)
                 }
             ) {
-                Text("Guardar")
+                Text(stringResource(R.string.save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancelar")
+                Text(stringResource(R.string.cancel))
             }
         }
     )
@@ -539,18 +527,18 @@ private fun NotificationsDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Configuración de Notificaciones") },
+        title = { Text(stringResource(R.string.notifications_config)) },
         text = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text("Recibe recordatorios para registrar tus comidas")
+                Text(stringResource(R.string.meal_reminders))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Notificaciones")
+                    Text(stringResource(R.string.notifications_label))
                     Switch(
                         checked = enabled,
                         onCheckedChange = onToggle
@@ -560,7 +548,7 @@ private fun NotificationsDialog(
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cerrar")
+                Text(stringResource(R.string.close))
             }
         }
     )
@@ -570,20 +558,25 @@ private fun NotificationsDialog(
 private fun LanguageDialog(
     selectedLanguage: String,
     onDismiss: () -> Unit,
-    onSelect: (String) -> Unit
+    onSelect: suspend (String) -> Unit
 ) {
-    val languages = listOf("Español", "English", "Français", "Deutsch")
+    val languages = listOf(stringResource(R.string.language_spanish), stringResource(R.string.language_english), stringResource(R.string.language_french), stringResource(R.string.language_german))
+    val coroutineScope = rememberCoroutineScope()
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Seleccionar Idioma") },
+        title = { Text(stringResource(R.string.select_language)) },
         text = {
             Column {
                 languages.forEach { language ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { onSelect(language) }
+                            .clickable {
+                                coroutineScope.launch {
+                                    onSelect(language)
+                                }
+                            }
                             .padding(vertical = 12.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
@@ -602,7 +595,7 @@ private fun LanguageDialog(
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancelar")
+                Text(stringResource(R.string.cancel))
             }
         }
     )
@@ -614,11 +607,11 @@ private fun UnitsDialog(
     onDismiss: () -> Unit,
     onSelect: (String) -> Unit
 ) {
-    val unitOptions = listOf("Métrico (g, kg)", "Imperial (oz, lb)")
+    val unitOptions = listOf(stringResource(R.string.units_metric), stringResource(R.string.units_imperial))
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Seleccionar Unidades") },
+        title = { Text(stringResource(R.string.select_units)) },
         text = {
             Column {
                 unitOptions.forEach { unit ->
@@ -644,7 +637,7 @@ private fun UnitsDialog(
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancelar")
+                Text(stringResource(R.string.cancel))
             }
         }
     )
@@ -662,7 +655,7 @@ private fun ChangePasswordDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Cambiar Contraseña") },
+        title = { Text(stringResource(R.string.change_password_title)) },
         text = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -673,7 +666,7 @@ private fun ChangePasswordDialog(
                         currentPassword = it
                         showError = false
                     },
-                    label = { Text("Contraseña actual") },
+                    label = { Text(stringResource(R.string.current_password)) },
                     visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -683,7 +676,7 @@ private fun ChangePasswordDialog(
                         newPassword = it
                         showError = false
                     },
-                    label = { Text("Nueva contraseña") },
+                    label = { Text(stringResource(R.string.new_password)) },
                     visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -693,14 +686,14 @@ private fun ChangePasswordDialog(
                         confirmPassword = it
                         showError = false
                     },
-                    label = { Text("Confirmar nueva contraseña") },
+                    label = { Text(stringResource(R.string.confirm_new_password)) },
                     visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
                     modifier = Modifier.fillMaxWidth(),
                     isError = showError
                 )
                 if (showError) {
                     Text(
-                        text = "Las contraseñas no coinciden",
+                        text = stringResource(R.string.passwords_dont_match),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall
                     )
@@ -716,15 +709,16 @@ private fun ChangePasswordDialog(
                     }
                 }
             ) {
-                Text("Guardar")
+                Text(stringResource(R.string.save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancelar")
+                Text(stringResource(R.string.cancel))
             }
         }
     )
 }
+
 
 
