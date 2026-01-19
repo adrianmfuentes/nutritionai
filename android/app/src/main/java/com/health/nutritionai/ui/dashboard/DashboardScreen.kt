@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -28,7 +27,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -56,8 +54,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.health.nutritionai.ui.dashboard.components.CaloriesCard
 import com.health.nutritionai.ui.dashboard.components.MacroCard
-import com.health.nutritionai.ui.dashboard.components.MealCard
-import com.health.nutritionai.ui.theme.Background
 import com.health.nutritionai.ui.theme.Background
 import com.health.nutritionai.ui.theme.CarbsColor
 import com.health.nutritionai.ui.theme.FatColor
@@ -72,7 +68,6 @@ import com.health.nutritionai.ui.theme.ProteinColor
 import com.health.nutritionai.ui.theme.Secondary
 import com.health.nutritionai.ui.theme.SecondaryContainer
 import com.health.nutritionai.ui.theme.Tertiary
-import com.health.nutritionai.ui.theme.TertiaryContainer
 import com.health.nutritionai.ui.theme.TertiaryContainer
 import org.koin.androidx.compose.koinViewModel
 
@@ -338,85 +333,6 @@ fun DashboardScreen(
                         )
                     }
 
-                    // Meals Section
-                    item {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(vertical = 8.dp)
-                        ) {
-                            Text(
-                                text = "🍽️",
-                                style = MaterialTheme.typography.titleLarge
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "Comidas de hoy",
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
-                        }
-                    }
-
-                    if (nutritionSummary.meals.isEmpty()) {
-                        item {
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .shadow(
-                                        elevation = 8.dp,
-                                        shape = RoundedCornerShape(24.dp),
-                                        spotColor = Primary.copy(alpha = 0.1f)
-                                    ),
-                                shape = RoundedCornerShape(24.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surface
-                                )
-                            ) {
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(40.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                                ) {
-                                    Surface(
-                                        modifier = Modifier.size(80.dp),
-                                        shape = CircleShape,
-                                        color = Primary.copy(alpha = 0.1f)
-                                    ) {
-                                        Box(
-                                            contentAlignment = Alignment.Center,
-                                            modifier = Modifier.fillMaxSize()
-                                        ) {
-                                            Text(
-                                                text = "📸",
-                                                style = MaterialTheme.typography.displayMedium
-                                            )
-                                        }
-                                    }
-                                    Text(
-                                        text = "No hay comidas registradas",
-                                        style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    Text(
-                                        text = "Toca el botón + para agregar tu primera comida",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            }
-                        }
-                    } else {
-                        items(nutritionSummary.meals) { meal ->
-                            MealCard(
-                                meal = meal,
-                                onClick = { /* Navigate to meal detail */ }
-                            )
-                        }
-                    }
-
                     // Add bottom spacing for FAB
                     item {
                         Spacer(modifier = Modifier.height(64.dp))
@@ -624,4 +540,3 @@ fun DashboardScreen(
         )
     }
 }
-
