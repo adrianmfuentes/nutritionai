@@ -293,13 +293,15 @@ fun DetailedMealCard(
                 }
             }
 
-            // Food count
+            // Food names
             if (meal.detectedFoods.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "${meal.detectedFoods.size} alimento${if (meal.detectedFoods.size > 1) "s" else ""}",
+                    text = meal.detectedFoods.joinToString(", ") { it.name },
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }

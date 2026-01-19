@@ -9,11 +9,9 @@ import com.health.nutritionai.data.model.NutritionGoals
 import com.health.nutritionai.data.model.UserProfile
 import com.health.nutritionai.data.repository.UserRepository
 import com.health.nutritionai.util.ErrorMapper
-import com.health.nutritionai.util.LocaleHelper
 import com.health.nutritionai.util.NetworkResult
 import com.health.nutritionai.util.SuccessAction
 import com.health.nutritionai.util.UserFeedback
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -21,6 +19,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.io.File
 
 sealed class SettingsUiState {
     data object Loading : SettingsUiState()
@@ -234,6 +233,26 @@ class SettingsViewModel(
     fun updateUserProfile(name: String, photoUrl: String? = null) {
         viewModelScope.launch {
             when (val result = userRepository.updateProfile(name = name, photoUrl = photoUrl)) {
+                is NetworkResult.Success -> {
+                    loadUserProfile()
+                    _showEditProfileDialog.value = false
+                    _feedback.emit(UserFeedback.Success(
+                        ErrorMapper.getSuccessMessage(SuccessAction.PROFILE_UPDATED)
+                    ))
+                }
+                is NetworkResult.Error -> {
+                    _feedback.emit(UserFeedback.Error(result.message ?: "Error al actualizar perfil"))
+                }
+                else -> {
+                    _feedback.emit(UserFeedback.Error("Error al actualizar perfil"))
+                }
+            }
+        }
+    }
+
+    fun updateUserProfileWithImage(name: String, imageFile: File?) {
+        viewModelScope.launch {
+            when (val result = userRepository.updateProfileWithImage(name = name, imageFile = imageFile)) {
                 is NetworkResult.Success -> {
                     loadUserProfile()
                     _showEditProfileDialog.value = false

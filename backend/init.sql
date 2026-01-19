@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS nutrition_goals (
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(user_id)
+    UNIQUE(user_id, active_from)
 );
 
 -- Tabla de Comidas

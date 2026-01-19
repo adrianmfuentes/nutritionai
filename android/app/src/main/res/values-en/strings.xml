@@ -204,4 +204,7 @@
     <string name="edit_profile">Edit Profile</string>
     <string name="name">Name</string>
     <string name="photo_url">Photo URL</string>
+    <string name="select_profile_photo">Select profile photo</string>
+    <string name="select_image">Select image</string>
+    <string name="image_selected">Image selected</string>
 </resources>
