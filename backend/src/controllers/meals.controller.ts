@@ -576,8 +576,10 @@ export class MealsController {
         return res.status(404).json({ error: 'Comida no encontrada' });
       }
 
-      // Eliminar imagen del storage
-      await this.storageService.deleteImage(mealResult.rows[0].image_url);
+      // Eliminar imagen del storage si existe
+      if (mealResult.rows[0].image_url) {
+        await this.storageService.deleteImage(mealResult.rows[0].image_url);
+      }
 
       // Eliminar meal (cascade eliminará detected_foods)
       await pool.query(

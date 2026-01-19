@@ -236,8 +236,9 @@ export class AuthController {
       let imageUrl: string | undefined;
 
       // Si se proporciona una imagen, guardarla
-      if (req.file) {
-        imageUrl = await this.storageService.saveProfileImage(req.file.path, userId);
+      if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+        const file = req.files[0] as Express.Multer.File;
+        imageUrl = await this.storageService.saveProfileImage(file.path, userId);
 
         // Obtener la foto anterior para eliminarla
         const currentUser = await pool.query(
