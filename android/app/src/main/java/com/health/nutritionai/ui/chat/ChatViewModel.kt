@@ -1,7 +1,9 @@
 package com.health.nutritionai.ui.chat
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.health.nutritionai.R
 import com.health.nutritionai.data.remote.api.NutritionApiService
 import com.health.nutritionai.data.remote.dto.ChatMessage
 import com.health.nutritionai.data.remote.dto.ChatRequest
@@ -23,10 +25,11 @@ sealed class ChatUiState {
 }
 
 class ChatViewModel(
+    application: Application,
     private val apiService: NutritionApiService,
     private val mealRepository: MealRepository,
     private val userRepository: UserRepository
-) : ViewModel() {
+) : AndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow<ChatUiState>(ChatUiState.Success(emptyList()))
     val uiState: StateFlow<ChatUiState> = _uiState.asStateFlow()
@@ -48,7 +51,7 @@ class ChatViewModel(
         conversationHistory.add(
             ChatMessage(
                 role = "assistant",
-                content = "¡Hola! Soy tu asistente nutricional. Estoy aquí para responder tus dudas y darte consejos sobre alimentación saludable."
+                content = getApplication<Application>().getString(R.string.chat_intro_message)
             )
         )
         _uiState.value = ChatUiState.Success(conversationHistory.toList())
@@ -106,7 +109,7 @@ class ChatViewModel(
         conversationHistory.add(
             ChatMessage(
                 role = "assistant",
-                content = "Conversación reiniciada. ¿En qué puedo ayudarte sobre nutrición?"
+                content = getApplication<Application>().getString(R.string.chat_reset_message)
             )
         )
         _uiState.value = ChatUiState.Success(conversationHistory.toList())

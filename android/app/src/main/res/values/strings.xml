@@ -106,7 +106,8 @@
     <string name="delete">Eliminar</string>
     <string name="retry">Reintentar</string>
     <string name="delete_meal">Eliminar comida</string>
-    <string name="delete_meal_confirmation">¿Estás seguro de que deseas eliminar esta comida? Esta acción no se puede deshacer.</string>
+    <string name="delete_meal_confirmation">¿Estás seguro de que deseas eliminar esta comida? Esta
+        acción no se puede deshacer.</string>
     <string name="options">Opciones</string>
     <string name="edit">Editar</string>
     <string name="meal">Comida</string>
@@ -146,7 +147,8 @@
 
     <!-- Text Input -->
     <string name="food_description_label">Descripción de la comida</string>
-    <string name="food_description_placeholder">Ej: 200g de pollo a la plancha, 150g de arroz integral, ensalada mixta</string>
+    <string name="food_description_placeholder">Ej: 200g de pollo a la plancha, 150g de arroz
+        integral, ensalada mixta</string>
     <string name="characters_limit">caracteres</string>
     <string name="tap_to_record">Toca para grabar</string>
     <string name="analyzing_description">Analizando descripción…</string>
@@ -155,7 +157,9 @@
     <string name="describe_food_prompt">Describe tu comida…</string>
     <string name="add_by_description">Añadir por Descripción</string>
     <string name="describe_your_meal">Describe tu comida</string>
-    <string name="description_instructions">Escribe o graba la descripción de lo que comiste. Incluye el nombre de los alimentos y las cantidades (ej: "200g de arroz con pollo y ensalada")</string>
+    <string name="description_instructions">Escribe o graba la descripción de lo que comiste.
+        Incluye el nombre de los alimentos y las cantidades (ej: "200g de arroz con pollo y
+        ensalada")</string>
 
     <!-- Settings -->
     <string name="change_password_title">Cambiar Contraseña</string>
@@ -199,4 +203,8 @@
     <string name="fiber_label">Fibra (g)</string>
     <string name="category_label">Categoría</string>
     <string name="add_button">Añadir</string>
+    <string name="chat_intro_message">¡Hola! Soy tu asistente nutricional. Estoy aquí para responder
+        tus dudas y darte consejos sobre alimentación saludable.</string>
+    <string name="chat_reset_message">Conversación reiniciada. ¿En qué puedo ayudarte sobre
+        nutrición?</string>
 </resources>
