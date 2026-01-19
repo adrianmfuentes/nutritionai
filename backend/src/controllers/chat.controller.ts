@@ -36,7 +36,7 @@ export class ChatController {
       logger.info(`Chat request de usuario: ${userId}, idioma: ${userLanguage}`);
 
       // Procesar chat con IA
-      const chatResult = await this.visionService.chatNutrition(message, conversationHistory);
+      const chatResult = await this.visionService.chatNutrition(message, conversationHistory, userLanguage);
 
       res.json({
         message: chatResult.message

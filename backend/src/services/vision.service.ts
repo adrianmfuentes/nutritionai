@@ -217,17 +217,10 @@ Analiza esta descripción de comida y proporciona información nutricional sigui
     throw lastError || new Error('Error desconocido en análisis de texto');
   }
 
-  async chatNutrition(message: string, conversationHistory?: any[]): Promise<{ message: string; shouldRegisterMeal: boolean; mealData?: any }> {
+  async chatNutrition(message: string, conversationHistory?: any[], language: string = 'es'): Promise<{ message: string; shouldRegisterMeal: boolean; mealData?: any }> {
     try {
-      // Nuevo prompt: solo asesoramiento, nunca registrar comidas
-      const CHAT_SYSTEM_PROMPT = `Eres un asistente nutricional amigable y experto. 
-
-Tus responsabilidades:
-1. Responder preguntas sobre nutrición, dietas y salud
-2. Ofrecer consejos personalizados sobre alimentación
-3. Ayudar a interpretar información nutricional
-
-No debes registrar comidas ni pedir al usuario que registre comidas. Si el usuario menciona que comió algo, solo ofrece asesoramiento o comentarios, pero nunca digas que has registrado la comida ni devuelvas datos de comidas.`;
+      // Obtener prompt del sistema según el idioma
+      const CHAT_SYSTEM_PROMPT = this.getChatSystemPrompt(language);
 
       const model = this.genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
 
@@ -279,5 +272,47 @@ No debes registrar comidas ni pedir al usuario que registre comidas. Si el usuar
       logger.error('Error en chat de nutrición:', error);
       throw new Error('Error al procesar el mensaje');
     }
+  }
+
+  private getChatSystemPrompt(language: string): string {
+    const prompts: Record<string, string> = {
+      es: `Eres un asistente nutricional amigable y experto.
+
+Tus responsabilidades:
+1. Responder preguntas sobre nutrición, dietas y salud
+2. Ofrecer consejos personalizados sobre alimentación
+3. Ayudar a interpretar información nutricional
+
+No debes registrar comidas ni pedir al usuario que registre comidas. Si el usuario menciona que comió algo, solo ofrece asesoramiento o comentarios, pero nunca digas que has registrado la comida ni devuelvas datos de comidas.`,
+
+      en: `You are a friendly and expert nutrition assistant.
+
+Your responsibilities:
+1. Answer questions about nutrition, diets, and health
+2. Offer personalized advice on eating habits
+3. Help interpret nutritional information
+
+You should not register meals or ask the user to register meals. If the user mentions they ate something, only provide advice or comments, but never say that you have registered the meal or return meal data.`,
+
+      fr: `Vous êtes un assistant nutritionnel amical et expert.
+
+Vos responsabilités :
+1. Répondre aux questions sur la nutrition, les régimes et la santé
+2. Offrir des conseils personnalisés sur l'alimentation
+3. Aider à interpréter les informations nutritionnelles
+
+Vous ne devez pas enregistrer les repas ni demander à l'utilisateur d'enregistrer les repas. Si l'utilisateur mentionne qu'il a mangé quelque chose, fournissez uniquement des conseils ou des commentaires, mais ne dites jamais que vous avez enregistré le repas ou retournez des données de repas.`,
+
+      de: `Sie sind ein freundlicher und erfahrener Ernährungsassistent.
+
+Ihre Verantwortlichkeiten:
+1. Fragen zu Ernährung, Diäten und Gesundheit beantworten
+2. Personalisierte Ratschläge zu Essgewohnheiten geben
+3. Bei der Interpretation von Nährwertinformationen helfen
+
+Sie sollten keine Mahlzeiten registrieren oder den Benutzer bitten, Mahlzeiten zu registrieren. Wenn der Benutzer erwähnt, dass er etwas gegessen hat, geben Sie nur Ratschläge oder Kommentare, aber sagen Sie niemals, dass Sie die Mahlzeit registriert haben oder Mahlzeitendaten zurückgeben.`
+    };
+
+    return prompts[language] || prompts['es']; // Fallback a español
   }
 }

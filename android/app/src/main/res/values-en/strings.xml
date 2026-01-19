@@ -180,4 +180,11 @@
     <string name="delete_food">Delete food</string>
     <string name="delete_meal_button">Delete Meal</string>
     <string name="add_food">Add Food</string>
+    <string name="food_name_label">Name</string>
+    <string name="amount_label">Amount</string>
+    <string name="unit_label">Unit</string>
+    <string name="calories_label">Calories</string>
+    <string name="fiber_label">Fiber (g)</string>
+    <string name="category_label">Category</string>
+    <string name="add_button">Add</string>
 </resources>

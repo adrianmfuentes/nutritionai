@@ -4,7 +4,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.health.nutritionai.R
 import com.health.nutritionai.data.model.Food
 import com.health.nutritionai.data.model.Nutrition
 import com.health.nutritionai.data.model.Portion
@@ -26,64 +28,64 @@ fun AddFoodDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Añadir alimento") },
+        title = { Text(stringResource(R.string.add_food)) },
         text = {
             Column {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Nombre") },
+                    label = { Text(stringResource(R.string.food_name_label)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 Row(Modifier.fillMaxWidth()) {
                     OutlinedTextField(
                         value = amount,
                         onValueChange = { amount = it },
-                        label = { Text("Cantidad") },
+                        label = { Text(stringResource(R.string.amount_label)) },
                         modifier = Modifier.weight(1f)
                     )
                     Spacer(Modifier.width(8.dp))
                     OutlinedTextField(
                         value = unit,
                         onValueChange = { unit = it },
-                        label = { Text("Unidad") },
+                        label = { Text(stringResource(R.string.unit_label)) },
                         modifier = Modifier.weight(1f)
                     )
                 }
                 OutlinedTextField(
                     value = calories,
                     onValueChange = { calories = it },
-                    label = { Text("Calorías") },
+                    label = { Text(stringResource(R.string.calories_label)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = protein,
                     onValueChange = { protein = it },
-                    label = { Text("Proteína (g)") },
+                    label = { Text(stringResource(R.string.protein_label)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = carbs,
                     onValueChange = { carbs = it },
-                    label = { Text("Carbohidratos (g)") },
+                    label = { Text(stringResource(R.string.carbs_label)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = fat,
                     onValueChange = { fat = it },
-                    label = { Text("Grasa (g)") },
+                    label = { Text(stringResource(R.string.fat_label)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = fiber,
                     onValueChange = { fiber = it },
-                    label = { Text("Fibra (g)") },
+                    label = { Text(stringResource(R.string.fiber_label)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = category,
                     onValueChange = { category = it },
-                    label = { Text("Categoría") },
+                    label = { Text(stringResource(R.string.category_label)) },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -109,11 +111,11 @@ fun AddFoodDialog(
                 },
                 enabled = name.isNotBlank() && amount.isNotBlank() && unit.isNotBlank() && calories.isNotBlank()
             ) {
-                Text("Añadir")
+                Text(stringResource(R.string.add_button))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancelar") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
         }
     )
 }

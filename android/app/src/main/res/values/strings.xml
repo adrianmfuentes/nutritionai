@@ -192,4 +192,11 @@
     <string name="delete_food">Eliminar alimento</string>
     <string name="delete_meal_button">Eliminar comida</string>
     <string name="add_food">Añadir alimento</string>
+    <string name="food_name_label">Nombre</string>
+    <string name="amount_label">Cantidad</string>
+    <string name="unit_label">Unidad</string>
+    <string name="calories_label">Calorías</string>
+    <string name="fiber_label">Fibra (g)</string>
+    <string name="category_label">Categoría</string>
+    <string name="add_button">Añadir</string>
 </resources>
