@@ -155,10 +155,11 @@ fun MealDetailDialog(
                     }
 
                     // Detected foods header
-                    if (meal.detectedFoods.isNotEmpty()) {
+                    val foodsToShow = meal.detectedFoods.filter { it.name.isNotBlank() }
+                    if (foodsToShow.isNotEmpty()) {
                         item {
                             Text(
-                                text = stringResource(R.string.detected_foods, meal.detectedFoods.size),
+                                text = stringResource(R.string.detected_foods, foodsToShow.size),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface
@@ -166,7 +167,7 @@ fun MealDetailDialog(
                         }
 
                         // Food items
-                        items(meal.detectedFoods) { food ->
+                        items(foodsToShow) { food ->
                             FoodDetailCard(food = food)
                         }
                     }

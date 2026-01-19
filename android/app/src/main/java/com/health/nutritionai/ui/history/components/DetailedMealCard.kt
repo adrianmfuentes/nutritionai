@@ -294,10 +294,11 @@ fun DetailedMealCard(
             }
 
             // Food names
-            if (meal.detectedFoods.isNotEmpty()) {
+            val foodsToShow = meal.detectedFoods.filter { it.name.isNotBlank() }
+            if (foodsToShow.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = meal.detectedFoods.joinToString(", ") { it.name },
+                    text = foodsToShow.joinToString(", ") { it.name },
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
