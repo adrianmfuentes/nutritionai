@@ -9,8 +9,11 @@ import com.health.nutritionai.util.ErrorMapper
 import com.health.nutritionai.util.NetworkResult
 import com.health.nutritionai.util.SuccessAction
 import com.health.nutritionai.util.UserFeedback
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
@@ -27,8 +30,8 @@ class SettingsViewModel(
     private val _uiState = MutableStateFlow<SettingsUiState>(SettingsUiState.Loading)
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
-    private val _feedback = MutableStateFlow<UserFeedback>(UserFeedback.None)
-    val feedback: StateFlow<UserFeedback> = _feedback.asStateFlow()
+    private val _feedback = MutableSharedFlow<UserFeedback>()
+    val feedback: SharedFlow<UserFeedback> = _feedback.asSharedFlow()
 
     private val _isDarkTheme = MutableStateFlow(false)
     val isDarkTheme: StateFlow<Boolean> = _isDarkTheme.asStateFlow()
@@ -56,6 +59,9 @@ class SettingsViewModel(
 
     private val _selectedUnits = MutableStateFlow("Métrico (g, kg)")
     val selectedUnits: StateFlow<String> = _selectedUnits.asStateFlow()
+
+    private val _languageChanged = MutableSharedFlow<Unit>()
+    val languageChanged: SharedFlow<Unit> = _languageChanged.asSharedFlow()
 
     init {
         loadUserProfile()
@@ -171,6 +177,7 @@ class SettingsViewModel(
             _selectedLanguage.value = language
             userRepository.saveLanguage(language)
             _showLanguageDialog.value = false
+            _languageChanged.emit(Unit)
         }
     }
 
@@ -187,22 +194,23 @@ class SettingsViewModel(
             when (val result = userRepository.changePassword(currentPassword, newPassword)) {
                 is NetworkResult.Success -> {
                     _showChangePasswordDialog.value = false
-                    _feedback.value = UserFeedback.Success(
+                    _feedback.emit(UserFeedback.Success(
                         ErrorMapper.getSuccessMessage(SuccessAction.PASSWORD_CHANGED)
-                    )
+                    ))
                 }
                 is NetworkResult.Error -> {
-                    _feedback.value = UserFeedback.Error(result.message ?: "Error al cambiar contraseña")
+                    _feedback.emit(UserFeedback.Error(result.message ?: "Error al cambiar contraseña"))
                 }
                 else -> {
-                    _feedback.value = UserFeedback.Error("Error al cambiar contraseña")
+                    _feedback.emit(UserFeedback.Error("Error al cambiar contraseña"))
                 }
             }
         }
     }
 
     fun clearFeedback() {
-        _feedback.value = UserFeedback.None
+        viewModelScope.launch {
+            _feedback.emit(UserFeedback.None)
+        }
     }
 }
-

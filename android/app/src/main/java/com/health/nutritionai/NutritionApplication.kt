@@ -2,12 +2,9 @@ package com.health.nutritionai
 
 import android.app.Application
 import android.content.Context
-import com.health.nutritionai.di.appModule
 import com.health.nutritionai.util.LocaleHelper
-import org.koin.android.ext.koin.androidContext
-import org.koin.core.context.startKoin
 
-class NutritionApp : Application() {
+class NutritionApplication : Application() {
 
     override fun attachBaseContext(base: Context) {
         // Load saved language and apply locale
@@ -15,14 +12,5 @@ class NutritionApp : Application() {
         val language = prefs.getString(com.health.nutritionai.util.Constants.KEY_LANGUAGE, "Español") ?: "Español"
         val context = LocaleHelper.setLocale(base, language)
         super.attachBaseContext(context)
-    }
-
-    override fun onCreate() {
-        super.onCreate()
-
-        startKoin {
-            androidContext(this@NutritionApp)
-            modules(appModule)
-        }
     }
 }
