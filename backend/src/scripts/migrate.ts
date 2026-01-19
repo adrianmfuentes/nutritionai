@@ -80,6 +80,16 @@ async function migrate() {
     for (const query of queries) {
       await pool.query(query);
     }
+
+    // Migraciones adicionales
+    const migrations = [
+      `ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_photo VARCHAR(255);`
+    ];
+
+    for (const migration of migrations) {
+      await pool.query(migration);
+    }
+
     console.log('Migración completada exitosamente.');
     process.exit(0);
   } catch (error) {

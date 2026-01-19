@@ -5,6 +5,7 @@ import { pool } from '../config/database';
 import { generateToken } from '../utils/jwt';
 import { z } from 'zod';
 import { logger } from '../utils/logger';
+import { StorageService } from '../services/storage.service';
 
 const RegisterSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -22,7 +23,12 @@ const ChangePasswordSchema = z.object({
   newPassword: z.string().min(8, 'La nueva contraseña debe tener al menos 8 caracteres'),
 });
 
+const UpdateProfileSchema = z.object({
+  name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres').optional(),
+});
+
 export class AuthController {
+  private storageService = new StorageService();
   async register(req: Request, res: Response, next: NextFunction) {
     try {
       const validatedData = RegisterSchema.parse(req.body);
@@ -183,7 +189,7 @@ export class AuthController {
 
       // Obtener usuario y sus objetivos más recientes
       const result = await pool.query(
-        `SELECT u.id, u.email, u.name, u.created_at,
+        `SELECT u.id, u.email, u.name, u.profile_photo, u.created_at,
                 ng.daily_calories, ng.daily_protein, ng.daily_carbs, ng.daily_fat
          FROM users u
          LEFT JOIN nutrition_goals ng ON u.id = ng.user_id
@@ -203,6 +209,7 @@ export class AuthController {
         id: row.id,
         email: row.email,
         name: row.name,
+        profile_photo: row.profile_photo,
         created_at: row.created_at
       };
 
@@ -216,6 +223,101 @@ export class AuthController {
       // Estructura que espera el frontend (ProfileResponse)
       // { user: UserProfileDto, goals: NutritionGoalsDto }
       res.json({ user, goals });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async updateProfile(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = (req as any).user?.id;
+      const validatedData = UpdateProfileSchema.parse(req.body);
+
+      const updatedUser = await pool.query(
+        `UPDATE users 
+         SET name = $1, updated_at = CURRENT_TIMESTAMP 
+         WHERE id = $2 
+         RETURNING id, email, name, profile_photo, created_at, updated_at`,
+        [validatedData.name, userId]
+      );
+
+      if (updatedUser.rows.length === 0) {
+        return res.status(404).json({ error: 'Usuario no encontrado' });
+      }
+
+      res.json({ user: updatedUser.rows[0] });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async updateProfilePhoto(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = (req as any).user?.id;
+
+      if (!req.file) {
+        return res.status(400).json({ error: 'No se proporcionó ninguna imagen' });
+      }
+
+      // Guardar la nueva imagen
+      const imageUrl = await this.storageService.saveProfileImage(req.file.path, userId);
+
+      // Obtener la foto anterior para eliminarla
+      const currentUser = await pool.query(
+        'SELECT profile_photo FROM users WHERE id = $1',
+        [userId]
+      );
+
+      if (currentUser.rows[0]?.profile_photo) {
+        await this.storageService.deleteImage(currentUser.rows[0].profile_photo);
+      }
+
+      // Actualizar la base de datos
+      const updatedUser = await pool.query(
+        `UPDATE users 
+         SET profile_photo = $1, updated_at = CURRENT_TIMESTAMP 
+         WHERE id = $2 
+         RETURNING id, email, name, profile_photo, created_at, updated_at`,
+        [imageUrl, userId]
+      );
+
+      if (updatedUser.rows.length === 0) {
+        return res.status(404).json({ error: 'Usuario no encontrado' });
+      }
+
+      res.json({ user: updatedUser.rows[0] });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async deleteProfilePhoto(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = (req as any).user?.id;
+
+      // Obtener la foto actual
+      const currentUser = await pool.query(
+        'SELECT profile_photo FROM users WHERE id = $1',
+        [userId]
+      );
+
+      if (!currentUser.rows[0]?.profile_photo) {
+        return res.status(404).json({ error: 'No hay foto de perfil para eliminar' });
+      }
+
+      // Eliminar la imagen del almacenamiento
+      await this.storageService.deleteImage(currentUser.rows[0].profile_photo);
+
+      // Actualizar la base de datos
+      const updatedUser = await pool.query(
+        `UPDATE users 
+         SET profile_photo = NULL, updated_at = CURRENT_TIMESTAMP 
+         WHERE id = $2 
+         RETURNING id, email, name, profile_photo, created_at, updated_at`,
+        [userId]
+      );
+
+      res.json({ user: updatedUser.rows[0] });
     } catch (error) {
       next(error);
     }

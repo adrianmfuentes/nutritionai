@@ -21,6 +21,8 @@ import com.health.nutritionai.data.model.UserProfile
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import com.health.nutritionai.R
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -237,23 +239,12 @@ private fun ProfileCard(
                 contentAlignment = Alignment.Center
             ) {
                 if (userProfile.photoUrl != null) {
-                    // TODO: Load image from URL using Coil or similar
-                    // For now, show a placeholder
-                    Surface(
-                        modifier = Modifier.fillMaxSize(),
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                        shape = CircleShape
-                    ) {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier.fillMaxSize()
-                        ) {
-                            Text(
-                                text = "📷",
-                                style = MaterialTheme.typography.headlineMedium
-                            )
-                        }
-                    }
+                    AsyncImage(
+                        model = userProfile.photoUrl,
+                        contentDescription = "User avatar",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
                 } else {
                     Surface(
                         modifier = Modifier.fillMaxSize(),

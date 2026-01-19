@@ -67,7 +67,42 @@ export class StorageService {
     }
   }
 
-  async getImagePath(imageUrl: string): Promise<string> {
-    return path.join(this.uploadPath, imageUrl.replace('/uploads/', ''));
+  async saveProfileImage(tempFilePath: string, userId: string): Promise<string> {
+    try {
+      // Sanitizar userId para evitar path traversal
+      const safeUserId = String(userId).replace(/[^a-zA-Z0-9_-]/g, '');
+      // Crear directorio para el usuario
+      const userDir = path.join(this.uploadPath, safeUserId);
+      await fs.mkdir(userDir, { recursive: true });
+
+      // Generar nombre único seguro
+      const uniqueId = crypto.randomBytes(16).toString('hex');
+      const filename = `profile_${Date.now()}_${uniqueId}.jpg`;
+      // Asegurar que filename no contenga path separators
+      const safeFilename = path.basename(filename);
+      const targetPath = path.join(userDir, safeFilename);
+
+      // Optimizar y guardar imagen para perfil (más pequeña)
+      await sharp(tempFilePath)
+        .resize(300, 300, {
+          fit: 'cover',
+          position: 'center',
+        })
+        .jpeg({ quality: 90 })
+        .toFile(targetPath);
+
+      // Eliminar archivo temporal de forma segura
+      const tempDir = path.resolve('./uploads/temp');
+      const absoluteTempFilePath = path.resolve(tempFilePath);
+      if (absoluteTempFilePath.startsWith(tempDir + path.sep)) {
+        await fs.unlink(absoluteTempFilePath).catch(() => undefined);
+      }
+
+      // Retornar URL relativa
+      return `/uploads/${safeUserId}/${safeFilename}`;
+    } catch (error) {
+      logger.error('Error guardando imagen de perfil:', error);
+      throw new Error('Error al guardar la imagen de perfil');
+    }
   }
 }
