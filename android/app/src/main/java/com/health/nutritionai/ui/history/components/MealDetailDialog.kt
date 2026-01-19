@@ -14,12 +14,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
+import com.health.nutritionai.R
 import com.health.nutritionai.data.model.Food
 import com.health.nutritionai.data.model.Meal
 import com.health.nutritionai.ui.theme.*
@@ -56,7 +58,7 @@ fun MealDetailDialog(
                     if (!meal.imageUrl.isNullOrEmpty()) {
                         AsyncImage(
                             model = meal.imageUrl,
-                            contentDescription = "Imagen de la comida",
+                            contentDescription = stringResource(R.string.food_image),
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop
                         )
@@ -87,7 +89,7 @@ fun MealDetailDialog(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = "Cerrar",
+                            contentDescription = stringResource(R.string.close),
                             tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
@@ -101,7 +103,7 @@ fun MealDetailDialog(
                         color = Primary
                     ) {
                         Text(
-                            text = "${getMealEmoji(meal.mealType)} ${meal.mealType?.replaceFirstChar { it.uppercase() } ?: "Comida"}",
+                            text = "${getMealEmoji(meal.mealType)} ${meal.mealType?.replaceFirstChar { it.uppercase() } ?: stringResource(R.string.meal)}",
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.Bold,
@@ -156,7 +158,7 @@ fun MealDetailDialog(
                     if (meal.detectedFoods.isNotEmpty()) {
                         item {
                             Text(
-                                text = "Alimentos detectados (${meal.detectedFoods.size})",
+                                text = stringResource(R.string.detected_foods, meal.detectedFoods.size),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface
@@ -189,7 +191,7 @@ private fun NutritionSummaryCard(meal: Meal) {
                 .padding(16.dp)
         ) {
             Text(
-                text = "Información Nutricional",
+                text = stringResource(R.string.nutritional_information),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -215,7 +217,7 @@ private fun NutritionSummaryCard(meal: Meal) {
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = "kcal",
+                    text = stringResource(R.string.kcal),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.align(Alignment.Bottom)
@@ -231,19 +233,19 @@ private fun NutritionSummaryCard(meal: Meal) {
             ) {
                 MacroItem(
                     emoji = "🥩",
-                    label = "Proteína",
+                    label = stringResource(R.string.protein),
                     value = "${String.format(Locale.US, "%.1f", meal.totalNutrition.protein)}g",
                     color = ProteinColor
                 )
                 MacroItem(
                     emoji = "🍞",
-                    label = "Carbos",
+                    label = stringResource(R.string.carbs),
                     value = "${String.format(Locale.US, "%.1f", meal.totalNutrition.carbs)}g",
                     color = CarbsColor
                 )
                 MacroItem(
                     emoji = "🥑",
-                    label = "Grasas",
+                    label = stringResource(R.string.fat),
                     value = "${String.format(Locale.US, "%.1f", meal.totalNutrition.fat)}g",
                     color = FatColor
                 )
@@ -257,7 +259,7 @@ private fun NutritionSummaryCard(meal: Meal) {
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = "🌾 Fibra: ${String.format(Locale.US, "%.1f", fiber)}g",
+                        text = "🌾 ${stringResource(R.string.fiber)}: ${String.format(Locale.US, "%.1f", fiber)}g",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -324,13 +326,13 @@ private fun HealthScoreCard(score: Double?) {
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Puntuación de Salud",
+                    text = stringResource(R.string.health_score),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = if (score != null) getHealthScoreDescription(score) else "Puntuación no calculada",
+                    text = if (score != null) getHealthScoreDescription(score) else stringResource(R.string.score_not_calculated),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -368,7 +370,7 @@ private fun NotesCard(notes: String) {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Notas",
+                    text = stringResource(R.string.notes),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -454,17 +456,17 @@ private fun FoodDetailCard(food: Food) {
                         color = CaloriesColor
                     )
                     Text(
-                        text = "P: ${String.format(Locale.US, "%.1f", food.nutrition.protein)}g",
+                        text = "${stringResource(R.string.protein_abbrev)}: ${String.format(Locale.US, "%.1f", food.nutrition.protein)}g",
                         style = MaterialTheme.typography.labelSmall,
                         color = ProteinColor
                     )
                     Text(
-                        text = "C: ${String.format(Locale.US, "%.1f", food.nutrition.carbs)}g",
+                        text = "${stringResource(R.string.carbs_abbrev)}: ${String.format(Locale.US, "%.1f", food.nutrition.carbs)}g",
                         style = MaterialTheme.typography.labelSmall,
                         color = CarbsColor
                     )
                     Text(
-                        text = "G: ${String.format(Locale.US, "%.1f", food.nutrition.fat)}g",
+                        text = "${stringResource(R.string.fat_abbrev)}: ${String.format(Locale.US, "%.1f", food.nutrition.fat)}g",
                         style = MaterialTheme.typography.labelSmall,
                         color = FatColor
                     )
@@ -503,7 +505,7 @@ fun AdviceCard(advice: String) {
                 .padding(16.dp)
         ) {
             Text(
-                text = "Consejo personalizado",
+                text = stringResource(R.string.personalized_advice),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
@@ -528,46 +530,52 @@ private fun getConfidenceColor(confidence: Double): androidx.compose.ui.graphics
 
 private fun getCategoryEmoji(category: String): String {
     return when (category.lowercase()) {
-        "fruta", "frutas", "fruit", "fruits" -> "🍎"
-        "verdura", "verduras", "vegetable", "vegetables" -> "🥬"
-        "carne", "carnes", "meat", "meats" -> "🥩"
-        "pescado", "pescados", "fish", "seafood" -> "🐟"
-        "lácteo", "lácteos", "dairy" -> "🥛"
-        "cereal", "cereales", "grains" -> "🌾"
-        "bebida", "bebidas", "drink", "drinks" -> "🥤"
-        "postre", "postres", "dessert", "desserts" -> "🍰"
-        "snack", "snacks" -> "🍿"
-        "pan", "bread" -> "🍞"
-        "huevo", "huevos", "egg", "eggs" -> "🥚"
+        "fruta", "frutas", "fruit", "fruits", "obst" -> "🍎"
+        "verdura", "verduras", "vegetable", "vegetables", "légume", "gemüse" -> "🥬"
+        "carne", "carnes", "meat", "meats", "viande", "fleisch" -> "🥩"
+        "pescado", "pescados", "fish", "seafood", "poisson", "fisch" -> "🐟"
+        "lácteo", "lácteos", "dairy", "produit laitier", "milchprodukt" -> "🥛"
+        "cereal", "cereales", "grains", "céréale", "getreide" -> "🌾"
+        "bebida", "bebidas", "drink", "drinks", "boisson", "getränk" -> "🥤"
+        "postre", "postres", "dessert", "desserts", "nachspeise" -> "🍰"
+        "snack", "snacks", "goûter" -> "🍿"
+        "pan", "bread", "pain", "brot" -> "🍞"
+        "huevo", "huevos", "egg", "eggs", "œuf", "ei" -> "🥚"
         else -> "🍽️"
     }
 }
 
 private fun getMealEmoji(mealType: String?): String {
     return when (mealType?.lowercase()) {
-        "breakfast", "desayuno" -> "🥐"
-        "lunch", "almuerzo", "comida" -> "🍱"
-        "dinner", "cena" -> "🍽️"
-        "snack", "merienda", "snacks" -> "🍎"
+        "breakfast", "desayuno", "petit-déjeuner", "frühstück" -> "🥐"
+        "lunch", "almuerzo", "comida", "déjeuner", "mittagessen" -> "🍱"
+        "dinner", "cena", "dîner", "abendessen" -> "🍽️"
+        "snack", "merienda", "snacks", "goûter" -> "🍎"
         else -> "🍴"
     }
 }
 
+@Composable
 private fun getHealthScoreDescription(score: Double): String {
     return when {
-        score >= 9.0 -> "¡Excelente elección!"
-        score >= 8.0 -> "Muy buena opción"
-        score >= 7.0 -> "Buena comida"
-        score >= 6.0 -> "Opción moderada"
-        score >= 5.0 -> "Podría mejorar"
-        else -> "Considera opciones más saludables"
+        score >= 9.0 -> stringResource(R.string.excellent_choice)
+        score >= 8.0 -> stringResource(R.string.very_good_option)
+        score >= 7.0 -> stringResource(R.string.good_meal)
+        score >= 6.0 -> stringResource(R.string.moderate_option)
+        score >= 5.0 -> stringResource(R.string.could_improve)
+        else -> stringResource(R.string.consider_healthier_options)
     }
 }
 
 private fun formatDetailedTimestamp(timestamp: String): String {
     return try {
         val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
-        val outputFormat = SimpleDateFormat("EEEE, d 'de' MMMM 'de' yyyy 'a las' HH:mm", Locale.forLanguageTag("es-ES"))
+        val locale = Locale.getDefault()
+        val pattern = when (locale.language) {
+            "es" -> "EEEE, d 'de' MMMM 'de' yyyy 'a las' HH:mm"
+            else -> "EEEE, MMMM d, yyyy 'at' HH:mm"
+        }
+        val outputFormat = SimpleDateFormat(pattern, locale)
         val date = inputFormat.parse(timestamp)
         date?.let { outputFormat.format(it).replaceFirstChar { c -> c.uppercase() } } ?: timestamp
     } catch (@Suppress("UNUSED_PARAMETER") e: Exception) {

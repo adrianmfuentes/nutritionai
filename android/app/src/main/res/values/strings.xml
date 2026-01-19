@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Nutrition AI</string>
     <string name="app_description">Análisis nutricional con IA</string>
@@ -55,7 +56,6 @@
     <string name="account">Cuenta</string>
     <string name="daily_goals">Objetivos Diarios</string>
     <string name="edit_goals">Editar objetivos</string>
-    <string name="calories">Calorías</string>
     <string name="no_goals_configured">No has configurado tus objetivos aún</string>
 
     <string name="notifications">Notificaciones</string>
@@ -115,10 +115,7 @@
     <string name="foods">alimentos</string>
     <string name="nutritional_information">Información Nutricional</string>
     <string name="fiber">Fibra</string>
-    <string name="health_score">Puntuación de Salud</string>
     <string name="score_not_calculated">Puntuación no calculada</string>
-    <string name="notes">Notas</string>
-    <string name="detected_foods">Alimentos detectados</string>
     <string name="personalized_advice">Consejo personalizado</string>
     <string name="excellent_choice">¡Excelente elección!</string>
     <string name="very_good_option">Muy buena opción</string>
@@ -126,6 +123,10 @@
     <string name="moderate_option">Opción moderada</string>
     <string name="could_improve">Podría mejorar</string>
     <string name="consider_healthier_options">Considera opciones más saludables</string>
+
+    <string name="protein_abbrev">P</string>
+    <string name="carbs_abbrev">C</string>
+    <string name="fat_abbrev">G</string>
 
     <string name="meal_breakfast">Desayuno</string>
     <string name="meal_lunch">Comida</string>
@@ -176,4 +177,19 @@
     <string name="goal_reached">Meta alcanzada</string>
     <string name="of_kcal">de %1$d kcal</string>
     <string name="macro_goal">Meta: %1$d %2$s</string>
+
+    <!-- Meal Details and Editing -->
+    <string name="meal_details">Detalles de la comida</string>
+    <string name="edit_meal">Editar comida</string>
+    <string name="meal_type">Tipo de comida</string>
+    <string name="detected_foods">Alimentos detectados</string>
+    <string name="notes">Notas</string>
+    <string name="health_score">Puntuación de salud</string>
+    <string name="advice">Consejo</string>
+    <string name="add_notes_placeholder">Añade notas sobre esta comida…</string>
+    <string name="quantity">Cantidad</string>
+    <string name="calories">Calorías</string>
+    <string name="delete_food">Eliminar alimento</string>
+    <string name="delete_meal_button">Eliminar comida</string>
+    <string name="add_food">Añadir alimento</string>
 </resources>

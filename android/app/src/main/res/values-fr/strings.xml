@@ -129,6 +129,10 @@
     <string name="could_improve">Pourrait être amélioré</string>
     <string name="consider_healthier_options">Envisagez des options plus saines</string>
 
+    <string name="protein_abbrev">P</string>
+    <string name="carbs_abbrev">G</string>
+    <string name="fat_abbrev">L</string>
+
     <string name="meal_breakfast">Petit-déjeuner</string>
     <string name="meal_lunch">Déjeuner</string>
     <string name="meal_dinner">Dîner</string>
@@ -166,4 +170,15 @@
     <string name="nav_camera">Caméra</string>
     <string name="nav_history">Historique</string>
     <string name="nav_settings">Paramètres</string>
+
+    <!-- Meal Details and Editing -->
+    <string name="meal_details">Détails du repas</string>
+    <string name="edit_meal">Modifier le repas</string>
+    <string name="meal_type">Type de repas</string>
+    <string name="advice">Conseil</string>
+    <string name="add_notes_placeholder">Ajouter des notes sur ce repas…</string>
+    <string name="quantity">Quantité</string>
+    <string name="delete_food">Supprimer l\'aliment</string>
+    <string name="delete_meal_button">Supprimer le repas</string>
+    <string name="add_food">Ajouter un aliment</string>
 </resources>

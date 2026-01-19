@@ -179,7 +179,7 @@ fun DetailedMealCard(
                         ) {
                             if (onEdit != null) {
                                 DropdownMenuItem(
-                                    text = { Text("Editar") },
+                                    text = { Text(stringResource(R.string.edit)) },
                                     onClick = {
                                         showMenu = false
                                         showEditDialog = true
@@ -194,7 +194,7 @@ fun DetailedMealCard(
                             }
                             if (onDelete != null) {
                                 DropdownMenuItem(
-                                    text = { Text("Eliminar", color = MaterialTheme.colorScheme.error) },
+                                    text = { Text(stringResource(R.string.delete)) },
                                     onClick = {
                                         showMenu = false
                                         showDeleteConfirmation = true
@@ -357,7 +357,7 @@ private fun EditMealDialog(
                     .padding(24.dp)
             ) {
                 Text(
-                    text = "Editar comida",
+                    text = stringResource(R.string.edit_meal),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -367,7 +367,7 @@ private fun EditMealDialog(
 
                 // Meal Type Dropdown
                 Text(
-                    text = "Tipo de comida",
+                    text = stringResource(R.string.meal_type),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface
@@ -412,7 +412,7 @@ private fun EditMealDialog(
 
                 // Notes field
                 Text(
-                    text = "Notas",
+                    text = stringResource(R.string.notes),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface
@@ -426,14 +426,14 @@ private fun EditMealDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(120.dp),
-                    placeholder = { Text("Añade notas sobre esta comida...") },
+                    placeholder = { Text(stringResource(R.string.add_notes_placeholder)) },
                     maxLines = 5
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Lista editable de alimentos
-                Text("Alimentos", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+                Text(stringResource(R.string.foods), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
                 Spacer(modifier = Modifier.height(8.dp))
                 foods.forEachIndexed { idx, food ->
                     Card(
@@ -443,13 +443,13 @@ private fun EditMealDialog(
                         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(8.dp)) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(food.name, fontWeight = FontWeight.Bold)
-                                Text("Cantidad: ${food.portion.amount} ${food.portion.unit}")
-                                Text("Calorías: ${food.nutrition.calories}")
+                                Text("${stringResource(R.string.quantity)}: ${food.portion.amount} ${food.portion.unit}")
+                                Text("${stringResource(R.string.calories)}: ${food.nutrition.calories}")
                             }
                             IconButton(onClick = {
                                 foods = foods.toMutableList().also { it.removeAt(idx) }
                             }) {
-                                Icon(Icons.Default.Delete, contentDescription = "Eliminar alimento")
+                                Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete_food))
                             }
                         }
                     }
@@ -457,7 +457,12 @@ private fun EditMealDialog(
                 OutlinedButton(onClick = { showAddFoodDialog = true }, modifier = Modifier.fillMaxWidth()) {
                     Icon(imageVector = Icons.Default.Add, contentDescription = null)
                     Spacer(Modifier.width(4.dp))
-                    Text("Añadir alimento")
+                    Text(
+                        text = stringResource(R.string.add_food),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -468,7 +473,12 @@ private fun EditMealDialog(
                     horizontalArrangement = Arrangement.End
                 ) {
                     TextButton(onClick = onDismiss) {
-                        Text("Cancelar")
+                        Text(
+                            text = stringResource(R.string.cancel),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
@@ -497,7 +507,12 @@ private fun EditMealDialog(
                             }
                         }
                     ) {
-                        Text(if (foods.isEmpty()) "Eliminar comida" else "Guardar")
+                        Text(
+                            text = if (foods.isEmpty()) stringResource(R.string.delete_meal_button) else stringResource(R.string.save),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
                     }
                 }
             }
