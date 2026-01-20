@@ -4,6 +4,7 @@ import android.content.Context
 import com.health.nutritionai.data.model.AuthResponse
 import com.health.nutritionai.data.model.NutritionGoals
 import com.health.nutritionai.data.model.UserProfile
+import com.health.nutritionai.data.remote.ApiClient
 import com.health.nutritionai.data.remote.api.NutritionApiService
 import com.health.nutritionai.data.remote.dto.LoginRequest
 import com.health.nutritionai.data.remote.dto.RegisterRequest
@@ -34,7 +35,7 @@ class UserRepository(
                     userId = dto.id,
                     email = dto.email,
                     name = dto.name,
-                    photoUrl = dto.photoUrl,
+                    photoUrl = dto.photoUrl?.let { ApiClient.getFullImageUrl(it) },
                     goals = dto.goals?.let {
                         NutritionGoals(it.calories, it.protein, it.carbs, it.fat)
                     }
@@ -67,7 +68,7 @@ class UserRepository(
                     userId = dto.id,
                     email = dto.email,
                     name = dto.name,
-                    photoUrl = dto.photoUrl,
+                    photoUrl = dto.photoUrl?.let { ApiClient.getFullImageUrl(it) },
                     goals = dto.goals?.let {
                         NutritionGoals(it.calories, it.protein, it.carbs, it.fat)
                     }
@@ -100,7 +101,7 @@ class UserRepository(
                 userId = userDto.id,
                 email = userDto.email,
                 name = userDto.name,
-                photoUrl = userDto.photoUrl,
+                photoUrl = userDto.photoUrl?.let { ApiClient.getFullImageUrl(it) },
                 goals = goalsDto?.let {
                     NutritionGoals(it.calories, it.protein, it.carbs, it.fat)
                 } ?: NutritionGoals(2000, 150.0, 200.0, 65.0) // Default goals if null
@@ -152,7 +153,7 @@ class UserRepository(
                 userId = userDto.id,
                 email = userDto.email,
                 name = userDto.name,
-                photoUrl = userDto.photoUrl,
+                photoUrl = userDto.photoUrl?.let { ApiClient.getFullImageUrl(it) },
                 goals = goalsDto?.let {
                     NutritionGoals(it.calories, it.protein, it.carbs, it.fat)
                 }
@@ -181,7 +182,7 @@ class UserRepository(
                 userId = userDto.id,
                 email = userDto.email,
                 name = userDto.name,
-                photoUrl = userDto.photoUrl,
+                photoUrl = userDto.photoUrl?.let { ApiClient.getFullImageUrl(it) },
                 goals = goalsDto?.let {
                     NutritionGoals(it.calories, it.protein, it.carbs, it.fat)
                 }
