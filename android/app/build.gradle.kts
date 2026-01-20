@@ -68,7 +68,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
 
     // Koin for DI (simpler alternative)
-    implementation("io.insert-koin:koin-androidx-compose:4.1.1")
+    implementation(libs.koin.androidx.compose)
 
     // Room Database
     implementation(libs.room.runtime)
@@ -79,6 +79,7 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)
     implementation(libs.okhttp.logging)
+    implementation("com.squareup.okhttp3:okhttp-dnsoverhttps:4.12.0")
 
     // CameraX
     implementation(libs.camera.camera2)
