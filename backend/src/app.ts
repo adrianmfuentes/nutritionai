@@ -1,5 +1,6 @@
 // src/app.ts
 import express, { Application } from 'express';
+import path from 'path'
 import helmet from 'helmet';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
@@ -16,22 +17,24 @@ export function createApp(): Application {
 
   // Security middleware
   app.use(helmet());
-  // CORS seguro: whitelist de orígenes permitidos
   const allowedOrigins = (process.env.CORS_ORIGIN || '').split(',').map(o => o.trim()).filter(Boolean);
+
   app.use(cors({
     origin: function (origin, callback) {
-      // Permitir peticiones sin origen (como curl o Postman)
+      // Permitir peticiones sin origen
       if (!origin) return callback(null, true);
+
       if (allowedOrigins.length === 0) {
-        // Si no hay whitelist, rechazar todo excepto localhost
         if (origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
           return callback(null, true);
         }
         return callback(new Error('CORS: origen no permitido'), false);
       }
+
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
+
       return callback(new Error('CORS: origen no permitido'), false);
     },
     credentials: true
@@ -43,7 +46,9 @@ export function createApp(): Application {
     max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100'),
     message: 'Demasiadas peticiones desde esta IP'
   });
+
   app.use('/v1/', limiter);
+  app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
   // Body parsing
   app.use(express.json({ limit: '10mb' }));
@@ -68,6 +73,5 @@ export function createApp(): Application {
 
   // Error handler
   app.use(errorHandler);
-
   return app;
 }
