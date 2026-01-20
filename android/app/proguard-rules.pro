@@ -1,21 +1,20 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# --- Reglas para Retrofit y Gson (Librerías de red) ---
+-keepattributes Signature
+-keepattributes *Annotation*
+-keep class retrofit2.** { *; }
+-keep class okhttp3.** { *; }
+-keep class com.google.gson.** { *; }
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# Evita que Gson falle al no encontrar los nombres de los campos
+-keepclassmembers,allowobfuscation class * {
+    @com.google.gson.annotations.SerializedName <fields>;
+}
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# --- IMPORTANTE: TUS MODELOS DE DATOS ---
+# Esto le dice a Android: "No cambies el nombre de las clases que están en esta carpeta"
+# VERIFICA que esta ruta coincida con donde tienes tus data class
+-keep class com.health.nutritionai.data.** { *; }
+-keep class com.health.nutritionai.domain.** { *; }
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# (Opcional) Si usas una carpeta específica llamada 'models' o 'entity':
+-keep class com.health.nutritionai.**.model.** { *; }
