@@ -201,25 +201,25 @@ La app consume los siguientes endpoints del backend:
 
 ### Autenticación
 
-- `POST /auth/register` - Registro de usuario
-- `POST /auth/login` - Inicio de sesión
+- `POST /v1/auth/register` - Registro de usuario
+- `POST /v1/auth/login` - Inicio de sesión
 
 ### Análisis de Comidas
 
-- `POST /meals/analyze` - Analizar foto de comida
-- `GET /meals` - Obtener lista de comidas
-- `GET /meals/{id}` - Obtener detalle de comida
-- `DELETE /meals/{id}` - Eliminar comida
+- `POST /v1/meals/analyze` - Analizar foto de comida
+- `GET /v1/meals` - Obtener lista de comidas
+- `GET /v1/meals/{id}` - Obtener detalle de comida
+- `DELETE /v1/meals/{id}` - Eliminar comida
 
 ### Nutrición
 
-- `GET /nutrition/daily?date={date}` - Nutrición diaria
-- `GET /nutrition/weekly?startDate={date}` - Nutrición semanal
+- `GET /v1/nutrition/daily?date={date}` - Nutrición diaria
+- `GET /v1/nutrition/weekly?startDate={date}` - Nutrición semanal
 
 ### Perfil
 
-- `GET /profile` - Obtener perfil
-- `PATCH /profile/goals` - Actualizar objetivos
+- `GET /v1/profile` - Obtener perfil
+- `PATCH /v1/profile/goals` - Actualizar objetivos
 
 ## 🎨 Personalización
 

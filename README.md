@@ -7,7 +7,7 @@ Aplicación completa de seguimiento nutricional que utiliza Inteligencia Artific
 - **Frontend**: Android nativo con Kotlin (Jetpack Compose)
 - **Backend**: Node.js + TypeScript + Express
 - **Base de Datos**: PostgreSQL
-- **IA**: Groq (LLaMA 3.2 90B Vision)
+- **IA**: Groq (LLaMA 3.2 90B Vision) - **100% GRATIS**
 - **Infraestructura**: Docker + Docker Compose
 - **Servidor**: Oracle
 
@@ -177,7 +177,7 @@ PUT    /v1/nutrition/goals  - Actualizar objetivos
 - TypeScript
 - Express.js
 - PostgreSQL
-- **Groq API (LLaMA 3.2 90B Vision)** - 100% Gratis
+- **Groq API (LLaMA 3.2 90B Vision) - 100% GRATIS**
 - Docker
 - Nginx
 - JWT
