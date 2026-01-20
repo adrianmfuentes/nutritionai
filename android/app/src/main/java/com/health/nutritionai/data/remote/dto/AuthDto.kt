@@ -32,12 +32,11 @@ data class UserProfileDto(
     val email: String,
     @SerializedName("name")
     val name: String,
-    @SerializedName("photoUrl")
+    @SerializedName("profile_photo")
     val photoUrl: String? = null,
     @SerializedName("goals")
     val goals: NutritionGoalsDto? = null
 )
-
 data class UpdateGoalsRequest(
     @SerializedName("dailyCalories")
     val dailyCalories: Int,
@@ -59,6 +58,6 @@ data class ChangePasswordRequest(
 data class UpdateProfileRequest(
     @SerializedName("name")
     val name: String? = null,
-    @SerializedName("photoUrl")
+    @SerializedName("profile_photo")
     val photoUrl: String? = null
 )
