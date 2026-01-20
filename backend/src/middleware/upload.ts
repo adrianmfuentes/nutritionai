@@ -27,8 +27,11 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-  // Permitir cualquier archivo por ahora para debug
-  cb(null, true);
+  if (file.mimetype.startsWith('image/')) {
+    cb(null, true);
+  } else {
+    cb(new Error('El archivo no es una imagen válida'));
+  }
 };
 
 export const upload = multer({

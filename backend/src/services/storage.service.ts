@@ -69,6 +69,14 @@ export class StorageService {
 
   async saveProfileImage(tempFilePath: string, userId: string): Promise<string> {
     try {
+      const absolutePath = path.resolve(tempFilePath);
+
+      try {
+        await fs.access(absolutePath);
+      } catch {
+        throw new Error(`El archivo temporal no existe: ${absolutePath}`);
+      }
+
       // Sanitizar userId para evitar path traversal
       const safeUserId = String(userId).replace(/[^a-zA-Z0-9_-]/g, '');
       // Crear directorio para el usuario
@@ -83,7 +91,7 @@ export class StorageService {
       const targetPath = path.join(userDir, safeFilename);
 
       // Optimizar y guardar imagen para perfil (más pequeña)
-      await sharp(tempFilePath)
+      await sharp(absolutePath)
         .resize(300, 300, {
           fit: 'cover',
           position: 'center',

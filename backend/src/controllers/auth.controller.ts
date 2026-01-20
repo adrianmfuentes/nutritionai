@@ -238,16 +238,19 @@ export class AuthController {
       // Si se proporciona una imagen, guardarla
       if (req.files && Array.isArray(req.files) && req.files.length > 0) {
         const file = req.files[0] as Express.Multer.File;
-        imageUrl = await this.storageService.saveProfileImage(file.path, userId);
 
-        // Obtener la foto anterior para eliminarla
-        const currentUser = await pool.query(
-          'SELECT profile_photo FROM users WHERE id = $1',
-          [userId]
-        );
+        if (file && file.path) {
+          imageUrl = await this.storageService.saveProfileImage(file.path, userId);
 
-        if (currentUser.rows[0]?.profile_photo) {
-          await this.storageService.deleteImage(currentUser.rows[0].profile_photo);
+          // Obtener la foto anterior para eliminarla
+          const currentUser = await pool.query(
+            'SELECT profile_photo FROM users WHERE id = $1',
+            [userId]
+          );
+
+          if (currentUser.rows[0]?.profile_photo) {
+            await this.storageService.deleteImage(currentUser.rows[0].profile_photo);
+          }
         }
       }
 
