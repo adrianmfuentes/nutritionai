@@ -87,3 +87,10 @@ data class BaseResponse(
     @SerializedName("message")
     val message: String? = null
 )
+
+data class RegisterResponseDto(
+    @SerializedName("message")
+    val message: String,
+    @SerializedName("user")
+    val user: UserProfileDto?
+)

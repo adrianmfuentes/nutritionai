@@ -307,6 +307,30 @@ class AuthViewModelTest {
         }
     }
 
+    @Test
+    fun `register success but sendVerificationEmail fails shows verification screen with message`() = runTest {
+        val authResponse = AuthResponse(
+            token = "",
+            user = UserProfile("user-456", "new@example.com", "New User"),
+            userId = "user-456"
+        )
+        coEvery { userRepository.register("new@example.com", "password123", "New User") } returns NetworkResult.Success(authResponse)
+        coEvery { userRepository.sendVerificationEmail("new@example.com") } returns NetworkResult.Error("Network error")
+
+        viewModel.uiState.test {
+            assertEquals(AuthUiState.Idle, awaitItem())
+
+            viewModel.register("New User", "new@example.com", "password123")
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            assertEquals(AuthUiState.Loading, awaitItem())
+            val verificationState = awaitItem()
+            assertTrue(verificationState is AuthUiState.EmailVerificationRequired)
+            assertEquals("new@example.com", (verificationState as AuthUiState.EmailVerificationRequired).email)
+            assertEquals("Cuenta creada. No se pudo enviar el email de verificación, intenta reenviar.", verificationState.message)
+        }
+    }
+
     // ============ Initial State Tests ============
 
     @Test

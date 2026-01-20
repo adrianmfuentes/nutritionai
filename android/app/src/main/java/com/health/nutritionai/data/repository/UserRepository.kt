@@ -43,13 +43,12 @@ class UserRepository(
             }
 
             val authResponse = AuthResponse(
-                token = responseDto.token,
+                token = "", // No token provided on register
                 user = userProfile,
                 userId = userProfile?.userId
             )
 
-            saveAuthToken(authResponse.token)
-            authResponse.userId?.let { saveUserId(it) }
+            authResponse.userId?.let { saveUserId(it) } // Save userId for verification
 
             NetworkResult.Success(authResponse)
         } catch (e: Exception) {

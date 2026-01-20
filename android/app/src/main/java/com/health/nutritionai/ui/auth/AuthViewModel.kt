@@ -102,11 +102,11 @@ class AuthViewModel(
                             _uiState.value = AuthUiState.EmailVerificationRequired(cleanEmail)
                         }
                         is com.health.nutritionai.util.NetworkResult.Error -> {
-                            // Error enviando email, pero cuenta creada - mostrar mensaje
-                            _uiState.value = AuthUiState.Error("Cuenta creada pero no se pudo enviar el email de verificación. Por favor, contacta soporte.")
+                            // Error enviando email, pero cuenta creada - mostrar pantalla de verificación con mensaje
+                            _uiState.value = AuthUiState.EmailVerificationRequired(cleanEmail, "Cuenta creada. No se pudo enviar el email de verificación, intenta reenviar.")
                         }
                         else -> {
-                            _uiState.value = AuthUiState.Error("Cuenta creada pero no se pudo enviar el email de verificación. Por favor, contacta soporte.")
+                            _uiState.value = AuthUiState.EmailVerificationRequired(cleanEmail, "Cuenta creada. No se pudo enviar el email de verificación, intenta reenviar.")
                         }
                     }
                 }
