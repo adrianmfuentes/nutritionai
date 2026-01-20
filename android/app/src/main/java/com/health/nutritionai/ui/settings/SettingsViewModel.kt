@@ -270,6 +270,10 @@ class SettingsViewModel(
         }
     }
 
+    fun getAuthToken(): String? {
+        return userRepository.getAuthToken()
+    }
+
     fun clearFeedback() {
         viewModelScope.launch {
             _feedback.emit(UserFeedback.None)

@@ -47,8 +47,9 @@ export function createApp(): Application {
     message: 'Demasiadas peticiones desde esta IP'
   });
 
-  console.log('Sirviendo uploads desde:', path.join(process.cwd(), 'uploads'));  
-  app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+  const uploadDir = process.env.UPLOAD_PATH || path.join(process.cwd(), 'uploads');
+  console.log('Sirviendo uploads desde:', uploadDir);
+  app.use('/uploads', express.static(uploadDir))
 
   app.use('/v1/', limiter);
 

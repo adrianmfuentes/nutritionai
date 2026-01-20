@@ -21,6 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.health.nutritionai.data.model.NutritionGoals
 import com.health.nutritionai.data.model.UserProfile
 import com.health.nutritionai.util.ImageUtils
@@ -47,6 +48,7 @@ fun SettingsScreen(
     val notificationsEnabled by viewModel.notificationsEnabled.collectAsState()
     val selectedLanguage by viewModel.selectedLanguage.collectAsState()
     val selectedUnits by viewModel.selectedUnits.collectAsState()
+    val authToken = viewModel.getAuthToken()
     val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
@@ -99,7 +101,7 @@ fun SettingsScreen(
                 ) {
                     // Profile Card
                     item {
-                        ProfileCard(userProfile = userProfile, onEditClick = { viewModel.showEditProfileDialog() })
+                        ProfileCard(userProfile = userProfile, authToken = authToken, onEditClick = { viewModel.showEditProfileDialog() })
                     }
 
                     // Nutrition Goals Section
@@ -221,6 +223,7 @@ fun SettingsScreen(
 @Composable
 private fun ProfileCard(
     userProfile: UserProfile,
+    authToken: String,
     onEditClick: () -> Unit
 ) {
     Card(
