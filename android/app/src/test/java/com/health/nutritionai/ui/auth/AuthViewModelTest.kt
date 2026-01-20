@@ -1,6 +1,6 @@
 package com.health.nutritionai.ui.auth
 
-import android.util.Patterns
+import android.app.Application
 import app.cash.turbine.test
 import com.health.nutritionai.data.model.AuthResponse
 import com.health.nutritionai.data.model.UserProfile
@@ -20,22 +20,25 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
-@Config(manifest = Config.NONE, sdk = [28])
+@Config(sdk = [28], qualifiers = "es")
 class AuthViewModelTest {
 
     private lateinit var viewModel: AuthViewModel
     private lateinit var userRepository: UserRepository
+    private lateinit var application: Application
     private val testDispatcher = StandardTestDispatcher()
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         userRepository = mockk()
-        viewModel = AuthViewModel(userRepository)
+        application = RuntimeEnvironment.application
+        viewModel = AuthViewModel(userRepository, application)
     }
 
     @After
@@ -309,4 +312,3 @@ class AuthViewModelTest {
         assertEquals(AuthUiState.Idle, viewModel.uiState.value)
     }
 }
-
