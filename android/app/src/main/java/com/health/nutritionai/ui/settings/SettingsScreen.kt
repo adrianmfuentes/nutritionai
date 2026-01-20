@@ -16,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -29,7 +30,6 @@ import java.io.File
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import com.health.nutritionai.R
-import androidx.compose.ui.layout.ContentScale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -223,9 +223,10 @@ fun SettingsScreen(
 @Composable
 private fun ProfileCard(
     userProfile: UserProfile,
-    authToken: String,
+    authToken: String?,
     onEditClick: () -> Unit
 ) {
+    val context = LocalContext.current
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -248,8 +249,16 @@ private fun ProfileCard(
                 contentAlignment = Alignment.Center
             ) {
                 if (userProfile.photoUrl != null) {
+                    val imageRequest = remember(userProfile.photoUrl, authToken) {
+                        ImageRequest.Builder(context)
+                            .data(userProfile.photoUrl)
+                            .apply {
+                                authToken?.let { addHeader("Authorization", "Bearer $it") }
+                            }
+                            .build()
+                    }
                     AsyncImage(
-                        model = userProfile.photoUrl,
+                        model = imageRequest,
                         contentDescription = "User avatar",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
