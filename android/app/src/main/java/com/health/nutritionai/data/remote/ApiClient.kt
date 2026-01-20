@@ -1,5 +1,7 @@
 package com.health.nutritionai.data.remote
 
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.health.nutritionai.BuildConfig
 import com.health.nutritionai.data.remote.api.NutritionApiService
 import com.health.nutritionai.data.remote.interceptor.AuthInterceptor
@@ -45,10 +47,15 @@ object ApiClient {
             .writeTimeout(30, TimeUnit.SECONDS)
             .build()
 
+        val gson: Gson = GsonBuilder()
+            .setLenient()
+            .serializeNulls()
+            .create()
+
         val retrofit = Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
 
         return retrofit.create(NutritionApiService::class.java)
