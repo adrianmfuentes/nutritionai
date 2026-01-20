@@ -75,8 +75,8 @@ class UserTest {
     fun `UserProfile equality`() {
         val goals = NutritionGoals(2000, 100.0, 250.0, 70.0)
 
-        val user1 = UserProfile("user-1", "test@example.com", "Test User", goals)
-        val user2 = UserProfile("user-1", "test@example.com", "Test User", goals)
+        val user1 = UserProfile(userId = "user-1", email = "test@example.com", name = "Test User", goals = goals)
+        val user2 = UserProfile(userId = "user-1", email = "test@example.com", name = "Test User", goals = goals)
 
         assertEquals(user1, user2)
     }
@@ -137,4 +137,3 @@ class UserTest {
         assertTrue(athleteGoals.protein > maintenanceGoals.protein)
     }
 }
-
