@@ -14,6 +14,13 @@ export class StorageService {
 
   async saveImage(tempFilePath: string, userId: string): Promise<string> {
     try {
+      // Validar que el archivo esté dentro del directorio temporal permitido
+      const absolutePath = path.resolve(tempFilePath);
+      const tempDir = path.resolve(path.join(this.uploadPath, 'temp'));
+      if (!absolutePath.startsWith(tempDir + path.sep) && absolutePath !== tempDir) {
+        throw new Error('Ruta de archivo temporal no válida');
+      }
+
       // Sanitizar userId para evitar path traversal
       const safeUserId = String(userId).replace(/[^a-zA-Z0-9_-]/g, '');
       // Crear directorio para el usuario
@@ -37,7 +44,6 @@ export class StorageService {
         .toFile(targetPath);
 
       // Eliminar archivo temporal de forma segura
-      const tempDir = path.resolve('./uploads/temp');
       const absoluteTempFilePath = path.resolve(tempFilePath);
       if (absoluteTempFilePath.startsWith(tempDir + path.sep)) {
         await fs.unlink(absoluteTempFilePath).catch(() => undefined);
@@ -71,6 +77,12 @@ export class StorageService {
     try {
       const absolutePath = path.resolve(tempFilePath);
 
+      // Validar que el archivo esté dentro del directorio temporal permitido
+      const tempDir = path.resolve(path.join(this.uploadPath, 'temp'));
+      if (!absolutePath.startsWith(tempDir + path.sep) && absolutePath !== tempDir) {
+        throw new Error('Ruta de archivo temporal no válida');
+      }
+
       try {
         await fs.access(absolutePath);
       } catch {
@@ -100,7 +112,6 @@ export class StorageService {
         .toFile(targetPath);
 
       // Eliminar archivo temporal de forma segura
-      const tempDir = path.resolve('./uploads/temp');
       const absoluteTempFilePath = path.resolve(tempFilePath);
       if (absoluteTempFilePath.startsWith(tempDir + path.sep)) {
         await fs.unlink(absoluteTempFilePath).catch(() => undefined);
