@@ -25,6 +25,7 @@ const ChangePasswordSchema = z.object({
 
 const UpdateProfileSchema = z.object({
   name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres').optional(),
+  profile_photo: z.string().nullable().optional(),
 });
 
 export class AuthController {
@@ -233,7 +234,7 @@ export class AuthController {
       const userId = (req as any).user?.id;
       const validatedData = UpdateProfileSchema.parse(req.body);
 
-      let imageUrl: string | undefined;
+      let imageUrl: string | null | undefined;
 
       // Si se proporciona una imagen, guardarla
       if (req.files && Array.isArray(req.files) && req.files.length > 0) {
@@ -252,6 +253,17 @@ export class AuthController {
             await this.storageService.deleteImage(currentUser.rows[0].profile_photo);
           }
         }
+      } else if (validatedData.profile_photo === null) {
+        // Eliminar foto si se solicita
+        const currentUser = await pool.query(
+          'SELECT profile_photo FROM users WHERE id = $1',
+          [userId]
+        );
+
+        if (currentUser.rows[0]?.profile_photo) {
+          await this.storageService.deleteImage(currentUser.rows[0].profile_photo);
+        }
+        imageUrl = null;
       }
 
       // Actualizar usuario
