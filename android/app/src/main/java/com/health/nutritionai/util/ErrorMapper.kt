@@ -2,6 +2,7 @@ package com.health.nutritionai.util
 
 import android.content.Context
 import com.health.nutritionai.R
+import org.json.JSONObject
 import retrofit2.HttpException
 import java.io.IOException
 import java.net.SocketTimeoutException
@@ -30,6 +31,14 @@ object ErrorMapper {
      * Mapea errores HTTP específicos a mensajes user-friendly
      */
     private fun mapHttpError(context: Context, exception: HttpException, errorContext: ErrorContext): String {
+        // For auth contexts, try to use backend message first
+        if (errorContext == ErrorContext.AUTH_LOGIN || errorContext == ErrorContext.AUTH_REGISTER) {
+            val backendMessage = getBackendErrorMessage(exception)
+            if (backendMessage != null) {
+                return backendMessage
+            }
+        }
+
         return when (exception.code()) {
             400 -> when (errorContext) {
                 ErrorContext.AUTH_LOGIN -> context.getString(R.string.error_invalid_credentials)
@@ -67,6 +76,23 @@ object ErrorMapper {
             500, 502, 503, 504 -> context.getString(R.string.error_server_error)
 
             else -> getDefaultErrorMessage(context, errorContext)
+        }
+    }
+
+    /**
+     * Intenta extraer el mensaje de error del cuerpo de la respuesta del backend
+     */
+    private fun getBackendErrorMessage(exception: HttpException): String? {
+        return try {
+            val errorBody = exception.response()?.errorBody()?.string()
+            if (errorBody != null) {
+                val jsonObject = JSONObject(errorBody)
+                jsonObject.optString("message").takeIf { it.isNotEmpty() }
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            null
         }
     }
 

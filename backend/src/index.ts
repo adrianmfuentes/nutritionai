@@ -1,6 +1,10 @@
 // src/index.ts
 import dotenv from 'dotenv';
-dotenv.config();
+if (process.env.NODE_ENV === 'development') {
+  dotenv.config({ path: '.env.local' });
+} else {
+  dotenv.config();
+}
 
 import { validateConfig } from './config/env';
 import { createApp } from './app';

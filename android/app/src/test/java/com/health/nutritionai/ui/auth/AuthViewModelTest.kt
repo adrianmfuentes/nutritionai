@@ -253,6 +253,7 @@ class AuthViewModelTest {
             userId = "user-456"
         )
         coEvery { userRepository.register("new@example.com", "password123", "New User") } returns NetworkResult.Success(authResponse)
+        coEvery { userRepository.sendVerificationEmail("new@example.com") } returns NetworkResult.Success(Unit)
 
         viewModel.uiState.test {
             assertEquals(AuthUiState.Idle, awaitItem())
@@ -261,10 +262,9 @@ class AuthViewModelTest {
             testDispatcher.scheduler.advanceUntilIdle()
 
             assertEquals(AuthUiState.Loading, awaitItem())
-            val successState = awaitItem()
-            assertTrue(successState is AuthUiState.Success)
-            assertEquals("user-456", (successState as AuthUiState.Success).userId)
-            assertEquals("¡Cuenta creada exitosamente!", successState.successMessage)
+            val verificationState = awaitItem()
+            assertTrue(verificationState is AuthUiState.EmailVerificationRequired)
+            assertEquals("new@example.com", (verificationState as AuthUiState.EmailVerificationRequired).email)
         }
     }
 
@@ -292,6 +292,7 @@ class AuthViewModelTest {
             userId = "user-789"
         )
         coEvery { userRepository.register("trim@example.com", "password123", "Trimmed User") } returns NetworkResult.Success(authResponse)
+        coEvery { userRepository.sendVerificationEmail("trim@example.com") } returns NetworkResult.Success(Unit)
 
         viewModel.uiState.test {
             assertEquals(AuthUiState.Idle, awaitItem())
@@ -300,8 +301,9 @@ class AuthViewModelTest {
             testDispatcher.scheduler.advanceUntilIdle()
 
             assertEquals(AuthUiState.Loading, awaitItem())
-            val successState = awaitItem()
-            assertTrue(successState is AuthUiState.Success)
+            val verificationState = awaitItem()
+            assertTrue(verificationState is AuthUiState.EmailVerificationRequired)
+            assertEquals("trim@example.com", (verificationState as AuthUiState.EmailVerificationRequired).email)
         }
     }
 

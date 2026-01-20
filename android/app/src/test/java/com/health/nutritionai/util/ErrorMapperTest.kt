@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import org.junit.Assert.*
 import org.junit.Test
+import org.robolectric.RobolectricTestRunner
+import org.junit.runner.RunWith
 import retrofit2.HttpException
 import retrofit2.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
@@ -12,6 +14,7 @@ import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import com.health.nutritionai.R
 
+@RunWith(RobolectricTestRunner::class)
 class ErrorMapperTest {
 
     private val context: Context = ApplicationProvider.getApplicationContext()
