@@ -270,6 +270,47 @@ class SettingsViewModel(
         }
     }
 
+    fun updateUserProfileWithOptions(name: String, imageFile: File?, deletePhoto: Boolean) {
+        viewModelScope.launch {
+            when {
+                deletePhoto -> {
+                    when (val result = userRepository.updateProfile(name = name, photoUrl = null)) {
+                        is NetworkResult.Success -> {
+                            loadUserProfile()
+                            _showEditProfileDialog.value = false
+                            _feedback.emit(UserFeedback.Success(
+                                ErrorMapper.getSuccessMessage(SuccessAction.PROFILE_UPDATED)
+                            ))
+                        }
+                        is NetworkResult.Error -> {
+                            _feedback.emit(UserFeedback.Error(result.message ?: "Error al actualizar perfil"))
+                        }
+                        else -> {
+                            _feedback.emit(UserFeedback.Error("Error al actualizar perfil"))
+                        }
+                    }
+                }
+                else -> {
+                    when (val result = userRepository.updateProfileWithImage(name = name, imageFile = imageFile)) {
+                        is NetworkResult.Success -> {
+                            loadUserProfile()
+                            _showEditProfileDialog.value = false
+                            _feedback.emit(UserFeedback.Success(
+                                ErrorMapper.getSuccessMessage(SuccessAction.PROFILE_UPDATED)
+                            ))
+                        }
+                        is NetworkResult.Error -> {
+                            _feedback.emit(UserFeedback.Error(result.message ?: "Error al actualizar perfil"))
+                        }
+                        else -> {
+                            _feedback.emit(UserFeedback.Error("Error al actualizar perfil"))
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     fun getAuthToken(): String? {
         return userRepository.getAuthToken()
     }
