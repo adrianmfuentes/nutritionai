@@ -94,18 +94,18 @@ export class AuthController {
 
       // Buscar usuario
       const user = await UserModel.findByEmail(email);
-        if (!user) {
-          logger.warn(`Intento de login fallido: Usuario no encontrado (${email})`);
-          return res.status(404).json({
-            error: 'Este email no está asociado a ninguna cuenta, por favor, cree una nueva cuenta',
-            error_i18n: {
-              es: 'Este email no está asociado a ninguna cuenta, por favor, cree una nueva cuenta',
-              en: 'This email is not associated with any account, please create a new account',
-              fr: "Cet e-mail n'est associé à aucun compte, veuillez créer un nouveau compte",
-              de: 'Diese E-Mail ist keinem Konto zugeordnet. Bitte erstellen Sie ein neues Konto'
-            }
-          });
-        }
+      if (!user) {
+        logger.warn(`Intento de login fallido: Usuario no encontrado (${email})`);
+        return res.status(404).json({
+          error: 'Este email no está asociado a ninguna cuenta, por favor, cree una nueva cuenta',
+          error_i18n: {
+            es: 'Este email no está asociado a ninguna cuenta, por favor, cree una nueva cuenta',
+            en: 'This email is not associated with any account, please create a new account',
+            fr: "Cet e-mail n'est associé à aucun compte, veuillez créer un nouveau compte",
+            de: 'Diese E-Mail ist keinem Konto zugeordnet. Bitte erstellen Sie ein neues Konto'
+          }
+        });
+      }
 
       // Verificar que el email esté verificado
       if (!user.email_verified) {

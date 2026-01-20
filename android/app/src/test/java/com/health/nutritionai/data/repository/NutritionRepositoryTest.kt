@@ -1,5 +1,7 @@
 package com.health.nutritionai.data.repository
 
+import android.content.Context
+import androidx.test.core.app.ApplicationProvider
 import com.health.nutritionai.data.model.*
 import com.health.nutritionai.data.remote.api.NutritionApiService
 import com.health.nutritionai.data.remote.dto.DailyNutritionDto
@@ -16,12 +18,16 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
+import org.robolectric.RobolectricTestRunner
+import org.junit.runner.RunWith
 import java.io.IOException
 
+@RunWith(RobolectricTestRunner::class)
 class NutritionRepositoryTest {
 
     private lateinit var repository: NutritionRepository
     private lateinit var apiService: NutritionApiService
+    private lateinit var context: Context
 
     private val mockNutritionDto = NutritionDto(
         calories = 1500,
@@ -63,8 +69,9 @@ class NutritionRepositoryTest {
 
     @Before
     fun setup() {
+        context = ApplicationProvider.getApplicationContext()
         apiService = mockk()
-        repository = NutritionRepository(apiService)
+        repository = NutritionRepository(context, apiService)
     }
 
     // ============ getDailyNutrition Tests ============
@@ -323,4 +330,3 @@ class NutritionRepositoryTest {
         assertNull((result as NetworkResult.Success).data!!.totals.fiber)
     }
 }
-
