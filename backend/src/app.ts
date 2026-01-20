@@ -47,8 +47,10 @@ export function createApp(): Application {
     message: 'Demasiadas peticiones desde esta IP'
   });
 
-  app.use('/v1/', limiter);
+  console.log('Sirviendo uploads desde:', path.join(process.cwd(), 'uploads'));  
   app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+
+  app.use('/v1/', limiter);
 
   // Body parsing
   app.use(express.json({ limit: '10mb' }));
