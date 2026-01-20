@@ -75,10 +75,12 @@ export class StorageService {
 
   async saveProfileImage(tempFilePath: string, userId: string): Promise<string> {
     try {
-      const absolutePath = path.resolve(tempFilePath);
+      // Extraer solo el nombre del archivo para evitar path injection
+      const tempFilename = path.basename(tempFilePath);
+      const tempDir = path.resolve(path.join(this.uploadPath, 'temp'));
+      const absolutePath = path.join(tempDir, tempFilename);
 
       // Validar que el archivo esté dentro del directorio temporal permitido
-      const tempDir = path.resolve(path.join(this.uploadPath, 'temp'));
       if (!absolutePath.startsWith(tempDir + path.sep) && absolutePath !== tempDir) {
         throw new Error('Ruta de archivo temporal no válida');
       }
