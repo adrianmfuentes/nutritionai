@@ -73,6 +73,7 @@ dependencies {
     // Room Database
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
+    implementation(libs.androidx.ui)
     ksp(libs.room.compiler)
 
     // Retrofit & OkHttp
