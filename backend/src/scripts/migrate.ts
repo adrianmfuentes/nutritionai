@@ -24,6 +24,9 @@ async function migrate() {
         activity_level VARCHAR(50),
         caloric_goal INTEGER,
         profile_photo VARCHAR(255),
+        email_verified BOOLEAN DEFAULT FALSE,
+        verification_code VARCHAR(6),
+        verification_expires TIMESTAMP WITH TIME ZONE,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );`,
@@ -57,6 +60,7 @@ async function migrate() {
         total_sodium DOUBLE PRECISION DEFAULT 0,
         health_score DOUBLE PRECISION DEFAULT 0,
         ai_analysis TEXT,
+        ai_metadata JSONB,
         notes TEXT,
         image_url VARCHAR(255),
         meal_date DATE DEFAULT CURRENT_DATE,
@@ -88,6 +92,10 @@ async function migrate() {
     // Migraciones adicionales
     const migrations = [
       `ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_photo VARCHAR(255);`,
+      `ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verified BOOLEAN DEFAULT FALSE;`,
+      `ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_code VARCHAR(6);`,
+      `ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_expires TIMESTAMP WITH TIME ZONE;`,
+      `ALTER TABLE meals ADD COLUMN IF NOT EXISTS ai_metadata JSONB;`,
       `ALTER TABLE nutrition_goals DROP CONSTRAINT IF EXISTS nutrition_goals_user_id_key;`,
       `DO $$
          BEGIN

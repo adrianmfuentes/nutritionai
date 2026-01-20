@@ -14,8 +14,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object ApiClient {
-    private const val ROOT_URL = "https://api-nutricion.amfserver.duckdns.org"
-    private const val BASE_URL = "$ROOT_URL/v1/"
+    private val ROOT_URL = BuildConfig.API_BASE_URL.replace("/v1", "")
+    private const val BASE_URL = BuildConfig.API_BASE_URL + "/"
 
     fun create(authInterceptor: AuthInterceptor): NutritionApiService {
         val loggingInterceptor = HttpLoggingInterceptor().apply {
