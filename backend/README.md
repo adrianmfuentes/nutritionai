@@ -1,10 +1,10 @@
 # Nutrition AI Backend
 
-Backend para aplicación de seguimiento nutricional con IA que analiza imágenes de comidas usando Claude 3.5 Sonnet.
+Backend para aplicación de seguimiento nutricional con IA que analiza imágenes de comidas usando **LLaMA 3.2 90B Vision via Groq**.
 
 ## 🚀 Características
 
-- 🤖 Análisis de imágenes de comidas con IA (Claude 3.5 Sonnet)
+- 🤖 Análisis de imágenes de comidas con IA (**LLaMA 3.2 90B Vision via Groq - 100% GRATIS**)
 - 📊 Seguimiento nutricional completo (calorías, proteínas, carbos, grasas)
 - 👤 Autenticación JWT
 - 🗄️ PostgreSQL para almacenamiento
@@ -16,7 +16,7 @@ Backend para aplicación de seguimiento nutricional con IA que analiza imágenes
 
 - Docker y Docker Compose
 - Node.js 20+ (para desarrollo local)
-- API Key de Anthropic (Claude)
+- API Key de Groq (100% GRATIS - https://console.groq.com/)
 
 ## 🛠️ Instalación y Configuración
 
@@ -44,7 +44,7 @@ DB_PASSWORD=tu_password_seguro_aqui
 JWT_SECRET=tu_jwt_secret_super_seguro
 
 # AI Service
-ANTHROPIC_API_KEY=sk-ant-tu-api-key-aqui
+GROQ_API_KEY=gsk-tu-api-key-aqui
 ```
 
 ### 3. Desplegar con Docker
@@ -212,7 +212,7 @@ docker-compose logs postgres
 
 ### Error de API Key
 
-Verifica que `ANTHROPIC_API_KEY` esté configurada correctamente en `.env`.
+Verifica que `GROQ_API_KEY` esté configurada correctamente en `.env`.
 
 ### Problemas con uploads
 
