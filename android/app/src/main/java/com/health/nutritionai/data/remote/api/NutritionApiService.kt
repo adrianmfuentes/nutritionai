@@ -86,7 +86,7 @@ interface NutritionApiService {
     suspend fun verifyEmail(@Body request: VerifyEmailRequest): AuthResponseDto
 
     // Account Deletion
-    @DELETE("auth/delete-account")
+    @POST("auth/delete-account")
     suspend fun deleteAccount(@Body request: DeleteAccountRequest): BaseResponse
 }
 

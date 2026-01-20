@@ -333,9 +333,9 @@ class SettingsViewModel(
         }
     }
 
-    fun deleteAccount(email: String, password: String) {
+    fun deleteAccount(password: String) {
         viewModelScope.launch {
-            when (val result = userRepository.deleteAccount(email, password)) {
+            when (val result = userRepository.deleteAccount(password)) {
                 is NetworkResult.Success -> {
                     _feedback.emit(UserFeedback.Success("Cuenta eliminada exitosamente"))
                     // The repository already logs out, so we don't need to do it here

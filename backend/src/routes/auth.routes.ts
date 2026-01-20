@@ -27,7 +27,7 @@ router.post('/change-password', authenticate, (req, res, next) =>
   authController.changePassword(req, res, next)
 );
 
-router.delete('/delete-account', authenticate, (req, res, next) =>
+router.post('/delete-account', authenticate, (req, res, next) =>
   authController.deleteAccount(req, res, next)
 );
 

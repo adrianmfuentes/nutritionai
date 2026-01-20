@@ -36,7 +36,6 @@ const VerifyEmailSchema = z.object({
 });
 
 const DeleteAccountSchema = z.object({
-  email: z.string().email('Email inválido'),
   password: z.string().min(1, 'La contraseña es requerida'),
 });
 
@@ -464,10 +463,11 @@ export class AuthController {
   async deleteAccount(req: Request, res: Response, next: NextFunction) {
     try {
       const validatedData = DeleteAccountSchema.parse(req.body);
-      const { email, password } = validatedData;
+      const { password } = validatedData;
+      const userEmail = (req as any).user.email; // From auth middleware
 
       // Verificar que el usuario existe
-      const user = await UserModel.findByEmail(email);
+      const user = await UserModel.findByEmail(userEmail);
       if (!user) {
         return res.status(404).json({ error: 'Usuario no encontrado' });
       }
