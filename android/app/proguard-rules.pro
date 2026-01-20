@@ -1,20 +1,28 @@
-# --- Reglas para Retrofit y Gson (Librerías de red) ---
+# ----------------------------------------------------------------------------
+# REGLAS ESPECÍFICAS PARA NUTRITION AI
+# Protege los Modelos de Datos y DTOs para que GSON/Retrofit no fallen al ofuscar
+# ----------------------------------------------------------------------------
+
+# 1. DTOs de Autenticación y Perfil (LoginRequest, AuthDto, etc.)
+-keep class com.health.nutritionai.data.remote.dto.** { *; }
+
+# 2. Modelos de Dominio (User, UserProfile, etc.)
+-keep class com.health.nutritionai.data.model.** { *; }
+
+# 3. Respuestas de API definidas dentro de NutritionApiService (ProfileResponse, etc.)
+# Nota: Si las clases están *dentro* del archivo pero fuera de la interface, esta regla las protege.
+-keep class com.health.nutritionai.data.remote.api.** { *; }
+
+# ----------------------------------------------------------------------------
+# Reglas generales para Retrofit y Gson
+# ----------------------------------------------------------------------------
 -keepattributes Signature
 -keepattributes *Annotation*
 -keep class retrofit2.** { *; }
 -keep class okhttp3.** { *; }
 -keep class com.google.gson.** { *; }
 
-# Evita que Gson falle al no encontrar los nombres de los campos
+# Protege los campos que usen @SerializedName aunque la clase se ofusque
 -keepclassmembers,allowobfuscation class * {
     @com.google.gson.annotations.SerializedName <fields>;
 }
-
-# --- IMPORTANTE: TUS MODELOS DE DATOS ---
-# Esto le dice a Android: "No cambies el nombre de las clases que están en esta carpeta"
-# VERIFICA que esta ruta coincida con donde tienes tus data class
--keep class com.health.nutritionai.data.** { *; }
--keep class com.health.nutritionai.domain.** { *; }
-
-# (Opcional) Si usas una carpeta específica llamada 'models' o 'entity':
--keep class com.health.nutritionai.**.model.** { *; }
