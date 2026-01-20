@@ -210,8 +210,8 @@ fun SettingsScreen(
                     EditProfileDialog(
                         userProfile = userProfile,
                         onDismiss = { viewModel.hideEditProfileDialog() },
-                        onSave = { name, photoFile ->
-                            viewModel.updateUserProfileWithImage(name, photoFile)
+                        onSave = { name, photoFile, deletePhoto ->
+                            viewModel.updateUserProfileWithOptions(name, photoFile, deletePhoto)
                         }
                     )
                 }
@@ -784,10 +784,11 @@ private fun ChangePasswordDialog(
 private fun EditProfileDialog(
     userProfile: UserProfile,
     onDismiss: () -> Unit,
-    onSave: (String, File?) -> Unit
+    onSave: (String, File?, Boolean) -> Unit
 ) {
     var name by remember { mutableStateOf(userProfile.name) }
     var selectedImageFile by remember { mutableStateOf<File?>(null) }
+    var deletePhoto by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     // Image picker launcher
@@ -796,6 +797,7 @@ private fun EditProfileDialog(
             // Convert Uri to File
             val file = ImageUtils.uriToFile(context, it, "profile_image.jpg")
             selectedImageFile = file
+            deletePhoto = false // Reset delete if selecting new image
         }
     }
 
@@ -842,13 +844,38 @@ private fun EditProfileDialog(
                             modifier = Modifier.padding(top = 4.dp)
                         )
                     }
+                    // Delete photo option if user has a photo
+                    if (userProfile.photoUrl != null && !deletePhoto) {
+                        Button(
+                            onClick = {
+                                deletePhoto = true
+                                selectedImageFile = null
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.error
+                            )
+                        ) {
+                            Icon(Icons.Default.Delete, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(stringResource(R.string.delete_profile_photo))
+                        }
+                    }
+                    if (deletePhoto) {
+                        Text(
+                            text = stringResource(R.string.delete_profile_photo),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
                 }
             }
         },
         confirmButton = {
             TextButton(
                 onClick = {
-                    onSave(name, selectedImageFile)
+                    onSave(name, selectedImageFile, deletePhoto)
                 }
             ) {
                 Text(stringResource(R.string.save))

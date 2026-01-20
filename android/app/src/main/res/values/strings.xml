@@ -223,4 +223,5 @@
     <string name="select_profile_photo">Seleccionar foto de perfil</string>
     <string name="select_image">Seleccionar imagen</string>
     <string name="image_selected">Imagen seleccionada</string>
+    <string name="delete_profile_photo">Eliminar foto de perfil</string>
 </resources>

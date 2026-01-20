@@ -207,4 +207,5 @@
     <string name="select_profile_photo">Select profile photo</string>
     <string name="select_image">Select image</string>
     <string name="image_selected">Image selected</string>
+    <string name="delete_profile_photo">Delete profile photo</string>
 </resources>
