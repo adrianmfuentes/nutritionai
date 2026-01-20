@@ -306,9 +306,9 @@ class UserRepository(
     // Account Deletion
     suspend fun deleteAccount(password: String): NetworkResult<Unit> {
         return try {
+            val token = getAuthToken()
             val request = com.health.nutritionai.data.remote.dto.DeleteAccountRequest(password)
-            apiService.deleteAccount(request)
-            // Clear local data after successful deletion
+            apiService.deleteAccount("Bearer $token", request)
             logout()
             NetworkResult.Success(Unit)
         } catch (e: Exception) {
