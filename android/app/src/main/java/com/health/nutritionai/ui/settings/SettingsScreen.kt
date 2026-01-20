@@ -222,10 +222,9 @@ fun SettingsScreen(
 
                 if (showDeleteAccountDialog) {
                     DeleteAccountDialog(
-                        userEmail = userProfile.email,
                         onDismiss = { viewModel.hideDeleteAccountDialog() },
-                        onConfirm = { email, password ->
-                            viewModel.deleteAccount(email, password)
+                        onConfirm = { password ->
+                            viewModel.deleteAccount(password)
                             onLogout()
                         }
                     )
@@ -914,9 +913,8 @@ private fun EditProfileDialog(
 
 @Composable
 private fun DeleteAccountDialog(
-    userEmail: String,
     onDismiss: () -> Unit,
-    onConfirm: (String, String) -> Unit
+    onConfirm: (String) -> Unit
 ) {
     var password by remember { mutableStateOf("") }
 
@@ -941,7 +939,7 @@ private fun DeleteAccountDialog(
             TextButton(
                 onClick = {
                     if (password.isNotEmpty()) {
-                        onConfirm(userEmail, password)
+                        onConfirm(password)
                     }
                 },
                 colors = ButtonDefaults.buttonColors(
