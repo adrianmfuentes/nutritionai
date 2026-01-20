@@ -15,8 +15,20 @@ router.post('/login', authLimiter, (req, res, next) =>
   authController.login(req, res, next)
 );
 
+router.post('/send-verification', (req, res, next) =>
+  authController.sendVerificationEmail(req, res, next)
+);
+
+router.post('/verify-email', (req, res, next) =>
+  authController.verifyEmail(req, res, next)
+);
+
 router.post('/change-password', authenticate, (req, res, next) =>
   authController.changePassword(req, res, next)
+);
+
+router.delete('/delete-account', authenticate, (req, res, next) =>
+  authController.deleteAccount(req, res, next)
 );
 
 export default router;

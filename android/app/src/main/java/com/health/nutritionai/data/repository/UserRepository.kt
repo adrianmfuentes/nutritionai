@@ -20,7 +20,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 
 class UserRepository(
-    context: Context,
+    private val context: Context,
     private val apiService: NutritionApiService
 ) {
     private val prefs = context.getSharedPreferences(Constants.PREFERENCES_NAME, Context.MODE_PRIVATE)
@@ -53,7 +53,7 @@ class UserRepository(
 
             NetworkResult.Success(authResponse)
         } catch (e: Exception) {
-            val userFriendlyMessage = ErrorMapper.mapErrorToMessage(e, ErrorContext.AUTH_REGISTER)
+            val userFriendlyMessage = ErrorMapper.mapErrorToMessage(context, e, ErrorContext.AUTH_REGISTER)
             NetworkResult.Error(userFriendlyMessage)
         }
     }
@@ -86,7 +86,7 @@ class UserRepository(
 
             NetworkResult.Success(authResponse)
         } catch (e: Exception) {
-            val userFriendlyMessage = ErrorMapper.mapErrorToMessage(e, ErrorContext.AUTH_LOGIN)
+            val userFriendlyMessage = ErrorMapper.mapErrorToMessage(context, e, ErrorContext.AUTH_LOGIN)
             NetworkResult.Error(userFriendlyMessage)
         }
     }
@@ -161,7 +161,7 @@ class UserRepository(
 
             NetworkResult.Success(userProfile)
         } catch (e: Exception) {
-            val userFriendlyMessage = ErrorMapper.mapErrorToMessage(e, ErrorContext.USER_PROFILE)
+            val userFriendlyMessage = ErrorMapper.mapErrorToMessage(context, e, ErrorContext.USER_PROFILE)
             NetworkResult.Error(userFriendlyMessage)
         }
     }
@@ -190,7 +190,7 @@ class UserRepository(
 
             NetworkResult.Success(userProfile)
         } catch (e: Exception) {
-            val userFriendlyMessage = ErrorMapper.mapErrorToMessage(e, ErrorContext.USER_PROFILE)
+            val userFriendlyMessage = ErrorMapper.mapErrorToMessage(context, e, ErrorContext.USER_PROFILE)
             NetworkResult.Error(userFriendlyMessage)
         }
     }
@@ -254,7 +254,66 @@ class UserRepository(
             apiService.changePassword(request)
             NetworkResult.Success(Unit)
         } catch (e: Exception) {
-            val userFriendlyMessage = ErrorMapper.mapErrorToMessage(e, ErrorContext.PASSWORD_CHANGE)
+            val userFriendlyMessage = ErrorMapper.mapErrorToMessage(context, e, ErrorContext.PASSWORD_CHANGE)
+            NetworkResult.Error(userFriendlyMessage)
+        }
+    }
+
+    // Email Verification
+    suspend fun sendVerificationEmail(email: String): NetworkResult<Unit> {
+        return try {
+            val request = com.health.nutritionai.data.remote.dto.SendVerificationRequest(email)
+            apiService.sendVerificationEmail(request)
+            NetworkResult.Success(Unit)
+        } catch (e: Exception) {
+            val userFriendlyMessage = ErrorMapper.mapErrorToMessage(context, e, ErrorContext.EMAIL_VERIFICATION)
+            NetworkResult.Error(userFriendlyMessage)
+        }
+    }
+
+    suspend fun verifyEmail(email: String, code: String): NetworkResult<AuthResponse> {
+        return try {
+            val request = com.health.nutritionai.data.remote.dto.VerifyEmailRequest(email, code)
+            val responseDto = apiService.verifyEmail(request)
+
+            val userProfile = responseDto.user?.let { dto ->
+                UserProfile(
+                    userId = dto.id,
+                    email = dto.email,
+                    name = dto.name,
+                    photoUrl = dto.photoUrl?.let { ApiClient.getFullImageUrl(it) },
+                    goals = dto.goals?.let {
+                        NutritionGoals(it.calories, it.protein, it.carbs, it.fat)
+                    }
+                )
+            }
+
+            val authResponse = AuthResponse(
+                token = responseDto.token,
+                user = userProfile,
+                userId = userProfile?.userId
+            )
+
+            saveAuthToken(authResponse.token)
+            authResponse.userId?.let { saveUserId(it) }
+
+            NetworkResult.Success(authResponse)
+        } catch (e: Exception) {
+            val userFriendlyMessage = ErrorMapper.mapErrorToMessage(context, e, ErrorContext.EMAIL_VERIFICATION)
+            NetworkResult.Error(userFriendlyMessage)
+        }
+    }
+
+    // Account Deletion
+    suspend fun deleteAccount(email: String, password: String): NetworkResult<Unit> {
+        return try {
+            val request = com.health.nutritionai.data.remote.dto.DeleteAccountRequest(email, password)
+            apiService.deleteAccount(request)
+            // Clear local data after successful deletion
+            logout()
+            NetworkResult.Success(Unit)
+        } catch (e: Exception) {
+            val userFriendlyMessage = ErrorMapper.mapErrorToMessage(context, e, ErrorContext.ACCOUNT_DELETION)
             NetworkResult.Error(userFriendlyMessage)
         }
     }

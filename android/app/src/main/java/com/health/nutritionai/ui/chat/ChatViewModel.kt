@@ -85,7 +85,7 @@ class ChatViewModel(
 
                 _uiState.value = ChatUiState.Success(conversationHistory.toList(), isProcessing = false)
             } catch (e: Exception) {
-                val errorMessage = ErrorMapper.mapErrorToMessage(e, ErrorContext.MEAL_ANALYSIS)
+                val errorMessage = ErrorMapper.mapErrorToMessage(getApplication(), e, ErrorContext.MEAL_ANALYSIS)
                 conversationHistory.add(
                     ChatMessage(
                         role = "assistant",

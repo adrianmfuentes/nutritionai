@@ -224,4 +224,64 @@
     <string name="select_image">Seleccionar imagen</string>
     <string name="image_selected">Imagen seleccionada</string>
     <string name="delete_profile_photo">Eliminar foto de perfil</string>
+
+    <!-- Email Verification -->
+    <string name="verify_email_title">Verificar Correo Electrónico</string>
+    <string name="verify_email_subtitle">Hemos enviado un código de verificación a %1$s. Ingresa el código para continuar.</string>
+    <string name="verification_code_label">Código de Verificación</string>
+    <string name="verify_button">Verificar</string>
+    <string name="resend_code">Reenviar Código</string>
+    <string name="wrong_email">¿Correo incorrecto?</string>
+    <string name="back_to_login">Volver al Inicio de Sesión</string>
+
+    <!-- Account Deletion -->
+    <string name="delete_account">Eliminar Cuenta</string>
+    <string name="delete_account_subtitle">Eliminar permanentemente tu cuenta y todos los datos</string>
+    <string name="delete_account_confirmation">¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.</string>
+    <string name="password">Contraseña</string>
+
+    <!-- Error Messages -->
+    <string name="error_timeout">La operación tardó demasiado tiempo. Por favor, verifica tu conexión e intenta nuevamente.</string>
+    <string name="error_no_connection">No se pudo conectar al servidor. Por favor, verifica tu conexión a internet.</string>
+    <string name="error_connection">Error de conexión. Por favor, verifica tu conexión a internet e intenta nuevamente.</string>
+    <string name="error_invalid_credentials">Usuario o contraseña incorrectos.</string>
+    <string name="error_invalid_data">Los datos proporcionados no son válidos. Por favor, verifica e intenta nuevamente.</string>
+    <string name="error_invalid_goals">Los valores de los objetivos nutricionales no son válidos.</string>
+    <string name="error_invalid_password_change">La contraseña actual es incorrecta o la nueva contraseña no cumple los requisitos.</string>
+    <string name="error_bad_request">Hay un problema con los datos enviados. Por favor, verifica e intenta nuevamente.</string>
+    <string name="error_session_expired">Tu sesión ha expirado. Por favor, inicia sesión nuevamente.</string>
+    <string name="error_forbidden">No tienes permiso para realizar esta acción.</string>
+    <string name="error_meal_not_found">No se encontró la comida solicitada.</string>
+    <string name="error_profile_not_found">No se encontró tu perfil de usuario.</string>
+    <string name="error_resource_not_found">No se encontró el recurso solicitado.</string>
+    <string name="error_email_exists">Ya existe una cuenta con este correo electrónico.</string>
+    <string name="error_meal_exists">Esta comida ya ha sido registrada.</string>
+    <string name="error_duplicate">Ya existe un registro con estos datos.</string>
+    <string name="error_invalid_registration">Los datos de registro no son válidos. Verifica tu correo electrónico y contraseña.</string>
+    <string name="error_invalid_image">No se pudo procesar la imagen. Por favor, intenta con otra foto.</string>
+    <string name="error_unprocessable">Los datos enviados no son válidos. Por favor, verifica e intenta nuevamente.</string>
+    <string name="error_rate_limit">Has realizado demasiadas solicitudes. Por favor, espera un momento e intenta nuevamente.</string>
+    <string name="error_server_error">Estamos experimentando problemas técnicos. Por favor, intenta más tarde.</string>
+    <string name="error_login_failed">No se pudo iniciar sesión. Por favor, intenta nuevamente.</string>
+    <string name="error_register_failed">No se pudo completar el registro. Por favor, intenta nuevamente.</string>
+    <string name="error_analysis_failed">No se pudo analizar la comida. Por favor, intenta con otra foto.</string>
+    <string name="error_meal_processing">Error al procesar la comida. Por favor, intenta nuevamente.</string>
+    <string name="error_meal_update_failed">No se pudo actualizar la comida. Por favor, intenta nuevamente.</string>
+    <string name="error_goals_update_failed">No se pudieron actualizar los objetivos. Por favor, intenta nuevamente.</string>
+    <string name="error_profile_load_failed">No se pudo cargar tu perfil. Por favor, intenta nuevamente.</string>
+    <string name="error_password_change_failed">No se pudo cambiar la contraseña. Por favor, intenta nuevamente.</string>
+    <string name="error_meal_delete_failed">No se pudo eliminar la comida. Por favor, intenta nuevamente.</string>
+    <string name="error_email_verification_failed">No se pudo verificar el correo electrónico. Por favor, intenta nuevamente.</string>
+    <string name="error_account_deletion_failed">No se pudo eliminar la cuenta. Por favor, intenta nuevamente.</string>
+    <string name="error_unexpected">Ocurrió un error inesperado. Por favor, intenta nuevamente.</string>
+
+    <!-- Success Messages -->
+    <string name="success_login">¡Bienvenido de nuevo!</string>
+    <string name="success_register">¡Cuenta creada exitosamente!</string>
+    <string name="success_meal_analyzed">¡Comida analizada con éxito!</string>
+    <string name="success_meal_deleted">Comida eliminada correctamente</string>
+    <string name="success_goals_updated">Objetivos nutricionales actualizados</string>
+    <string name="success_password_changed">Contraseña cambiada exitosamente</string>
+    <string name="success_profile_updated">Perfil actualizado correctamente</string>
+    <string name="success_logout">Sesión cerrada</string>
 </resources>

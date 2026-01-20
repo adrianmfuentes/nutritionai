@@ -1,5 +1,6 @@
 package com.health.nutritionai.ui.history
 
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.health.nutritionai.data.model.Meal
@@ -22,7 +23,8 @@ sealed class HistoryUiState {
 
 class HistoryViewModel(
     private val mealRepository: MealRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val application: Application
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<HistoryUiState>(HistoryUiState.Loading)
@@ -57,7 +59,7 @@ class HistoryViewModel(
             when (val result = mealRepository.deleteMeal(mealId)) {
                 is NetworkResult.Success -> {
                     _feedback.value = UserFeedback.Success(
-                        ErrorMapper.getSuccessMessage(SuccessAction.MEAL_DELETED)
+                        ErrorMapper.getSuccessMessage(application, SuccessAction.MEAL_DELETED)
                     )
                 }
                 is NetworkResult.Error -> {
@@ -98,4 +100,3 @@ class HistoryViewModel(
         _feedback.value = UserFeedback.None
     }
 }
-

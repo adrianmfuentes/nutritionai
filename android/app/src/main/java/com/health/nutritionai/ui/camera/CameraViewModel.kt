@@ -1,5 +1,6 @@
 package com.health.nutritionai.ui.camera
 
+import android.app.Application
 import android.content.Context
 import android.net.Uri
 import androidx.camera.core.ImageCapture
@@ -29,7 +30,8 @@ sealed class CameraUiState {
 }
 
 class CameraViewModel(
-    private val mealRepository: MealRepository
+    private val mealRepository: MealRepository,
+    private val application: Application
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<CameraUiState>(CameraUiState.Idle)
@@ -76,7 +78,7 @@ class CameraViewModel(
             when (val result = mealRepository.analyzeMeal(imageFile)) {
                 is NetworkResult.Success -> {
                     result.data?.let { meal ->
-                        val successMessage = ErrorMapper.getSuccessMessage(SuccessAction.MEAL_ANALYZED)
+                        val successMessage = ErrorMapper.getSuccessMessage(application, SuccessAction.MEAL_ANALYZED)
                         _uiState.value = CameraUiState.Success(meal, successMessage)
                     } ?: run {
                         _uiState.value = CameraUiState.Error("No se pudo procesar la comida")
@@ -109,4 +111,3 @@ class CameraViewModel(
         )
     }
 }
-

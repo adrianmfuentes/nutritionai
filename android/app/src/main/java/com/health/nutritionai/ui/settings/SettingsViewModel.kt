@@ -1,6 +1,6 @@
 package com.health.nutritionai.ui.settings
 
-import android.util.Log
+import android.app.Application
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.ViewModel
@@ -28,7 +28,8 @@ sealed class SettingsUiState {
 }
 
 class SettingsViewModel(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val application: Application
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<SettingsUiState>(SettingsUiState.Loading)
@@ -57,6 +58,9 @@ class SettingsViewModel(
 
     private val _showEditProfileDialog = MutableStateFlow(false)
     val showEditProfileDialog: StateFlow<Boolean> = _showEditProfileDialog.asStateFlow()
+
+    private val _showDeleteAccountDialog = MutableStateFlow(false)
+    val showDeleteAccountDialog: StateFlow<Boolean> = _showDeleteAccountDialog.asStateFlow()
 
     private val _notificationsEnabled = MutableStateFlow(true)
     val notificationsEnabled: StateFlow<Boolean> = _notificationsEnabled.asStateFlow()
@@ -180,6 +184,14 @@ class SettingsViewModel(
         _showEditProfileDialog.value = false
     }
 
+    fun showDeleteAccountDialog() {
+        _showDeleteAccountDialog.value = true
+    }
+
+    fun hideDeleteAccountDialog() {
+        _showDeleteAccountDialog.value = false
+    }
+
     fun updateNotifications(enabled: Boolean) {
         viewModelScope.launch {
             _notificationsEnabled.value = enabled
@@ -217,7 +229,7 @@ class SettingsViewModel(
                 is NetworkResult.Success -> {
                     _showChangePasswordDialog.value = false
                     _feedback.emit(UserFeedback.Success(
-                        ErrorMapper.getSuccessMessage(SuccessAction.PASSWORD_CHANGED)
+                        ErrorMapper.getSuccessMessage(application, SuccessAction.PASSWORD_CHANGED)
                     ))
                 }
                 is NetworkResult.Error -> {
@@ -237,7 +249,7 @@ class SettingsViewModel(
                     loadUserProfile()
                     _showEditProfileDialog.value = false
                     _feedback.emit(UserFeedback.Success(
-                        ErrorMapper.getSuccessMessage(SuccessAction.PROFILE_UPDATED)
+                        ErrorMapper.getSuccessMessage(application, SuccessAction.PROFILE_UPDATED)
                     ))
                 }
                 is NetworkResult.Error -> {
@@ -257,7 +269,7 @@ class SettingsViewModel(
                     loadUserProfile()
                     _showEditProfileDialog.value = false
                     _feedback.emit(UserFeedback.Success(
-                        ErrorMapper.getSuccessMessage(SuccessAction.PROFILE_UPDATED)
+                        ErrorMapper.getSuccessMessage(application, SuccessAction.PROFILE_UPDATED)
                     ))
                 }
                 is NetworkResult.Error -> {
@@ -279,7 +291,7 @@ class SettingsViewModel(
                             loadUserProfile()
                             _showEditProfileDialog.value = false
                             _feedback.emit(UserFeedback.Success(
-                                ErrorMapper.getSuccessMessage(SuccessAction.PROFILE_UPDATED)
+                                ErrorMapper.getSuccessMessage(application, SuccessAction.PROFILE_UPDATED)
                             ))
                         }
                         is NetworkResult.Error -> {
@@ -296,7 +308,7 @@ class SettingsViewModel(
                             loadUserProfile()
                             _showEditProfileDialog.value = false
                             _feedback.emit(UserFeedback.Success(
-                                ErrorMapper.getSuccessMessage(SuccessAction.PROFILE_UPDATED)
+                                ErrorMapper.getSuccessMessage(application, SuccessAction.PROFILE_UPDATED)
                             ))
                         }
                         is NetworkResult.Error -> {
@@ -318,6 +330,23 @@ class SettingsViewModel(
     fun clearFeedback() {
         viewModelScope.launch {
             _feedback.emit(UserFeedback.None)
+        }
+    }
+
+    fun deleteAccount(email: String, password: String) {
+        viewModelScope.launch {
+            when (val result = userRepository.deleteAccount(email, password)) {
+                is NetworkResult.Success -> {
+                    _feedback.emit(UserFeedback.Success("Cuenta eliminada exitosamente"))
+                    // The repository already logs out, so we don't need to do it here
+                }
+                is NetworkResult.Error -> {
+                    _feedback.emit(UserFeedback.Error(result.message ?: "Error al eliminar la cuenta"))
+                }
+                else -> {
+                    _feedback.emit(UserFeedback.Error("Error al eliminar la cuenta"))
+                }
+            }
         }
     }
 }

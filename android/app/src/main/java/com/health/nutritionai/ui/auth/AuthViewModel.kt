@@ -17,6 +17,7 @@ sealed class AuthUiState {
     data object Loading : AuthUiState()
     data class Success(val userId: String, val successMessage: String) : AuthUiState()
     data class Error(val message: String) : AuthUiState()
+    data class EmailVerificationRequired(val email: String, val message: String? = null) : AuthUiState()
 }
 
 class AuthViewModel(
@@ -49,7 +50,7 @@ class AuthViewModel(
             when (val result = userRepository.login(cleanEmail, cleanPassword)) {
                 is com.health.nutritionai.util.NetworkResult.Success -> {
                     val userId = result.data?.userId ?: result.data?.user?.userId ?: "unknown"
-                    val successMessage = ErrorMapper.getSuccessMessage(SuccessAction.LOGIN)
+                    val successMessage = ErrorMapper.getSuccessMessage(application, SuccessAction.LOGIN)
                     _uiState.value = AuthUiState.Success(userId, successMessage)
                 }
                 is com.health.nutritionai.util.NetworkResult.Error -> {
@@ -91,12 +92,23 @@ class AuthViewModel(
                 return@launch
             }
 
-            // Llamar al backend
+            // Llamar al backend para registro
             when (val result = userRepository.register(cleanEmail, cleanPassword, cleanName)) {
                 is com.health.nutritionai.util.NetworkResult.Success -> {
-                    val userId = result.data?.userId ?: result.data?.user?.userId ?: "unknown"
-                    val successMessage = ErrorMapper.getSuccessMessage(SuccessAction.REGISTER)
-                    _uiState.value = AuthUiState.Success(userId, successMessage)
+                    // Registro exitoso, ahora enviar email de verificación
+                    when (val verificationResult = userRepository.sendVerificationEmail(cleanEmail)) {
+                        is com.health.nutritionai.util.NetworkResult.Success -> {
+                            // Email enviado, mostrar pantalla de verificación
+                            _uiState.value = AuthUiState.EmailVerificationRequired(cleanEmail)
+                        }
+                        is com.health.nutritionai.util.NetworkResult.Error -> {
+                            // Error enviando email, pero cuenta creada - mostrar mensaje
+                            _uiState.value = AuthUiState.Error("Cuenta creada pero no se pudo enviar el email de verificación. Por favor, contacta soporte.")
+                        }
+                        else -> {
+                            _uiState.value = AuthUiState.Error("Cuenta creada pero no se pudo enviar el email de verificación. Por favor, contacta soporte.")
+                        }
+                    }
                 }
                 is com.health.nutritionai.util.NetworkResult.Error -> {
                     _uiState.value = AuthUiState.Error(result.message ?: application.getString(R.string.error_register_generic))
@@ -108,4 +120,41 @@ class AuthViewModel(
         }
     }
 
+    fun verifyEmail(email: String, code: String) {
+        viewModelScope.launch {
+            _uiState.value = AuthUiState.Loading
+
+            // Llamar al backend para verificar email
+            when (val result = userRepository.verifyEmail(email, code)) {
+                is com.health.nutritionai.util.NetworkResult.Success -> {
+                    val userId = result.data?.userId ?: result.data?.user?.userId ?: "unknown"
+                    val successMessage = ErrorMapper.getSuccessMessage(application, SuccessAction.REGISTER)
+                    _uiState.value = AuthUiState.Success(userId, successMessage)
+                }
+                is com.health.nutritionai.util.NetworkResult.Error -> {
+                    _uiState.value = AuthUiState.Error(result.message ?: "Error al verificar el correo electrónico")
+                }
+                is com.health.nutritionai.util.NetworkResult.Loading -> {
+                    // Already in loading state
+                }
+            }
+        }
+    }
+
+    fun resendVerificationEmail(email: String) {
+        viewModelScope.launch {
+            when (val result = userRepository.sendVerificationEmail(email)) {
+                is com.health.nutritionai.util.NetworkResult.Success -> {
+                    // Email reenviado exitosamente
+                    _uiState.value = AuthUiState.EmailVerificationRequired(email, "Email de verificación reenviado")
+                }
+                is com.health.nutritionai.util.NetworkResult.Error -> {
+                    _uiState.value = AuthUiState.Error(result.message ?: "Error al reenviar el email de verificación")
+                }
+                else -> {
+                    _uiState.value = AuthUiState.Error("Error al reenviar el email de verificación")
+                }
+            }
+        }
+    }
 }

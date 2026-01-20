@@ -67,6 +67,7 @@ import org.koin.androidx.compose.koinViewModel
 fun RegisterScreen(
     onNavigateToLogin: () -> Unit,
     onRegisterSuccess: () -> Unit,
+    onNavigateToEmailVerification: (String) -> Unit,
     viewModel: AuthViewModel = koinViewModel()
 ) {
     var name by remember { mutableStateOf("") }
@@ -87,6 +88,9 @@ fun RegisterScreen(
                     duration = SnackbarDuration.Short
                 )
                 onRegisterSuccess()
+            }
+            is AuthUiState.EmailVerificationRequired -> {
+                onNavigateToEmailVerification(state.email)
             }
             else -> {}
         }

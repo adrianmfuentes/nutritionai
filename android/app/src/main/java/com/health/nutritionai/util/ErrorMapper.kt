@@ -1,5 +1,7 @@
 package com.health.nutritionai.util
 
+import android.content.Context
+import com.health.nutritionai.R
 import retrofit2.HttpException
 import java.io.IOException
 import java.net.SocketTimeoutException
@@ -14,91 +16,93 @@ object ErrorMapper {
     /**
      * Convierte una excepción en un mensaje user-friendly
      */
-    fun mapErrorToMessage(throwable: Throwable, context: ErrorContext = ErrorContext.GENERAL): String {
+    fun mapErrorToMessage(context: Context, throwable: Exception, errorContext: ErrorContext = ErrorContext.GENERAL): String {
         return when (throwable) {
-            is HttpException -> mapHttpError(throwable, context)
-            is SocketTimeoutException -> "La operación tardó demasiado tiempo. Por favor, verifica tu conexión e intenta nuevamente."
-            is UnknownHostException -> "No se pudo conectar al servidor. Por favor, verifica tu conexión a internet."
-            is IOException -> "Error de conexión. Por favor, verifica tu conexión a internet e intenta nuevamente."
-            else -> getDefaultErrorMessage(context)
+            is HttpException -> mapHttpError(context, throwable, errorContext)
+            is SocketTimeoutException -> context.getString(R.string.error_timeout)
+            is UnknownHostException -> context.getString(R.string.error_no_connection)
+            is IOException -> context.getString(R.string.error_connection)
+            else -> getDefaultErrorMessage(context, errorContext)
         }
     }
 
     /**
      * Mapea errores HTTP específicos a mensajes user-friendly
      */
-    private fun mapHttpError(exception: HttpException, context: ErrorContext): String {
+    private fun mapHttpError(context: Context, exception: HttpException, errorContext: ErrorContext): String {
         return when (exception.code()) {
-            400 -> when (context) {
-                ErrorContext.AUTH_LOGIN -> "Usuario o contraseña incorrectos."
-                ErrorContext.AUTH_REGISTER -> "Los datos proporcionados no son válidos. Por favor, verifica e intenta nuevamente."
-                ErrorContext.NUTRITION_GOALS -> "Los valores de los objetivos nutricionales no son válidos."
-                ErrorContext.PASSWORD_CHANGE -> "La contraseña actual es incorrecta o la nueva contraseña no cumple los requisitos."
-                else -> "Hay un problema con los datos enviados. Por favor, verifica e intenta nuevamente."
+            400 -> when (errorContext) {
+                ErrorContext.AUTH_LOGIN -> context.getString(R.string.error_invalid_credentials)
+                ErrorContext.AUTH_REGISTER -> context.getString(R.string.error_invalid_data)
+                ErrorContext.NUTRITION_GOALS -> context.getString(R.string.error_invalid_goals)
+                ErrorContext.PASSWORD_CHANGE -> context.getString(R.string.error_invalid_password_change)
+                else -> context.getString(R.string.error_bad_request)
             }
 
-            401 -> "Tu sesión ha expirado. Por favor, inicia sesión nuevamente."
+            401 -> context.getString(R.string.error_session_expired)
 
-            403 -> "No tienes permiso para realizar esta acción."
+            403 -> context.getString(R.string.error_forbidden)
 
-            404 -> when (context) {
-                ErrorContext.MEAL -> "No se encontró la comida solicitada."
-                ErrorContext.USER_PROFILE -> "No se encontró tu perfil de usuario."
-                else -> "No se encontró el recurso solicitado."
+            404 -> when (errorContext) {
+                ErrorContext.MEAL -> context.getString(R.string.error_meal_not_found)
+                ErrorContext.USER_PROFILE -> context.getString(R.string.error_profile_not_found)
+                else -> context.getString(R.string.error_resource_not_found)
             }
 
-            409 -> when (context) {
-                ErrorContext.AUTH_REGISTER -> "Ya existe una cuenta con este correo electrónico."
-                ErrorContext.MEAL -> "Esta comida ya ha sido registrada."
-                else -> "Ya existe un registro con estos datos."
+            409 -> when (errorContext) {
+                ErrorContext.AUTH_REGISTER -> context.getString(R.string.error_email_exists)
+                ErrorContext.MEAL -> context.getString(R.string.error_meal_exists)
+                else -> context.getString(R.string.error_duplicate)
             }
 
-            422 -> when (context) {
-                ErrorContext.AUTH_REGISTER -> "Los datos de registro no son válidos. Verifica tu correo electrónico y contraseña."
-                ErrorContext.NUTRITION_GOALS -> "Los valores de los objetivos no son válidos."
-                ErrorContext.MEAL_ANALYSIS -> "No se pudo procesar la imagen. Por favor, intenta con otra foto."
-                else -> "Los datos enviados no son válidos. Por favor, verifica e intenta nuevamente."
+            422 -> when (errorContext) {
+                ErrorContext.AUTH_REGISTER -> context.getString(R.string.error_invalid_registration)
+                ErrorContext.NUTRITION_GOALS -> context.getString(R.string.error_invalid_goals)
+                ErrorContext.MEAL_ANALYSIS -> context.getString(R.string.error_invalid_image)
+                else -> context.getString(R.string.error_unprocessable)
             }
 
-            429 -> "Has realizado demasiadas solicitudes. Por favor, espera un momento e intenta nuevamente."
+            429 -> context.getString(R.string.error_rate_limit)
 
-            500, 502, 503, 504 -> "Estamos experimentando problemas técnicos. Por favor, intenta más tarde."
+            500, 502, 503, 504 -> context.getString(R.string.error_server_error)
 
-            else -> getDefaultErrorMessage(context)
+            else -> getDefaultErrorMessage(context, errorContext)
         }
     }
 
     /**
      * Mensajes de error por defecto según el contexto
      */
-    private fun getDefaultErrorMessage(context: ErrorContext): String {
-        return when (context) {
-            ErrorContext.AUTH_LOGIN -> "No se pudo iniciar sesión. Por favor, intenta nuevamente."
-            ErrorContext.AUTH_REGISTER -> "No se pudo completar el registro. Por favor, intenta nuevamente."
-            ErrorContext.MEAL_ANALYSIS -> "No se pudo analizar la comida. Por favor, intenta con otra foto."
-            ErrorContext.MEAL -> "Error al procesar la comida. Por favor, intenta nuevamente."
-            ErrorContext.MEAL_UPDATE -> "No se pudo actualizar la comida. Por favor, intenta nuevamente."
-            ErrorContext.NUTRITION_GOALS -> "No se pudieron actualizar los objetivos. Por favor, intenta nuevamente."
-            ErrorContext.USER_PROFILE -> "No se pudo cargar tu perfil. Por favor, intenta nuevamente."
-            ErrorContext.PASSWORD_CHANGE -> "No se pudo cambiar la contraseña. Por favor, intenta nuevamente."
-            ErrorContext.MEAL_DELETE -> "No se pudo eliminar la comida. Por favor, intenta nuevamente."
-            ErrorContext.GENERAL -> "Ocurrió un error inesperado. Por favor, intenta nuevamente."
+    private fun getDefaultErrorMessage(context: Context, errorContext: ErrorContext): String {
+        return when (errorContext) {
+            ErrorContext.AUTH_LOGIN -> context.getString(R.string.error_login_failed)
+            ErrorContext.AUTH_REGISTER -> context.getString(R.string.error_register_failed)
+            ErrorContext.MEAL_ANALYSIS -> context.getString(R.string.error_analysis_failed)
+            ErrorContext.MEAL -> context.getString(R.string.error_meal_processing)
+            ErrorContext.MEAL_UPDATE -> context.getString(R.string.error_meal_update_failed)
+            ErrorContext.NUTRITION_GOALS -> context.getString(R.string.error_goals_update_failed)
+            ErrorContext.USER_PROFILE -> context.getString(R.string.error_profile_load_failed)
+            ErrorContext.PASSWORD_CHANGE -> context.getString(R.string.error_password_change_failed)
+            ErrorContext.MEAL_DELETE -> context.getString(R.string.error_meal_delete_failed)
+            ErrorContext.EMAIL_VERIFICATION -> context.getString(R.string.error_email_verification_failed)
+            ErrorContext.ACCOUNT_DELETION -> context.getString(R.string.error_account_deletion_failed)
+            ErrorContext.GENERAL -> context.getString(R.string.error_unexpected)
         }
     }
 
     /**
      * Mensajes de éxito para acciones críticas
      */
-    fun getSuccessMessage(action: SuccessAction): String {
+    fun getSuccessMessage(context: Context, action: SuccessAction): String {
         return when (action) {
-            SuccessAction.LOGIN -> "¡Bienvenido de nuevo!"
-            SuccessAction.REGISTER -> "¡Cuenta creada exitosamente!"
-            SuccessAction.MEAL_ANALYZED -> "¡Comida analizada con éxito!"
-            SuccessAction.MEAL_DELETED -> "Comida eliminada correctamente"
-            SuccessAction.GOALS_UPDATED -> "Objetivos nutricionales actualizados"
-            SuccessAction.PASSWORD_CHANGED -> "Contraseña cambiada exitosamente"
-            SuccessAction.PROFILE_UPDATED -> "Perfil actualizado correctamente"
-            SuccessAction.LOGOUT -> "Sesión cerrada"
+            SuccessAction.LOGIN -> context.getString(R.string.success_login)
+            SuccessAction.REGISTER -> context.getString(R.string.success_register)
+            SuccessAction.MEAL_ANALYZED -> context.getString(R.string.success_meal_analyzed)
+            SuccessAction.MEAL_DELETED -> context.getString(R.string.success_meal_deleted)
+            SuccessAction.GOALS_UPDATED -> context.getString(R.string.success_goals_updated)
+            SuccessAction.PASSWORD_CHANGED -> context.getString(R.string.success_password_changed)
+            SuccessAction.PROFILE_UPDATED -> context.getString(R.string.success_profile_updated)
+            SuccessAction.LOGOUT -> context.getString(R.string.success_logout)
         }
     }
 }
@@ -116,7 +120,9 @@ enum class ErrorContext {
     MEAL_UPDATE,
     NUTRITION_GOALS,
     USER_PROFILE,
-    PASSWORD_CHANGE
+    PASSWORD_CHANGE,
+    EMAIL_VERIFICATION,
+    ACCOUNT_DELETION
 }
 
 /**
@@ -132,4 +138,3 @@ enum class SuccessAction {
     PROFILE_UPDATED,
     LOGOUT
 }
-

@@ -79,6 +79,7 @@ dependencies {
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     implementation(libs.androidx.ui)
+    implementation(libs.core.ktx)
     ksp(libs.room.compiler)
 
     // Retrofit & OkHttp
