@@ -9,7 +9,7 @@ interface NutritionApiService {
 
     // Authentication
     @POST("auth/register")
-    suspend fun register(@Body request: RegisterRequest): AuthResponseDto
+    suspend fun register(@Body request: RegisterRequest): RegisterResponseDto
 
     @POST("auth/login")
     suspend fun login(@Body request: LoginRequest): AuthResponseDto

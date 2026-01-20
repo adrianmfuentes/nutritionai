@@ -5,9 +5,7 @@ import com.google.gson.GsonBuilder
 import com.health.nutritionai.BuildConfig
 import com.health.nutritionai.data.remote.api.NutritionApiService
 import com.health.nutritionai.data.remote.interceptor.AuthInterceptor
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
-import okhttp3.dnsoverhttps.DnsOverHttps
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -26,22 +24,9 @@ object ApiClient {
             }
         }
 
-        // Bootstrap client for DNS over HTTPS
-        val bootstrapClient = OkHttpClient.Builder()
-            .connectTimeout(10, TimeUnit.SECONDS)
-            .readTimeout(10, TimeUnit.SECONDS)
-            .writeTimeout(10, TimeUnit.SECONDS)
-            .build()
-
-        val dns = DnsOverHttps.Builder()
-            .client(bootstrapClient)
-            .url("https://dns.google/dns-query".toHttpUrl())
-            .build()
-
         val okHttpClient = OkHttpClient.Builder()
             .addInterceptor(authInterceptor)
             .addInterceptor(loggingInterceptor)
-            .dns(dns)
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
