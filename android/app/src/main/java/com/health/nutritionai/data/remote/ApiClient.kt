@@ -52,4 +52,8 @@ object ApiClient {
 
         return retrofit.create(NutritionApiService::class.java)
     }
+
+    fun getFullImageUrl(relativePath: String): String {
+        return BASE_URL + relativePath.removePrefix("/")
+    }
 }
