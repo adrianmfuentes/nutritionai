@@ -1,2 +1,4 @@
 backend/nginx/ssl/
 backend/nginx/ssl/
+android/app/release/baselineProfiles/1/app-release.dm
+android/app/release/baselineProfiles/0/app-release.dm

@@ -45,6 +45,7 @@ fun SettingsScreen(
     val showUnitsDialog by viewModel.showUnitsDialog.collectAsState()
     val showChangePasswordDialog by viewModel.showChangePasswordDialog.collectAsState()
     val showEditProfileDialog by viewModel.showEditProfileDialog.collectAsState()
+    val showDeleteAccountDialog by viewModel.showDeleteAccountDialog.collectAsState()
     val notificationsEnabled by viewModel.notificationsEnabled.collectAsState()
     val selectedLanguage by viewModel.selectedLanguage.collectAsState()
     val selectedUnits by viewModel.selectedUnits.collectAsState()
@@ -158,6 +159,9 @@ fun SettingsScreen(
                             onLogout = {
                                 viewModel.logout()
                                 onLogout()
+                            },
+                            onDeleteAccount = {
+                                viewModel.showDeleteAccountDialog()
                             }
                         )
                     }
@@ -212,6 +216,17 @@ fun SettingsScreen(
                         onDismiss = { viewModel.hideEditProfileDialog() },
                         onSave = { name, photoFile, deletePhoto ->
                             viewModel.updateUserProfileWithOptions(name, photoFile, deletePhoto)
+                        }
+                    )
+                }
+
+                if (showDeleteAccountDialog) {
+                    DeleteAccountDialog(
+                        userEmail = userProfile.email,
+                        onDismiss = { viewModel.hideDeleteAccountDialog() },
+                        onConfirm = { email, password ->
+                            viewModel.deleteAccount(email, password)
+                            onLogout()
                         }
                     )
                 }
@@ -433,7 +448,8 @@ private fun PreferencesSection(
 @Composable
 private fun AccountSection(
     onChangePassword: () -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onDeleteAccount: () -> Unit
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(
@@ -446,6 +462,14 @@ private fun AccountSection(
                 title = stringResource(R.string.change_password),
                 subtitle = stringResource(R.string.update_password),
                 onClick = onChangePassword
+            )
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            SettingsItem(
+                icon = Icons.Default.DeleteForever,
+                title = stringResource(R.string.delete_account),
+                subtitle = stringResource(R.string.delete_account_subtitle),
+                onClick = onDeleteAccount,
+                isDestructive = true
             )
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
             SettingsItem(
@@ -765,7 +789,6 @@ private fun ChangePasswordDialog(
                 onClick = {
                     if (newPassword == confirmPassword && newPassword.isNotEmpty()) {
                         onSave(currentPassword, newPassword)
-                    } else {
                     }
                 }
             ) {
@@ -879,6 +902,54 @@ private fun EditProfileDialog(
                 }
             ) {
                 Text(stringResource(R.string.save))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
+}
+
+@Composable
+private fun DeleteAccountDialog(
+    userEmail: String,
+    onDismiss: () -> Unit,
+    onConfirm: (String, String) -> Unit
+) {
+    var password by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.delete_account)) },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(stringResource(R.string.delete_account_confirmation))
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text(stringResource(R.string.password)) },
+                    visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    if (password.isNotEmpty()) {
+                        onConfirm(userEmail, password)
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error
+                ),
+                enabled = password.isNotEmpty()
+            ) {
+                Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.onError)
             }
         },
         dismissButton = {

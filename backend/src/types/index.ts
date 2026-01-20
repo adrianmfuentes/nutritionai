@@ -5,6 +5,7 @@ export interface User {
   email: string;
   name: string;
   profile_photo?: string;
+  email_verified?: boolean;
   password_hash?: string;
   created_at: Date;
   updated_at: Date;

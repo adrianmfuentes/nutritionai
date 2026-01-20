@@ -77,6 +77,17 @@ interface NutritionApiService {
 
     @POST("auth/change-password")
     suspend fun changePassword(@Body request: ChangePasswordRequest)
+
+    // Email Verification
+    @POST("auth/send-verification")
+    suspend fun sendVerificationEmail(@Body request: SendVerificationRequest): BaseResponse
+
+    @POST("auth/verify-email")
+    suspend fun verifyEmail(@Body request: VerifyEmailRequest): AuthResponseDto
+
+    // Account Deletion
+    @DELETE("auth/delete-account")
+    suspend fun deleteAccount(@Body request: DeleteAccountRequest): BaseResponse
 }
 
 data class MealsListResponse(

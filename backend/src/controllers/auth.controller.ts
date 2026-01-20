@@ -1,11 +1,14 @@
 // src/controllers/auth.controller.ts
 import { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import { pool } from '../config/database';
 import { generateToken } from '../utils/jwt';
 import { z } from 'zod';
 import { logger } from '../utils/logger';
 import { StorageService } from '../services/storage.service';
+import { EmailService } from '../services/email.service';
+import { UserModel } from '../models/User';
 
 const RegisterSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -23,6 +26,20 @@ const ChangePasswordSchema = z.object({
   newPassword: z.string().min(8, 'La nueva contraseña debe tener al menos 8 caracteres'),
 });
 
+const SendVerificationSchema = z.object({
+  email: z.string().email('Email inválido'),
+});
+
+const VerifyEmailSchema = z.object({
+  email: z.string().email('Email inválido'),
+  code: z.string().length(6, 'El código debe tener 6 dígitos'),
+});
+
+const DeleteAccountSchema = z.object({
+  email: z.string().email('Email inválido'),
+  password: z.string().min(1, 'La contraseña es requerida'),
+});
+
 const UpdateProfileSchema = z.object({
   name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres').optional(),
   profile_photo: z.string().nullable().optional(),
@@ -30,54 +47,34 @@ const UpdateProfileSchema = z.object({
 
 export class AuthController {
   private storageService = new StorageService();
+  private emailService = new EmailService();
   async register(req: Request, res: Response, next: NextFunction) {
     try {
       const validatedData = RegisterSchema.parse(req.body);
       const { email, password, name } = validatedData;
 
       // Verificar si el usuario ya existe
-      const existingUser = await pool.query(
-        'SELECT id FROM users WHERE email = $1',
-        [email]
-      );
-
-      if (existingUser.rows.length > 0) {
+      const existingUser = await UserModel.findByEmail(email);
+      if (existingUser) {
         return res.status(409).json({ error: 'El email ya está registrado' });
       }
 
       // Hash de la contraseña
       const passwordHash = await bcrypt.hash(password, 12);
 
-      // Crear usuario
-      const result = await pool.query(
-        `INSERT INTO users (email, password_hash, name) 
-         VALUES ($1, $2, $3) 
-         RETURNING id, email, name, created_at`,
-        [email, passwordHash, name]
-      );
+      // Crear usuario sin verificar
+      const user = await UserModel.create(email, passwordHash, name);
 
-      const user = result.rows[0];
-
-      // Crear goals por defecto (2000 cal, 150g proteína, 200g carbos, 65g grasa)
-      await pool.query(
-        `INSERT INTO nutrition_goals (user_id, daily_calories, daily_protein, daily_carbs, daily_fat, active_from)
-         VALUES ($1, $2, $3, $4, $5, CURRENT_DATE)`,
-        [user.id, 2000, 150, 200, 65]
-      );
-
-      // Generar token
-      const token = generateToken(user.id);
-
-      logger.info(`Usuario registrado: ${email}`);
+      logger.info(`Usuario registrado (pendiente verificación): ${email}`);
 
       res.status(201).json({
-        message: 'Usuario registrado exitosamente',
+        message: 'Usuario registrado exitosamente. Envía un código de verificación a tu email.',
         user: {
           id: user.id,
           email: user.email,
           name: user.name,
+          email_verified: user.email_verified,
         },
-        token,
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -96,20 +93,19 @@ export class AuthController {
       const { email, password } = validatedData;
 
       // Buscar usuario
-      const result = await pool.query(
-        'SELECT id, email, name, password_hash FROM users WHERE email = $1',
-        [email]
-      );
-
-      if (result.rows.length === 0) {
+      const user = await UserModel.findByEmail(email);
+      if (!user) {
         logger.warn(`Intento de login fallido: Usuario no encontrado (${email})`);
         return res.status(401).json({ error: 'Credenciales inválidas' });
       }
 
-      const user = result.rows[0];
+      // Verificar que el email esté verificado
+      if (!user.email_verified) {
+        return res.status(403).json({ error: 'Por favor, verifica tu email antes de iniciar sesión' });
+      }
 
       // Verificar contraseña
-      const isValidPassword = await bcrypt.compare(password, user.password_hash);
+      const isValidPassword = await bcrypt.compare(password, user.password_hash!);
 
       if (!isValidPassword) {
         logger.warn(`Intento de login fallido: Contraseña incorrecta para ${email}`);
@@ -371,6 +367,130 @@ export class AuthController {
 
       res.json({ user: updatedUser.rows[0] });
     } catch (error) {
+      next(error);
+    }
+  }
+
+  async sendVerificationEmail(req: Request, res: Response, next: NextFunction) {
+    try {
+      const validatedData = SendVerificationSchema.parse(req.body);
+      const { email } = validatedData;
+
+      // Verificar que el usuario existe
+      const user = await UserModel.findByEmail(email);
+      if (!user) {
+        return res.status(404).json({ error: 'Usuario no encontrado' });
+      }
+
+      // Generar código de 6 dígitos
+      const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+      // Guardar código en la base de datos
+      await UserModel.setVerificationCode(email, verificationCode);
+
+      // Enviar email con código
+      await this.emailService.sendVerificationEmail(email, verificationCode);
+
+      logger.info(`Código de verificación enviado a: ${email}`);
+
+      res.json({ message: 'Código de verificación enviado a tu email' });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          error: 'Validación fallida', 
+          details: error.issues 
+        });
+      }
+      next(error);
+    }
+  }
+
+  async verifyEmail(req: Request, res: Response, next: NextFunction) {
+    try {
+      const validatedData = VerifyEmailSchema.parse(req.body);
+      const { email, code } = validatedData;
+
+      const user = await UserModel.findByVerificationCode(email, code);
+      if (!user) {
+        return res.status(400).json({ error: 'Código inválido o expirado' });
+      }
+
+      const verified = await UserModel.verifyEmail(email, code);
+      if (!verified) {
+        return res.status(400).json({ error: 'Error al verificar el email' });
+      }
+
+      // Crear goals por defecto después de verificación
+      await pool.query(
+        `INSERT INTO nutrition_goals (user_id, daily_calories, daily_protein, daily_carbs, daily_fat, active_from)
+         VALUES ($1, $2, $3, $4, $5, CURRENT_DATE)`,
+        [user.id, 2000, 150, 200, 65]
+      );
+
+      // Generar token JWT
+      const token = generateToken(user.id);
+
+      logger.info(`Email verificado para usuario: ${email}`);
+
+      res.json({
+        message: 'Email verificado exitosamente',
+        token,
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          email_verified: true,
+        },
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          error: 'Validación fallida', 
+          details: error.issues 
+        });
+      }
+      next(error);
+    }
+  }
+
+  async deleteAccount(req: Request, res: Response, next: NextFunction) {
+    try {
+      const validatedData = DeleteAccountSchema.parse(req.body);
+      const { email, password } = validatedData;
+
+      // Verificar que el usuario existe
+      const user = await UserModel.findByEmail(email);
+      if (!user) {
+        return res.status(404).json({ error: 'Usuario no encontrado' });
+      }
+
+      // Verificar contraseña
+      const isValidPassword = await bcrypt.compare(password, user.password_hash!);
+      if (!isValidPassword) {
+        return res.status(401).json({ error: 'Contraseña incorrecta' });
+      }
+
+      // Eliminar imagen de perfil si existe
+      if (user.profile_photo) {
+        await this.storageService.deleteImage(user.profile_photo);
+      }
+
+      // Eliminar usuario (las tablas relacionadas se eliminan en cascada)
+      const deleted = await UserModel.delete(user.id);
+      if (!deleted) {
+        return res.status(500).json({ error: 'Error al eliminar la cuenta' });
+      }
+
+      logger.info(`Cuenta eliminada para usuario: ${user.email}`);
+
+      res.json({ message: 'Cuenta eliminada exitosamente' });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          error: 'Validación fallida', 
+          details: error.issues 
+        });
+      }
       next(error);
     }
   }

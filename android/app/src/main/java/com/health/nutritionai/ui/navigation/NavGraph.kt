@@ -5,6 +5,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.health.nutritionai.ui.auth.EmailVerificationScreen
 import com.health.nutritionai.ui.auth.LoginScreen
 import com.health.nutritionai.ui.auth.RegisterScreen
 import com.health.nutritionai.ui.camera.CameraScreen
@@ -48,6 +49,24 @@ fun NavGraph(
                     navController.navigate(Screen.Dashboard.route) {
                         popUpTo(Screen.Register.route) { inclusive = true }
                     }
+                },
+                onNavigateToEmailVerification = { email ->
+                    navController.navigate(Screen.EmailVerification.createRoute(email))
+                }
+            )
+        }
+
+        composable(Screen.EmailVerification.route) { backStackEntry ->
+            val email = backStackEntry.arguments?.getString("email") ?: ""
+            EmailVerificationScreen(
+                email = email,
+                onVerificationSuccess = {
+                    navController.navigate(Screen.Dashboard.route) {
+                        popUpTo(Screen.Register.route) { inclusive = true }
+                    }
+                },
+                onBackToLogin = {
+                    navController.popBackStack()
                 }
             )
         }
@@ -131,4 +150,3 @@ fun NavGraph(
         }
     }
 }
-

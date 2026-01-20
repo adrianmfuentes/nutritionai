@@ -1,5 +1,6 @@
 package com.health.nutritionai.data.repository
 
+import android.content.Context
 import com.health.nutritionai.data.model.*
 import com.health.nutritionai.data.remote.api.NutritionApiService
 import com.health.nutritionai.data.remote.dto.NutritionDto
@@ -8,6 +9,7 @@ import com.health.nutritionai.data.remote.dto.NutritionProgressDto
 import com.health.nutritionai.util.NetworkResult
 
 class NutritionRepository(
+    private val context: Context,
     private val apiService: NutritionApiService
 ) {
 
@@ -59,6 +61,7 @@ class NutritionRepository(
             NetworkResult.Success(weekly)
         } catch (e: Exception) {
             val userFriendlyMessage = com.health.nutritionai.util.ErrorMapper.mapErrorToMessage(
+                context,
                 e,
                 com.health.nutritionai.util.ErrorContext.GENERAL
             )
@@ -88,4 +91,3 @@ class NutritionRepository(
         fatPercent = fatPercent
     )
 }
-

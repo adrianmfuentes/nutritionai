@@ -211,4 +211,64 @@
     <string name="select_image">Bild auswählen</string>
     <string name="image_selected">Bild ausgewählt</string>
     <string name="delete_profile_photo">Profilbild löschen</string>
+
+    <!-- Email Verification -->
+    <string name="verify_email_title">E-Mail verifizieren</string>
+    <string name="verify_email_subtitle">Wir haben einen Verifizierungscode an %1$s gesendet. Geben Sie den Code ein, um fortzufahren.</string>
+    <string name="verification_code_label">Verifizierungscode</string>
+    <string name="verify_button">Verifizieren</string>
+    <string name="resend_code">Code erneut senden</string>
+    <string name="wrong_email">Falsche E-Mail?</string>
+    <string name="back_to_login">Zurück zur Anmeldung</string>
+
+    <!-- Account Deletion -->
+    <string name="delete_account">Konto löschen</string>
+    <string name="delete_account_subtitle">Konto und alle Daten dauerhaft löschen</string>
+    <string name="delete_account_confirmation">Sind Sie sicher, dass Sie Ihr Konto löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.</string>
+    <string name="password">Passwort</string>
+
+    <!-- Error Messages -->
+    <string name="error_timeout">Der Vorgang hat zu lange gedauert. Bitte überprüfen Sie Ihre Verbindung und versuchen Sie es erneut.</string>
+    <string name="error_no_connection">Verbindung zum Server konnte nicht hergestellt werden. Bitte überprüfen Sie Ihre Internetverbindung.</string>
+    <string name="error_connection">Verbindungsfehler. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.</string>
+    <string name="error_invalid_credentials">Ungültiger Benutzername oder Passwort.</string>
+    <string name="error_invalid_data">Die bereitgestellten Daten sind ungültig. Bitte überprüfen und erneut versuchen.</string>
+    <string name="error_invalid_goals">Die Werte der Ernährungsziele sind ungültig.</string>
+    <string name="error_invalid_password_change">Das aktuelle Passwort ist falsch oder das neue Passwort erfüllt die Anforderungen nicht.</string>
+    <string name="error_bad_request">Es gibt ein Problem mit den gesendeten Daten. Bitte überprüfen und erneut versuchen.</string>
+    <string name="error_session_expired">Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.</string>
+    <string name="error_forbidden">Sie haben keine Berechtigung, diese Aktion auszuführen.</string>
+    <string name="error_meal_not_found">Die angeforderte Mahlzeit wurde nicht gefunden.</string>
+    <string name="error_profile_not_found">Ihr Benutzerprofil wurde nicht gefunden.</string>
+    <string name="error_resource_not_found">Die angeforderte Ressource wurde nicht gefunden.</string>
+    <string name="error_email_exists">Ein Konto mit dieser E-Mail existiert bereits.</string>
+    <string name="error_meal_exists">Diese Mahlzeit wurde bereits registriert.</string>
+    <string name="error_duplicate">Ein Datensatz mit diesen Daten existiert bereits.</string>
+    <string name="error_invalid_registration">Die Registrierungsdaten sind ungültig. Überprüfen Sie Ihre E-Mail und Ihr Passwort.</string>
+    <string name="error_invalid_image">Das Bild konnte nicht verarbeitet werden. Bitte versuchen Sie es mit einem anderen Foto.</string>
+    <string name="error_unprocessable">Die gesendeten Daten sind ungültig. Bitte überprüfen und erneut versuchen.</string>
+    <string name="error_rate_limit">Sie haben zu viele Anfragen gestellt. Bitte warten Sie einen Moment und versuchen Sie es erneut.</string>
+    <string name="error_server_error">Wir haben technische Probleme. Bitte versuchen Sie es später erneut.</string>
+    <string name="error_login_failed">Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.</string>
+    <string name="error_register_failed">Registrierung konnte nicht abgeschlossen werden. Bitte versuchen Sie es erneut.</string>
+    <string name="error_analysis_failed">Mahlzeit konnte nicht analysiert werden. Bitte versuchen Sie es mit einem anderen Foto.</string>
+    <string name="error_meal_processing">Fehler bei der Verarbeitung der Mahlzeit. Bitte versuchen Sie es erneut.</string>
+    <string name="error_meal_update_failed">Mahlzeit konnte nicht aktualisiert werden. Bitte versuchen Sie es erneut.</string>
+    <string name="error_goals_update_failed">Ziele konnten nicht aktualisiert werden. Bitte versuchen Sie es erneut.</string>
+    <string name="error_profile_load_failed">Ihr Profil konnte nicht geladen werden. Bitte versuchen Sie es erneut.</string>
+    <string name="error_password_change_failed">Passwort konnte nicht geändert werden. Bitte versuchen Sie es erneut.</string>
+    <string name="error_meal_delete_failed">Mahlzeit konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.</string>
+    <string name="error_email_verification_failed">E-Mail konnte nicht verifiziert werden. Bitte versuchen Sie es erneut.</string>
+    <string name="error_account_deletion_failed">Konto konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.</string>
+    <string name="error_unexpected">Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut.</string>
+
+    <!-- Success Messages -->
+    <string name="success_login">Willkommen zurück!</string>
+    <string name="success_register">Konto erfolgreich erstellt!</string>
+    <string name="success_meal_analyzed">Mahlzeit erfolgreich analysiert!</string>
+    <string name="success_meal_deleted">Mahlzeit erfolgreich gelöscht</string>
+    <string name="success_goals_updated">Ernährungsziele aktualisiert</string>
+    <string name="success_password_changed">Passwort erfolgreich geändert</string>
+    <string name="success_profile_updated">Profil erfolgreich aktualisiert</string>
+    <string name="success_logout">Abgemeldet</string>
 </resources>

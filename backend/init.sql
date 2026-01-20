@@ -16,6 +16,9 @@ CREATE TABLE IF NOT EXISTS users (
     activity_level VARCHAR(50),
     caloric_goal INTEGER,
     profile_photo VARCHAR(255),
+    email_verified BOOLEAN DEFAULT FALSE,
+    verification_code VARCHAR(6),
+    verification_expires TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

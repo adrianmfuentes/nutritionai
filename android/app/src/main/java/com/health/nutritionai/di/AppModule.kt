@@ -64,20 +64,21 @@ val appModule = module {
     single { UserRepository(androidContext(), get()) }
     single {
         MealRepository(
+            context = androidContext(),
             mealDao = get(),
             foodDao = get(),
             apiService = get(),
             userRepository = get()
         )
     }
-    single { NutritionRepository(get()) }
+    single { NutritionRepository(androidContext(), get()) }
 
     // ViewModels
     viewModel { AuthViewModel(get(), androidContext() as android.app.Application) }
     viewModel { DashboardViewModel(get(), get(), get()) }
-    viewModel { CameraViewModel(get()) }
-    viewModel { TextInputViewModel(get()) }
+    viewModel { CameraViewModel(get(), androidContext() as android.app.Application) }
+    viewModel { TextInputViewModel(get(), androidContext() as android.app.Application) }
     viewModel { ChatViewModel(androidContext() as android.app.Application, get(), get(), get()) }
-    viewModel { HistoryViewModel(get(), get()) }
-    viewModel { SettingsViewModel(get()) }
+    viewModel { HistoryViewModel(get(), get(), androidContext() as android.app.Application) }
+    viewModel { SettingsViewModel(get(), androidContext() as android.app.Application) }
 }

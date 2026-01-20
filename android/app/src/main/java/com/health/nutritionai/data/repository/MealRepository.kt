@@ -1,5 +1,6 @@
 package com.health.nutritionai.data.repository
 
+import android.content.Context
 import com.health.nutritionai.data.local.dao.FoodDao
 import com.health.nutritionai.data.local.dao.MealDao
 import com.health.nutritionai.data.local.entity.FoodEntity
@@ -18,6 +19,7 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
 class MealRepository(
+    private val context: Context,
     private val mealDao: MealDao,
     private val foodDao: FoodDao,
     private val apiService: NutritionApiService,
@@ -80,6 +82,7 @@ class MealRepository(
             NetworkResult.Success(meal)
         } catch (e: Exception) {
             val userFriendlyMessage = com.health.nutritionai.util.ErrorMapper.mapErrorToMessage(
+                context,
                 e,
                 com.health.nutritionai.util.ErrorContext.MEAL_ANALYSIS
             )
@@ -136,6 +139,7 @@ class MealRepository(
             NetworkResult.Success(meal)
         } catch (e: Exception) {
             val userFriendlyMessage = com.health.nutritionai.util.ErrorMapper.mapErrorToMessage(
+                context,
                 e,
                 com.health.nutritionai.util.ErrorContext.MEAL_ANALYSIS
             )
@@ -151,6 +155,7 @@ class MealRepository(
             NetworkResult.Success(true)
         } catch (e: Exception) {
             val userFriendlyMessage = com.health.nutritionai.util.ErrorMapper.mapErrorToMessage(
+                context,
                 e,
                 com.health.nutritionai.util.ErrorContext.MEAL_DELETE
             )
@@ -211,6 +216,7 @@ class MealRepository(
             NetworkResult.Success(response.success)
         } catch (e: Exception) {
             val userFriendlyMessage = com.health.nutritionai.util.ErrorMapper.mapErrorToMessage(
+                context,
                 e,
                 com.health.nutritionai.util.ErrorContext.MEAL_UPDATE
             )
@@ -326,4 +332,3 @@ class MealRepository(
         imageUrl = imageUrl
     )
 }
-

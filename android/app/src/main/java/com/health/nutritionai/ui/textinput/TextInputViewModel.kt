@@ -1,5 +1,6 @@
 package com.health.nutritionai.ui.textinput
 
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.health.nutritionai.data.repository.MealRepository
@@ -19,7 +20,8 @@ sealed class TextInputUiState {
 }
 
 class TextInputViewModel(
-    private val mealRepository: MealRepository
+    private val mealRepository: MealRepository,
+    private val application: Application
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<TextInputUiState>(TextInputUiState.Idle)
@@ -34,7 +36,7 @@ class TextInputViewModel(
 
             when (val result = mealRepository.analyzeTextDescription(description)) {
                 is NetworkResult.Success -> {
-                    val successMessage = ErrorMapper.getSuccessMessage(SuccessAction.MEAL_ANALYZED)
+                    val successMessage = ErrorMapper.getSuccessMessage(application, SuccessAction.MEAL_ANALYZED)
                     _feedback.value = UserFeedback.Success(successMessage)
                     _uiState.value = TextInputUiState.Idle
                 }
@@ -65,4 +67,3 @@ class TextInputViewModel(
         _feedback.value = UserFeedback.None
     }
 }
-

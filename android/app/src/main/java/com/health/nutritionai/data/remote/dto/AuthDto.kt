@@ -61,3 +61,29 @@ data class UpdateProfileRequest(
     @SerializedName("profile_photo")
     val photoUrl: String? = null
 )
+
+data class SendVerificationRequest(
+    @SerializedName("email")
+    val email: String
+)
+
+data class VerifyEmailRequest(
+    @SerializedName("email")
+    val email: String,
+    @SerializedName("code")
+    val code: String
+)
+
+data class DeleteAccountRequest(
+    @SerializedName("email")
+    val email: String,
+    @SerializedName("password")
+    val password: String
+)
+
+data class BaseResponse(
+    @SerializedName("success")
+    val success: Boolean,
+    @SerializedName("message")
+    val message: String? = null
+)
