@@ -87,7 +87,10 @@ interface NutritionApiService {
 
     // Account Deletion
     @POST("auth/delete-account")
-    suspend fun deleteAccount(@Body request: DeleteAccountRequest): BaseResponse
+    suspend fun deleteAccount(
+        @Header("Authorization") token: String,
+        @Body request: DeleteAccountRequest
+    ): BaseResponse
 }
 
 data class MealsListResponse(

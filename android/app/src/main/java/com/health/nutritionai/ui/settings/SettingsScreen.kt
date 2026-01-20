@@ -30,6 +30,7 @@ import java.io.File
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import com.health.nutritionai.R
+import com.health.nutritionai.util.UserFeedback
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,6 +52,14 @@ fun SettingsScreen(
     val selectedUnits by viewModel.selectedUnits.collectAsState()
     val authToken = viewModel.getAuthToken()
     val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(Unit) {
+        viewModel.feedback.collect { feedback ->
+            if (feedback is UserFeedback.Success && feedback.message == "Cuenta eliminada exitosamente") {
+                onLogout()
+            }
+        }
+    }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -225,7 +234,6 @@ fun SettingsScreen(
                         onDismiss = { viewModel.hideDeleteAccountDialog() },
                         onConfirm = { password ->
                             viewModel.deleteAccount(password)
-                            onLogout()
                         }
                     )
                 }
