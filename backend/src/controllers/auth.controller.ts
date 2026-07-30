@@ -3,12 +3,13 @@ import { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { pool } from '../config/database';
-import { generateToken } from '../utils/jwt';
+import { generateToken, generateRefreshTokenValue, hashRefreshToken, getRefreshTokenExpiry } from '../utils/jwt';
 import { z } from 'zod';
 import { logger } from '../utils/logger';
 import { StorageService } from '../services/storage.service';
 import { EmailService } from '../services/email.service';
 import { UserModel } from '../models/User';
+import { RefreshTokenModel } from '../models/RefreshToken';
 
 const RegisterSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -39,6 +40,10 @@ const DeleteAccountSchema = z.object({
   password: z.string().min(1, 'La contraseña es requerida'),
 });
 
+const RefreshTokenSchema = z.object({
+  refreshToken: z.string().min(1, 'El refresh token es requerido'),
+});
+
 const UpdateProfileSchema = z.object({
   name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres').optional(),
   profile_photo: z.string().nullable().optional(),
@@ -47,6 +52,14 @@ const UpdateProfileSchema = z.object({
 export class AuthController {
   private storageService = new StorageService();
   private emailService = new EmailService();
+
+  private async issueTokenPair(userId: string): Promise<{ token: string; refreshToken: string }> {
+    const token = generateToken(userId);
+    const refreshToken = generateRefreshTokenValue();
+    await RefreshTokenModel.create(userId, hashRefreshToken(refreshToken), getRefreshTokenExpiry());
+    return { token, refreshToken };
+  }
+
   async register(req: Request, res: Response, next: NextFunction) {
     try {
       const validatedData = RegisterSchema.parse(req.body);
@@ -119,8 +132,8 @@ export class AuthController {
         return res.status(401).json({ error: 'Credenciales inválidas' });
       }
 
-      // Generar token
-      const token = generateToken(user.id);
+      // Generar par de tokens (access corto + refresh largo)
+      const { token, refreshToken } = await this.issueTokenPair(user.id);
 
       logger.info(`Usuario autenticado: ${email}`);
 
@@ -132,6 +145,7 @@ export class AuthController {
           name: user.name,
         },
         token,
+        refreshToken,
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -144,12 +158,55 @@ export class AuthController {
     }
   }
 
+  async refresh(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { refreshToken } = RefreshTokenSchema.parse(req.body);
+
+      const tokenHash = hashRefreshToken(refreshToken);
+      const stored = await RefreshTokenModel.findValidByHash(tokenHash);
+
+      if (!stored) {
+        return res.status(401).json({ error: 'Refresh token inválido o expirado' });
+      }
+
+      // Rotación: se revoca el token usado y se emite un par nuevo
+      await RefreshTokenModel.revokeByHash(tokenHash);
+      const { token, refreshToken: newRefreshToken } = await this.issueTokenPair(stored.user_id);
+
+      res.json({ token, refreshToken: newRefreshToken });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          error: 'Validación fallida',
+          details: error.issues
+        });
+      }
+      next(error);
+    }
+  }
+
+  async logout(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { refreshToken } = RefreshTokenSchema.parse(req.body);
+      await RefreshTokenModel.revokeByHash(hashRefreshToken(refreshToken));
+      res.json({ message: 'Sesión cerrada exitosamente' });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          error: 'Validación fallida',
+          details: error.issues
+        });
+      }
+      next(error);
+    }
+  }
+
   async changePassword(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = (req as any).user?.id;
       const validatedData = ChangePasswordSchema.parse(req.body);
       const { currentPassword, newPassword } = validatedData;
-      
+
       const result = await pool.query(
         'SELECT password_hash FROM users WHERE id = $1',
         [userId]
@@ -172,6 +229,9 @@ export class AuthController {
         'UPDATE users SET password_hash = $1 WHERE id = $2',
         [newPasswordHash, userId]
       );
+
+      // Invalidar todas las sesiones existentes (refresh tokens) tras el cambio de contraseña
+      await RefreshTokenModel.revokeAllForUser(userId);
 
       logger.info(`Contraseña actualizada para usuario ID: ${userId}`);
 
@@ -434,14 +494,15 @@ export class AuthController {
         [user.id, 2000, 150, 200, 65]
       );
 
-      // Generar token JWT
-      const token = generateToken(user.id);
+      // Generar par de tokens
+      const { token, refreshToken } = await this.issueTokenPair(user.id);
 
       logger.info(`Email verificado para usuario: ${email}`);
 
       res.json({
         message: 'Email verificado exitosamente',
         token,
+        refreshToken,
         user: {
           id: user.id,
           email: user.email,

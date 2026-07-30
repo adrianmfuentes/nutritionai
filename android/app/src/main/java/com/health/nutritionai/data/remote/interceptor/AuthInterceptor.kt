@@ -5,8 +5,7 @@ import okhttp3.Interceptor
 import okhttp3.Response
 
 class AuthInterceptor(
-    private val tokenProvider: () -> String?,
-    private val onUnauthorized: (() -> Unit)? = null
+    private val tokenProvider: () -> String?
 ) : Interceptor {
 
     companion object {
@@ -20,7 +19,7 @@ class AuthInterceptor(
         val request = originalRequest.newBuilder()
 
         // Only add Authorization header if we have a token
-        // and the request is not to auth endpoints (login/register)
+        // and the request is not to auth endpoints (login/register/refresh)
         val isAuthEndpoint = originalRequest.url.encodedPath.contains("/auth/")
 
         if (token != null && !isAuthEndpoint) {
@@ -30,17 +29,8 @@ class AuthInterceptor(
             Log.d(TAG, "No token available for: ${originalRequest.url.encodedPath}")
         }
 
-        val response = chain.proceed(request.build())
-
-        // Handle 401 Unauthorized responses
-        if (response.code == 401) {
-            Log.w(TAG, "Received 401 Unauthorized for: ${originalRequest.url.encodedPath}")
-            // Only trigger unauthorized callback for non-auth endpoints
-            if (!isAuthEndpoint) {
-                onUnauthorized?.invoke()
-            }
-        }
-
-        return response
+        // 401s on non-auth endpoints are handled by TokenAuthenticator, which
+        // transparently refreshes and retries before a response ever reaches here.
+        return chain.proceed(request.build())
     }
 }

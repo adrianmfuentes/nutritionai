@@ -21,8 +21,41 @@ data class RegisterRequest(
 data class AuthResponseDto(
     @SerializedName("token")
     val token: String,
+    @SerializedName("refreshToken")
+    val refreshToken: String? = null,
     @SerializedName("user")
     val user: UserProfileDto?
+)
+
+data class RefreshTokenRequest(
+    @SerializedName("refreshToken")
+    val refreshToken: String
+)
+
+data class RefreshTokenResponseDto(
+    @SerializedName("token")
+    val token: String,
+    @SerializedName("refreshToken")
+    val refreshToken: String
+)
+
+data class RegisterDeviceRequest(
+    @SerializedName("fcmToken")
+    val fcmToken: String,
+    @SerializedName("platform")
+    val platform: String = "android"
+)
+
+data class UnregisterDeviceRequest(
+    @SerializedName("fcmToken")
+    val fcmToken: String
+)
+
+data class NotificationPreferencesRequest(
+    @SerializedName("weeklyDigestEnabled")
+    val weeklyDigestEnabled: Boolean? = null,
+    @SerializedName("pushRemindersEnabled")
+    val pushRemindersEnabled: Boolean? = null
 )
 
 data class UserProfileDto(

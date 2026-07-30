@@ -66,6 +66,9 @@ class DashboardViewModel(
                 is NetworkResult.Loading -> {
                     // Already handled
                 }
+                is NetworkResult.Queued -> {
+                    // Not applicable to nutrition summary fetches
+                }
             }
         }
     }

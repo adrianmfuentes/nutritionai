@@ -11,6 +11,17 @@ data class AnalyzeTextRequest(
     val timestamp: String?
 )
 
+data class BarcodeRequest(
+    @SerializedName("barcode")
+    val barcode: String,
+    @SerializedName("grams")
+    val grams: Double?,
+    @SerializedName("mealType")
+    val mealType: String?,
+    @SerializedName("timestamp")
+    val timestamp: String?
+)
+
 data class AnalyzeMealResponse(
     @SerializedName("mealId")
     val mealId: String,

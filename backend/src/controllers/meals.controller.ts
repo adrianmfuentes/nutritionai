@@ -20,6 +20,13 @@ const AnalyzeTextSchema = z.object({
   timestamp: z.string().optional(),
 });
 
+const AnalyzeBarcodeSchema = z.object({
+  barcode: z.string().min(4, 'Código de barras inválido'),
+  grams: z.number().positive().max(5000).optional(),
+  mealType: z.enum(['breakfast', 'lunch', 'dinner', 'snack']).optional(),
+  timestamp: z.string().optional(),
+});
+
 const FoodSchema = z.object({
   id: z.string().optional(),
   name: z.string(),
@@ -758,15 +765,188 @@ export class MealsController {
         await client.query('ROLLBACK').catch(() => undefined);
       }
       logger.error('Error analizando descripción de texto:', error);
-      
+
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ 
-          error: 'Validación fallida', 
+        return res.status(400).json({
+          error: 'Validación fallida',
           code: 'VALIDATION_FAILED',
-          details: error.issues 
+          details: error.issues
         });
       }
-      
+
+      next(error);
+    } finally {
+      client.release();
+    }
+  }
+
+  private async fetchOpenFoodFactsProduct(barcode: string): Promise<{
+    name: string;
+    servingGrams: number;
+    per100g: { calories: number; protein: number; carbs: number; fat: number; fiber: number };
+  } | null> {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    try {
+      const response = await fetch(
+        `https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(barcode)}.json?fields=product_name,brands,serving_size,serving_quantity,nutriments`,
+        { signal: controller.signal, headers: { 'User-Agent': 'NutritionAI/1.0 (contact: support@nutritionapp.com)' } }
+      );
+      if (!response.ok) return null;
+      const data: any = await response.json();
+      if (data.status !== 1 || !data.product) return null;
+
+      const product = data.product;
+      const nutriments = product.nutriments || {};
+      const name: string = product.product_name || product.brands || 'Producto escaneado';
+
+      let servingGrams = Number(product.serving_quantity) || 0;
+      if (!servingGrams && typeof product.serving_size === 'string') {
+        const match = product.serving_size.match(/([\d.,]+)\s*g/i);
+        if (match) servingGrams = parseFloat(match[1].replace(',', '.'));
+      }
+      if (!servingGrams || servingGrams <= 0) servingGrams = 100;
+
+      const per100g = {
+        calories: Number(nutriments['energy-kcal_100g'] ?? nutriments['energy-kcal'] ?? 0),
+        protein: Number(nutriments['proteins_100g'] ?? 0),
+        carbs: Number(nutriments['carbohydrates_100g'] ?? 0),
+        fat: Number(nutriments['fat_100g'] ?? 0),
+        fiber: Number(nutriments['fiber_100g'] ?? 0),
+      };
+
+      return { name, servingGrams, per100g };
+    } catch (error) {
+      logger.warn('Error consultando OpenFoodFacts:', error);
+      return null;
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+
+  async analyzeBarcode(req: Request, res: Response, next: NextFunction) {
+    const client = await pool.connect();
+    let transactionStarted = false;
+
+    try {
+      const userId = (req as any).user?.id;
+      const validatedData = AnalyzeBarcodeSchema.parse(req.body);
+      const { barcode, mealType, timestamp } = validatedData;
+
+      logger.info(`Buscando código de barras para usuario ${userId}: ${barcode}`);
+
+      const product = await this.fetchOpenFoodFactsProduct(barcode);
+      if (!product) {
+        throw new HttpError(
+          404,
+          'No se encontró información nutricional para este código de barras.',
+          'BARCODE_NOT_FOUND',
+          { barcode }
+        );
+      }
+
+      const grams = validatedData.grams ?? product.servingGrams;
+      const scale = grams / 100;
+
+      const totalNutrition = {
+        calories: Math.round(product.per100g.calories * scale),
+        protein: Math.round(product.per100g.protein * scale * 10) / 10,
+        carbs: Math.round(product.per100g.carbs * scale * 10) / 10,
+        fat: Math.round(product.per100g.fat * scale * 10) / 10,
+        fiber: Math.round(product.per100g.fiber * scale * 10) / 10,
+      };
+
+      await client.query('BEGIN');
+      transactionStarted = true;
+
+      let consumedAt = new Date();
+      if (timestamp) {
+        consumedAt = /^\d+$/.test(timestamp) ? new Date(parseInt(timestamp)) : new Date(timestamp);
+      }
+      if (isNaN(consumedAt.getTime())) consumedAt = new Date();
+
+      const mealDate = consumedAt.toISOString().split('T')[0];
+      const healthScore = this.computeHealthScoreFromTotals(totalNutrition);
+      const sanitizedMealType = this.normalizeMealType(mealType || 'snack');
+
+      const mealResult = await client.query(
+        `INSERT INTO meals (
+          user_id, meal_type, image_url, total_calories, total_protein,
+          total_carbs, total_fat, total_fiber, health_score, meal_date, consumed_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        RETURNING *`,
+        [
+          userId,
+          sanitizedMealType,
+          null,
+          totalNutrition.calories,
+          totalNutrition.protein,
+          totalNutrition.carbs,
+          totalNutrition.fat,
+          totalNutrition.fiber,
+          healthScore,
+          mealDate,
+          consumedAt,
+        ]
+      );
+      const meal = mealResult.rows[0];
+
+      const foodResult = await client.query(
+        `INSERT INTO detected_foods (
+          meal_id, name, confidence, portion_amount, portion_unit,
+          calories, protein, carbs, fat, fiber, category
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        RETURNING *`,
+        [
+          meal.id,
+          product.name,
+          1.0,
+          grams,
+          'g',
+          totalNutrition.calories,
+          totalNutrition.protein,
+          totalNutrition.carbs,
+          totalNutrition.fat,
+          totalNutrition.fiber,
+          'mixed',
+        ]
+      );
+      const detectedFood = foodResult.rows[0];
+
+      await client.query('COMMIT');
+      logger.info(`Comida registrada desde código de barras: ${meal.id}`);
+
+      res.status(201).json({
+        mealId: meal.id,
+        detectedFoods: [
+          {
+            name: detectedFood.name,
+            confidence: 1.0,
+            portion: { amount: grams, unit: 'g' },
+            nutrition: totalNutrition,
+            category: detectedFood.category,
+          },
+        ],
+        totalNutrition,
+        imageUrl: null,
+        timestamp: meal.consumed_at,
+        mealContext: { estimatedMealType: sanitizedMealType, portionSize: 'medium', healthScore },
+        notes: null,
+      });
+    } catch (error) {
+      if (transactionStarted) {
+        await client.query('ROLLBACK').catch(() => undefined);
+      }
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          error: 'Validación fallida',
+          code: 'VALIDATION_FAILED',
+          details: error.issues,
+        });
+      }
+      if (!(error instanceof HttpError)) {
+        logger.error('Error registrando comida por código de barras:', error);
+      }
       next(error);
     } finally {
       client.release();

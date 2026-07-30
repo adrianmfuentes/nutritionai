@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import com.health.nutritionai.ui.auth.EmailVerificationScreen
 import com.health.nutritionai.ui.auth.LoginScreen
 import com.health.nutritionai.ui.auth.RegisterScreen
+import com.health.nutritionai.ui.barcode.BarcodeScanScreen
 import com.health.nutritionai.ui.camera.CameraScreen
 import com.health.nutritionai.ui.chat.ChatScreen
 import com.health.nutritionai.ui.dashboard.DashboardScreen
@@ -84,6 +85,9 @@ fun NavGraph(
                 },
                 onNavigateToChat = {
                     navController.navigate(Screen.Chat.route)
+                },
+                onNavigateToBarcode = {
+                    navController.navigate(Screen.Barcode.route)
                 }
             )
         }
@@ -92,6 +96,20 @@ fun NavGraph(
             CameraScreen(
                 onMealAnalyzed = {
                     // Set refresh key before navigating back
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("refresh_key", System.currentTimeMillis())
+                    navController.popBackStack()
+                },
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(Screen.Barcode.route) {
+            BarcodeScanScreen(
+                onMealAnalyzed = {
                     navController.previousBackStackEntry
                         ?.savedStateHandle
                         ?.set("refresh_key", System.currentTimeMillis())

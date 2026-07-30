@@ -1,17 +1,27 @@
 name: Deploy Backend (Oracle Ampere A1)
 
 # Builds the backend as a multi-arch container image (amd64 for local/dev use,
-# arm64 for the Oracle Ampere A1 host), pushes it to GHCR, then pings a
-# Portainer webhook so the stack running under Nginx Proxy Manager pulls the
-# new image and recreates the container. No SSH keys required.
+# arm64 for the Oracle Ampere A1 host), pushes it to GHCR, then SSHes into the
+# host and redeploys the "nutritionai" docker-compose stack from
+# the repo checkout at secrets.ORACLE_PATH.
 #
 # One-time setup on the Oracle A1 box:
-#   1. Portainer stack "nutrition-api" using backend/docker-compose.yml,
-#      attached to the nginx-proxy-manager_default network.
-#   2. In that stack's settings, create a Webhook and save its URL as the
-#      repo secret PORTAINER_WEBHOOK_URL (Settings > Secrets and variables > Actions).
+#   1. Repo cloned at the path in ORACLE_PATH, checked out on the branch this
+#      workflow deploys from (main), with a clean working tree so `git pull
+#      --ff-only` always succeeds.
+#   2. Stack already brought up once via `docker compose up -d` in
+#      <ORACLE_PATH>/backend (backend/docker-compose.yml), with a .env file
+#      there providing DB_*, JWT_SECRET, etc.
 #   3. Make the ghcr.io/<owner>/nutritionai-api package public, OR run
 #      `docker login ghcr.io` once on the host with a PAT that has read:packages.
+#
+# Repo secrets required (Settings > Secrets and variables > Actions):
+#   ORACLE_IP      - hostname or IP of the Oracle A1 box
+#   ORACLE_USER    - SSH user (e.g. ubuntu)
+#   ORACLE_SSH_KEY - private key with access to that user (no passphrase)
+#   ORACLE_PORT    - SSH port
+#   ORACLE_PATH    - absolute path of the repo checkout on the box
+#                    (e.g. /home/ubuntu/nutritionai)
 
 on:
   push:
@@ -60,13 +70,22 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Trigger Portainer redeploy
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1
         env:
-          WEBHOOK_URL: ${{ secrets.PORTAINER_WEBHOOK_URL }}
-        run: |
-          if [ -z "$WEBHOOK_URL" ]; then
-            echo "::warning::PORTAINER_WEBHOOK_URL secret not set — image was pushed but the stack was not redeployed. Add the secret to enable auto-deploy."
-            exit 0
-          fi
-          curl -fsS -X POST "$WEBHOOK_URL"
-          echo "Portainer redeploy triggered."
+          DEPLOY_PATH: ${{ secrets.ORACLE_PATH }}
+        with:
+          host: ${{ secrets.ORACLE_IP }}
+          username: ${{ secrets.ORACLE_USER }}
+          key: ${{ secrets.ORACLE_SSH_KEY }}
+          port: ${{ secrets.ORACLE_PORT }}
+          envs: DEPLOY_PATH
+          script_stop: true
+          script: |
+            set -euo pipefail
+            cd "$DEPLOY_PATH"
+            git pull --ff-only
+            cd backend
+            docker compose pull
+            docker compose up -d --remove-orphans
+            docker image prune -f

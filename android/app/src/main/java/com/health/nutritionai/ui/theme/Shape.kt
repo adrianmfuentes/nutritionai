@@ -10,17 +10,17 @@ import androidx.compose.ui.unit.dp
  */
 val Shapes = Shapes(
     // Extra small - Chips, small buttons
-    extraSmall = RoundedCornerShape(8.dp),
+    extraSmall = RoundedCornerShape(10.dp),
 
     // Small - Buttons, text fields
-    small = RoundedCornerShape(12.dp),
+    small = RoundedCornerShape(14.dp),
 
     // Medium - Cards, dialogs
-    medium = RoundedCornerShape(16.dp),
+    medium = RoundedCornerShape(20.dp),
 
     // Large - Bottom sheets, large cards
-    large = RoundedCornerShape(24.dp),
+    large = RoundedCornerShape(28.dp),
 
     // Extra large - Modal sheets
-    extraLarge = RoundedCornerShape(32.dp)
+    extraLarge = RoundedCornerShape(36.dp)
 )

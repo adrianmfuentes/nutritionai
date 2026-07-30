@@ -3,13 +3,17 @@ package com.health.nutritionai.data.repository
 import android.content.Context
 import com.health.nutritionai.data.local.dao.FoodDao
 import com.health.nutritionai.data.local.dao.MealDao
+import com.health.nutritionai.data.local.dao.PendingMealDao
 import com.health.nutritionai.data.local.entity.FoodEntity
 import com.health.nutritionai.data.local.entity.MealEntity
+import com.health.nutritionai.data.local.entity.PendingMealEntity
 import com.health.nutritionai.data.model.*
+import com.health.nutritionai.data.work.MealUploadWorker
 import com.health.nutritionai.util.NetworkResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.io.File
+import java.io.IOException
 
 import com.health.nutritionai.data.remote.api.NutritionApiService
 import com.health.nutritionai.data.remote.dto.UpdateMealRequest
@@ -22,6 +26,7 @@ class MealRepository(
     private val context: Context,
     private val mealDao: MealDao,
     private val foodDao: FoodDao,
+    private val pendingMealDao: PendingMealDao,
     private val apiService: NutritionApiService,
     private val userRepository: UserRepository
 ) {
@@ -36,50 +41,15 @@ class MealRepository(
 
     suspend fun analyzeMeal(imageFile: File, mealType: String? = null): NetworkResult<Meal> {
         return try {
-            val requestFile = imageFile.asRequestBody("image/*".toMediaTypeOrNull())
-            val imagePart = MultipartBody.Part.createFormData("image", imageFile.name, requestFile)
-            val mealTypePart = mealType?.toRequestBody("text/plain".toMediaTypeOrNull())
-            val timestampPart = System.currentTimeMillis().toString().toRequestBody("text/plain".toMediaTypeOrNull())
-
-            val response = apiService.analyzeMeal(imagePart, mealTypePart, timestampPart)
-
-            val meal = Meal(
-                mealId = response.mealId,
-                detectedFoods = response.detectedFoods.map { food ->
-                    Food(
-                        name = food.name,
-                        confidence = food.confidence,
-                        portion = Portion(food.portion.amount, food.portion.unit),
-                        nutrition = Nutrition(
-                            calories = food.nutrition.calories,
-                            protein = food.nutrition.protein,
-                            carbs = food.nutrition.carbs,
-                            fat = food.nutrition.fat,
-                            fiber = food.nutrition.fiber ?: 0.0
-                        ),
-                        category = food.category,
-                        imageUrl = food.imageUrl
-                    )
-                },
-                totalNutrition = Nutrition(
-                    calories = response.totalNutrition.calories,
-                    protein = response.totalNutrition.protein,
-                    carbs = response.totalNutrition.carbs,
-                    fat = response.totalNutrition.fat,
-                    fiber = response.totalNutrition.fiber ?: 0.0
-                ),
-                imageUrl = response.imageUrl,
-                timestamp = response.timestamp,
-                mealType = response.mealContext?.estimatedMealType ?: mealType ?: "unknown", // Prioritize detected, then requested, then default
-                healthScore = response.mealContext?.healthScore ?: 0.0,
-                notes = null // Inicialmente sin notas
-            )
-
-            // Save locally with actual user ID
-            val userId = userRepository.getUserId()
-            saveMealLocally(meal, userId)
-
+            val meal = uploadMealImage(imageFile, mealType)
             NetworkResult.Success(meal)
+        } catch (e: IOException) {
+            // No connectivity (as opposed to a server-side error): queue the photo
+            // locally and retry automatically once the network is back.
+            queueForLaterUpload(imageFile, mealType)
+            NetworkResult.Queued(
+                "Sin conexión: la comida se guardó y se subirá automáticamente cuando vuelvas a tener internet."
+            )
         } catch (e: Exception) {
             val userFriendlyMessage = com.health.nutritionai.util.ErrorMapper.mapErrorToMessage(
                 context,
@@ -88,6 +58,79 @@ class MealRepository(
             )
             NetworkResult.Error(userFriendlyMessage)
         }
+    }
+
+    /** Retried by [MealUploadWorker]; returns whether the upload finally succeeded. */
+    suspend fun retryPendingUpload(imageFile: File, mealType: String?): Boolean {
+        return try {
+            uploadMealImage(imageFile, mealType)
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    private suspend fun uploadMealImage(imageFile: File, mealType: String?): Meal {
+        val requestFile = imageFile.asRequestBody("image/*".toMediaTypeOrNull())
+        val imagePart = MultipartBody.Part.createFormData("image", imageFile.name, requestFile)
+        val mealTypePart = mealType?.toRequestBody("text/plain".toMediaTypeOrNull())
+        val timestampPart = System.currentTimeMillis().toString().toRequestBody("text/plain".toMediaTypeOrNull())
+
+        val response = apiService.analyzeMeal(imagePart, mealTypePart, timestampPart)
+
+        val meal = Meal(
+            mealId = response.mealId,
+            detectedFoods = response.detectedFoods.map { food ->
+                Food(
+                    name = food.name,
+                    confidence = food.confidence,
+                    portion = Portion(food.portion.amount, food.portion.unit),
+                    nutrition = Nutrition(
+                        calories = food.nutrition.calories,
+                        protein = food.nutrition.protein,
+                        carbs = food.nutrition.carbs,
+                        fat = food.nutrition.fat,
+                        fiber = food.nutrition.fiber ?: 0.0
+                    ),
+                    category = food.category,
+                    imageUrl = food.imageUrl
+                )
+            },
+            totalNutrition = Nutrition(
+                calories = response.totalNutrition.calories,
+                protein = response.totalNutrition.protein,
+                carbs = response.totalNutrition.carbs,
+                fat = response.totalNutrition.fat,
+                fiber = response.totalNutrition.fiber ?: 0.0
+            ),
+            imageUrl = response.imageUrl,
+            timestamp = response.timestamp,
+            mealType = response.mealContext?.estimatedMealType ?: mealType ?: "unknown", // Prioritize detected, then requested, then default
+            healthScore = response.mealContext?.healthScore ?: 0.0,
+            notes = null // Inicialmente sin notas
+        )
+
+        // Save locally with actual user ID
+        val userId = userRepository.getUserId()
+        saveMealLocally(meal, userId)
+
+        return meal
+    }
+
+    private suspend fun queueForLaterUpload(imageFile: File, mealType: String?) {
+        val pendingDir = File(context.filesDir, "pending_uploads").apply { mkdirs() }
+        val queuedFile = File(pendingDir, "${System.currentTimeMillis()}_${imageFile.name}")
+        imageFile.copyTo(queuedFile, overwrite = true)
+
+        pendingMealDao.insert(
+            PendingMealEntity(
+                userId = userRepository.getUserId(),
+                imagePath = queuedFile.absolutePath,
+                mealType = mealType
+            )
+        )
+
+        MealUploadWorker.enqueue(context)
     }
 
     suspend fun analyzeTextDescription(description: String, mealType: String? = null): NetworkResult<Meal> {
@@ -147,6 +190,63 @@ class MealRepository(
         }
     }
 
+
+    suspend fun analyzeBarcode(barcode: String, grams: Double, mealType: String? = null): NetworkResult<Meal> {
+        return try {
+            val response = apiService.scanBarcode(
+                com.health.nutritionai.data.remote.dto.BarcodeRequest(
+                    barcode = barcode,
+                    grams = grams,
+                    mealType = mealType,
+                    timestamp = System.currentTimeMillis().toString()
+                )
+            )
+
+            val meal = Meal(
+                mealId = response.mealId,
+                detectedFoods = response.detectedFoods.map { food ->
+                    Food(
+                        name = food.name,
+                        confidence = food.confidence,
+                        portion = Portion(food.portion.amount, food.portion.unit),
+                        nutrition = Nutrition(
+                            calories = food.nutrition.calories,
+                            protein = food.nutrition.protein,
+                            carbs = food.nutrition.carbs,
+                            fat = food.nutrition.fat,
+                            fiber = food.nutrition.fiber ?: 0.0
+                        ),
+                        category = food.category,
+                        imageUrl = food.imageUrl
+                    )
+                },
+                totalNutrition = Nutrition(
+                    calories = response.totalNutrition.calories,
+                    protein = response.totalNutrition.protein,
+                    carbs = response.totalNutrition.carbs,
+                    fat = response.totalNutrition.fat,
+                    fiber = response.totalNutrition.fiber ?: 0.0
+                ),
+                imageUrl = response.imageUrl,
+                timestamp = response.timestamp,
+                mealType = response.mealContext?.estimatedMealType ?: mealType ?: "unknown",
+                healthScore = response.mealContext?.healthScore ?: 0.0,
+                notes = null
+            )
+
+            val userId = userRepository.getUserId()
+            saveMealLocally(meal, userId)
+
+            NetworkResult.Success(meal)
+        } catch (e: Exception) {
+            val userFriendlyMessage = com.health.nutritionai.util.ErrorMapper.mapErrorToMessage(
+                context,
+                e,
+                com.health.nutritionai.util.ErrorContext.MEAL_ANALYSIS
+            )
+            NetworkResult.Error(userFriendlyMessage)
+        }
+    }
 
     suspend fun deleteMeal(mealId: String): NetworkResult<Boolean> {
         return try {

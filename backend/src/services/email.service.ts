@@ -59,4 +59,47 @@ export class EmailService {
       throw error;
     }
   }
+
+  async sendWeeklyDigest(
+    email: string,
+    name: string,
+    stats: {
+      avgCalories: number;
+      avgProtein: number;
+      goalCalories: number;
+      daysLogged: number;
+      bestHealthScore: number;
+    }
+  ): Promise<void> {
+    const goalPercent = stats.goalCalories > 0
+      ? Math.round((stats.avgCalories / stats.goalCalories) * 100)
+      : 0;
+
+    const mailOptions = {
+      from: process.env.SMTP_FROM || '"Nutrition App" <noreply@nutritionapp.com>',
+      to: email,
+      subject: 'Tu resumen semanal - Nutrition App',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h1 style="color: #4A90E2;">Hola ${name} 👋</h1>
+          <p>Así te fue esta semana con tu seguimiento nutricional:</p>
+          <div style="background-color: #f4f4f4; padding: 20px; border-radius: 8px; margin: 16px 0;">
+            <p style="margin: 6px 0;"><strong>Días registrados:</strong> ${stats.daysLogged} / 7</p>
+            <p style="margin: 6px 0;"><strong>Calorías promedio:</strong> ${stats.avgCalories} kcal (${goalPercent}% de tu objetivo)</p>
+            <p style="margin: 6px 0;"><strong>Proteína promedio:</strong> ${stats.avgProtein} g/día</p>
+            <p style="margin: 6px 0;"><strong>Mejor puntuación de salud:</strong> ${stats.bestHealthScore}/10</p>
+          </div>
+          <p style="color: #666;">Seguí registrando tus comidas para mantener el ritmo. ¡Vamos por otra semana!</p>
+        </div>
+      `,
+    };
+
+    try {
+      const info = await this.transporter.sendMail(mailOptions);
+      logger.info(`Resumen semanal enviado a ${email}. ID: ${info.messageId}`);
+    } catch (error) {
+      logger.error(`Error enviando resumen semanal a ${email}:`, error);
+      throw error;
+    }
+  }
 }

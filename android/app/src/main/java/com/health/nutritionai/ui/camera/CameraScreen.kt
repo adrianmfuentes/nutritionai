@@ -149,6 +149,16 @@ fun CameraScreen(
                                 onMealAnalyzed()
                             }
                         }
+                        is CameraUiState.Queued -> {
+                            LaunchedEffect(Unit) {
+                                val queuedState = uiState as CameraUiState.Queued
+                                snackbarHostState.showSnackbar(
+                                    message = queuedState.message,
+                                    duration = SnackbarDuration.Long
+                                )
+                                onMealAnalyzed()
+                            }
+                        }
                         is CameraUiState.Error -> {
                             Card(
                                 modifier = Modifier.padding(bottom = 16.dp),

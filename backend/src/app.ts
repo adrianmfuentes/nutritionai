@@ -10,6 +10,7 @@ import mealsRoutes from './routes/meals.routes';
 import nutritionRoutes from './routes/nutrition.routes';
 import profileRoutes from './routes/profile.routes';
 import chatRoutes from './routes/chat.routes';
+import notificationsRoutes from './routes/notifications.routes';
 
 export function createApp(): Application {
   const app = express();
@@ -68,6 +69,7 @@ export function createApp(): Application {
   app.use('/v1/nutrition', nutritionRoutes);
   app.use('/v1/profile', profileRoutes);
   app.use('/v1/chat', chatRoutes);
+  app.use('/v1/notifications', notificationsRoutes);
 
   // 404 handler
   app.use((req, res) => {

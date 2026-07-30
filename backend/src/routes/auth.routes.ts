@@ -11,8 +11,16 @@ router.post('/register', authLimiter, (req, res, next) =>
   authController.register(req, res, next)
 );
 
-router.post('/login', authLimiter, (req, res, next) => 
+router.post('/login', authLimiter, (req, res, next) =>
   authController.login(req, res, next)
+);
+
+router.post('/refresh', authLimiter, (req, res, next) =>
+  authController.refresh(req, res, next)
+);
+
+router.post('/logout', (req, res, next) =>
+  authController.logout(req, res, next)
 );
 
 router.post('/send-verification', (req, res, next) =>

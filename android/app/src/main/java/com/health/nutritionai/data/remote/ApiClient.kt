@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder
 import com.health.nutritionai.BuildConfig
 import com.health.nutritionai.data.remote.api.NutritionApiService
 import com.health.nutritionai.data.remote.interceptor.AuthInterceptor
+import com.health.nutritionai.data.remote.interceptor.TokenAuthenticator
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -15,7 +16,7 @@ object ApiClient {
     private val ROOT_URL = BuildConfig.API_BASE_URL.replace("/v1", "")
     private const val BASE_URL = BuildConfig.API_BASE_URL + "/"
 
-    fun create(authInterceptor: AuthInterceptor): NutritionApiService {
+    fun create(authInterceptor: AuthInterceptor, tokenAuthenticator: TokenAuthenticator): NutritionApiService {
         val loggingInterceptor = HttpLoggingInterceptor().apply {
             level = if (BuildConfig.DEBUG) {
                 HttpLoggingInterceptor.Level.BODY
@@ -27,6 +28,7 @@ object ApiClient {
         val okHttpClient = OkHttpClient.Builder()
             .addInterceptor(authInterceptor)
             .addInterceptor(loggingInterceptor)
+            .authenticator(tokenAuthenticator)
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)

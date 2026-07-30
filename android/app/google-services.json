@@ -1,0 +1,30 @@
+{
+  "_comment": "PLACEHOLDER FILE - push notifications will not actually work until this is replaced. Download your real google-services.json from the Firebase console (Project settings > Your apps > Android app with package com.health.nutritionai) and overwrite this file. Keeping a valid-shaped placeholder here just lets the app build without a real Firebase project.",
+  "project_info": {
+    "project_number": "000000000000",
+    "project_id": "nutritionai-placeholder",
+    "storage_bucket": "nutritionai-placeholder.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:000000000000:android:0000000000000000000000",
+        "android_client_info": {
+          "package_name": "com.health.nutritionai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "PLACEHOLDER_REPLACE_WITH_REAL_FIREBASE_CONFIG"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

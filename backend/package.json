@@ -27,9 +27,11 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "express-rate-limit": "^8.6.1",
+    "firebase-admin": "^13.0.2",
     "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.2.0",
+    "node-cron": "^3.0.3",
     "nodemailer": "^9.0.3",
     "pg": "^8.22.0",
     "sharp": "^0.35.3",
@@ -43,6 +45,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.2.0",
     "@types/node": "^25.9.5",
+    "@types/node-cron": "^3.0.11",
     "@types/nodemailer": "^8.0.1",
     "@types/pg": "^8.20.0",
     "@typescript-eslint/eslint-plugin": "^8.65.0",
@@ -58,7 +61,8 @@
   },
   "pnpm": {
     "overrides": {
-      "brace-expansion": "^5.0.9"
+      "brace-expansion": "^5.0.9",
+      "uuid@<11.1.1": "^11.1.1"
     }
   }
 }

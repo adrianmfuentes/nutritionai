@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -22,7 +23,7 @@ android {
     }
 
     val releaseKeystorePath = System.getenv("KEYSTORE_PATH")
-    val hasReleaseSigning = releaseKeystorePath != null && file(releaseKeystorePath).exists()
+    val hasReleaseSigning = !releaseKeystorePath.isNullOrBlank() && file(releaseKeystorePath).exists()
 
     if (hasReleaseSigning) {
         signingConfigs {
@@ -113,6 +114,16 @@ dependencies {
     implementation(libs.camera.camera2)
     implementation(libs.camera.lifecycle)
     implementation(libs.camera.view)
+
+    // ML Kit (barcode scanning)
+    implementation(libs.mlkit.barcode.scanning)
+
+    // WorkManager (offline upload queue)
+    implementation(libs.androidx.work.runtime.ktx)
+
+    // Firebase (push notifications)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging.ktx)
 
     // Coil for image loading
     implementation(libs.coil.compose)

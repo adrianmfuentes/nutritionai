@@ -11,6 +11,7 @@ object Constants {
 
     // Preferences Keys
     const val KEY_AUTH_TOKEN = "auth_token"
+    const val KEY_REFRESH_TOKEN = "refresh_token"
     const val KEY_USER_ID = "user_id"
     const val KEY_USER_EMAIL = "user_email"
     const val KEY_NOTIFICATIONS_ENABLED = "notifications_enabled"

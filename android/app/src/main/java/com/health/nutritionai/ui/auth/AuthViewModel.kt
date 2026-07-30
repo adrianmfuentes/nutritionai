@@ -3,6 +3,7 @@ package com.health.nutritionai.ui.auth
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.messaging.FirebaseMessaging
 import com.health.nutritionai.R
 import com.health.nutritionai.data.repository.UserRepository
 import com.health.nutritionai.util.ErrorMapper
@@ -28,6 +29,17 @@ class AuthViewModel(
     private val _uiState = MutableStateFlow<AuthUiState>(AuthUiState.Idle)
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
 
+    /** Best-effort: register whatever FCM token already exists on this device against the new session. */
+    private fun registerPushToken() {
+        try {
+            FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
+                userRepository.registerDeviceTokenAsync(token)
+            }
+        } catch (e: Exception) {
+            // Push notifications are optional; ignore if Firebase isn't configured
+        }
+    }
+
     fun login(email: String, password: String) {
         viewModelScope.launch {
             _uiState.value = AuthUiState.Loading
@@ -52,12 +64,16 @@ class AuthViewModel(
                     val userId = result.data?.userId ?: result.data?.user?.userId ?: "unknown"
                     val successMessage = ErrorMapper.getSuccessMessage(application, SuccessAction.LOGIN)
                     _uiState.value = AuthUiState.Success(userId, successMessage)
+                    registerPushToken()
                 }
                 is com.health.nutritionai.util.NetworkResult.Error -> {
                     _uiState.value = AuthUiState.Error(result.message ?: application.getString(R.string.error_login_generic))
                 }
                 is com.health.nutritionai.util.NetworkResult.Loading -> {
                     // Already in loading state
+                }
+                is com.health.nutritionai.util.NetworkResult.Queued -> {
+                    // Not applicable to auth flows
                 }
             }
         }
@@ -116,6 +132,9 @@ class AuthViewModel(
                 is com.health.nutritionai.util.NetworkResult.Loading -> {
                     // Already in loading state
                 }
+                is com.health.nutritionai.util.NetworkResult.Queued -> {
+                    // Not applicable to auth flows
+                }
             }
         }
     }
@@ -130,12 +149,16 @@ class AuthViewModel(
                     val userId = result.data?.userId ?: result.data?.user?.userId ?: "unknown"
                     val successMessage = ErrorMapper.getSuccessMessage(application, SuccessAction.REGISTER)
                     _uiState.value = AuthUiState.Success(userId, successMessage)
+                    registerPushToken()
                 }
                 is com.health.nutritionai.util.NetworkResult.Error -> {
                     _uiState.value = AuthUiState.Error(result.message ?: "Error al verificar el correo electrónico")
                 }
                 is com.health.nutritionai.util.NetworkResult.Loading -> {
                     // Already in loading state
+                }
+                is com.health.nutritionai.util.NetworkResult.Queued -> {
+                    // Not applicable to auth flows
                 }
             }
         }

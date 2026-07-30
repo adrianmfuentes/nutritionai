@@ -13,6 +13,9 @@ import com.health.nutritionai.util.NetworkResult
 import androidx.core.content.edit
 import com.health.nutritionai.util.ErrorContext
 import com.health.nutritionai.util.ErrorMapper
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -81,6 +84,7 @@ class UserRepository(
             )
 
             saveAuthToken(authResponse.token)
+            responseDto.refreshToken?.let { saveRefreshToken(it) }
             authResponse.userId?.let { saveUserId(it) }
 
             NetworkResult.Success(authResponse)
@@ -194,12 +198,24 @@ class UserRepository(
         }
     }
 
-    fun logout() {
+    suspend fun logout() {
+        val refreshToken = getRefreshToken()
+        if (refreshToken != null) {
+            try {
+                apiService.logout(com.health.nutritionai.data.remote.dto.RefreshTokenRequest(refreshToken))
+            } catch (e: Exception) {
+                // Best-effort: aunque falle la revocación en el servidor, se limpia la sesión local
+            }
+        }
         prefs.edit { clear() }
     }
 
     fun saveAuthToken(token: String) {
         prefs.edit { putString(Constants.KEY_AUTH_TOKEN, token) }
+    }
+
+    fun saveRefreshToken(refreshToken: String) {
+        prefs.edit { putString(Constants.KEY_REFRESH_TOKEN, refreshToken) }
     }
 
     fun saveUserId(userId: String) {
@@ -214,8 +230,37 @@ class UserRepository(
         return prefs.getString(Constants.KEY_AUTH_TOKEN, null)
     }
 
+    fun getRefreshToken(): String? {
+        return prefs.getString(Constants.KEY_REFRESH_TOKEN, null)
+    }
+
     fun isLoggedIn(): Boolean {
         return getAuthToken() != null
+    }
+
+    /** Fire-and-forget: called from FCM's onNewToken and after login, both non-suspend contexts. */
+    fun registerDeviceTokenAsync(fcmToken: String) {
+        if (!isLoggedIn()) return
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                apiService.registerDevice(com.health.nutritionai.data.remote.dto.RegisterDeviceRequest(fcmToken))
+            } catch (e: Exception) {
+                // Best-effort: push registration failing shouldn't affect the rest of the app
+            }
+        }
+    }
+
+    suspend fun updateNotificationPreferences(pushRemindersEnabled: Boolean): NetworkResult<Unit> {
+        return try {
+            apiService.updateNotificationPreferences(
+                com.health.nutritionai.data.remote.dto.NotificationPreferencesRequest(
+                    pushRemindersEnabled = pushRemindersEnabled
+                )
+            )
+            NetworkResult.Success(Unit)
+        } catch (e: Exception) {
+            NetworkResult.Error(e.message ?: "Error al actualizar preferencias de notificaciones")
+        }
     }
 
     // Preferences management
@@ -294,6 +339,7 @@ class UserRepository(
             )
 
             saveAuthToken(authResponse.token)
+            responseDto.refreshToken?.let { saveRefreshToken(it) }
             authResponse.userId?.let { saveUserId(it) }
 
             NetworkResult.Success(authResponse)

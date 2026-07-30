@@ -21,6 +21,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -79,7 +80,8 @@ fun DashboardScreen(
     viewModel: DashboardViewModel = koinViewModel(),
     onNavigateToCamera: () -> Unit,
     onNavigateToTextInput: () -> Unit,
-    onNavigateToChat: () -> Unit
+    onNavigateToChat: () -> Unit,
+    onNavigateToBarcode: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val selectedDate by viewModel.selectedDate.collectAsState()
@@ -120,6 +122,11 @@ fun DashboardScreen(
     fun dismissAndNavigateToChat() {
         showAddMealDialog = false
         onNavigateToChat()
+    }
+
+    fun dismissAndNavigateToBarcode() {
+        showAddMealDialog = false
+        onNavigateToBarcode()
     }
 
     fun dismissDialog() {
@@ -480,6 +487,55 @@ fun DashboardScreen(
                                     stringResource(R.string.write_or_record_description),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = OnSecondaryContainer.copy(alpha = 0.7f)
+                                )
+                            }
+                        }
+                    }
+
+                    // Barcode Option
+                    Card(
+                        onClick = ::dismissAndNavigateToBarcode,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = PrimaryContainer
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Surface(
+                                modifier = Modifier.size(48.dp),
+                                shape = CircleShape,
+                                color = Primary
+                            ) {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        Icons.Default.QrCodeScanner,
+                                        contentDescription = null,
+                                        tint = OnPrimary,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
+                            }
+                            Column {
+                                Text(
+                                    "Escanear código de barras",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = OnPrimaryContainer
+                                )
+                                Text(
+                                    "Ideal para productos envasados",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = OnPrimaryContainer.copy(alpha = 0.7f)
                                 )
                             }
                         }

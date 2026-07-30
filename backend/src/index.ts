@@ -10,6 +10,7 @@ import { validateConfig } from './config/env';
 import { createApp } from './app';
 import { pool } from './config/database';
 import { logger } from './utils/logger';
+import { startScheduledJobs } from './jobs/scheduler';
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
 
@@ -32,6 +33,8 @@ async function startServer() {
       logger.info(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
       logger.info(`🔗 Health check: http://localhost:${PORT}/health`);
     });
+
+    startScheduledJobs();
   } catch (error) {
     logger.error('❌ Error al iniciar servidor:', error);
     process.exit(1);

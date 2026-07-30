@@ -35,9 +35,10 @@ services:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
+      JWT_ACCESS_EXPIRES_IN: ${JWT_ACCESS_EXPIRES_IN:-15m}
+      JWT_REFRESH_EXPIRES_DAYS: ${JWT_REFRESH_EXPIRES_DAYS:-30}
       GEMINI_API_KEY: ${GEMINI_API_KEY}
       CORS_ORIGIN: ${CORS_ORIGIN}
-      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
       SMTP_HOST: ${SMTP_HOST}
       SMTP_PORT: ${SMTP_PORT}
       SMTP_USER: ${SMTP_USER}
@@ -52,6 +53,13 @@ services:
       PGPOOL_IDLE_TIMEOUT: 30000
       RATE_LIMIT_WINDOW_MS: 900000
       RATE_LIMIT_MAX_REQUESTS: 100
+      # Notificaciones push (opcional): base64 del JSON de credenciales de la
+      # cuenta de servicio de Firebase. Sin esto, los jobs de recordatorios
+      # se omiten automáticamente sin error.
+      FIREBASE_SERVICE_ACCOUNT_BASE64: ${FIREBASE_SERVICE_ACCOUNT_BASE64:-}
+      # Horarios cron (UTC) de los jobs programados
+      DIGEST_CRON: ${DIGEST_CRON:-0 9 * * 1}
+      REMINDER_CRON: ${REMINDER_CRON:-0 20 * * *}
     volumes:
       - uploads_data:/app/uploads
       - logs_data:/app/logs

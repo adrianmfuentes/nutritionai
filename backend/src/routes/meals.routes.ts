@@ -19,6 +19,10 @@ router.post('/analyze-text', analysisLimiter, (req, res, next) =>
   mealsController.analyzeTextDescription(req, res, next)
 );
 
+router.post('/barcode', analysisLimiter, (req, res, next) =>
+  mealsController.analyzeBarcode(req, res, next)
+);
+
 router.get('/', (req, res, next) =>
   mealsController.getMeals(req, res, next)
 );

@@ -5,10 +5,12 @@ import com.health.nutritionai.data.local.database.AppDatabase
 import com.health.nutritionai.data.remote.ApiClient
 import com.health.nutritionai.data.remote.api.NutritionApiService
 import com.health.nutritionai.data.remote.interceptor.AuthInterceptor
+import com.health.nutritionai.data.remote.interceptor.TokenAuthenticator
 import com.health.nutritionai.data.repository.MealRepository
 import com.health.nutritionai.data.repository.NutritionRepository
 import com.health.nutritionai.data.repository.UserRepository
 import com.health.nutritionai.ui.auth.AuthViewModel
+import com.health.nutritionai.ui.barcode.BarcodeViewModel
 import com.health.nutritionai.ui.camera.CameraViewModel
 import com.health.nutritionai.ui.chat.ChatViewModel
 import com.health.nutritionai.ui.dashboard.DashboardViewModel
@@ -35,6 +37,7 @@ val appModule = module {
     // DAOs
     single { get<AppDatabase>().mealDao() }
     single { get<AppDatabase>().foodDao() }
+    single { get<AppDatabase>().pendingMealDao() }
 
     // Network - Auth Interceptor
     single {
@@ -45,19 +48,27 @@ val appModule = module {
             tokenProvider = {
                 // Token provider - obtiene el token guardado
                 prefs.getString("auth_token", null)
-            },
-            onUnauthorized = {
-                // Clear the token when we receive 401
-                // This will force the user to log in again on next app restart
-                android.util.Log.w("AuthInterceptor", "Token expired or invalid, clearing auth data")
-                prefs.edit().remove("auth_token").remove("user_id").apply()
+            }
+        )
+    }
+
+    // Network - Token Authenticator (refresca el access token en un 401)
+    single {
+        val context = androidContext()
+        TokenAuthenticator(
+            context = context,
+            onSessionExpired = {
+                // Refresh failed too: clear the session so the user is sent back to login
+                android.util.Log.w("TokenAuthenticator", "Session expired, clearing auth data")
+                val prefs = context.getSharedPreferences("nutrition_ai_prefs", android.content.Context.MODE_PRIVATE)
+                prefs.edit().remove("auth_token").remove("refresh_token").remove("user_id").apply()
             }
         )
     }
 
     // Network - API Service
     single<NutritionApiService> {
-        ApiClient.create(get())
+        ApiClient.create(get(), get())
     }
 
     // Repositories
@@ -67,6 +78,7 @@ val appModule = module {
             context = androidContext(),
             mealDao = get(),
             foodDao = get(),
+            pendingMealDao = get(),
             apiService = get(),
             userRepository = get()
         )
@@ -77,6 +89,7 @@ val appModule = module {
     viewModel { AuthViewModel(get(), androidContext() as android.app.Application) }
     viewModel { DashboardViewModel(get(), get(), get()) }
     viewModel { CameraViewModel(get(), androidContext() as android.app.Application) }
+    viewModel { BarcodeViewModel(get(), androidContext() as android.app.Application) }
     viewModel { TextInputViewModel(get(), androidContext() as android.app.Application) }
     viewModel { ChatViewModel(androidContext() as android.app.Application, get(), get(), get()) }
     viewModel { HistoryViewModel(get(), get(), androidContext() as android.app.Application) }

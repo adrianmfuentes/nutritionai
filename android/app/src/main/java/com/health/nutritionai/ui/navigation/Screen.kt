@@ -7,6 +7,7 @@ sealed class Screen(val route: String) {
         fun createRoute(email: String) = "email_verification/$email"
     }
     data object Camera : Screen("camera")
+    data object Barcode : Screen("barcode")
     data object TextInput : Screen("text_input")
     data object Chat : Screen("chat")
     data object Dashboard : Screen("dashboard")

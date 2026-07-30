@@ -49,6 +49,9 @@ class TextInputViewModel(
                 is NetworkResult.Loading -> {
                     // Already handled
                 }
+                is NetworkResult.Queued -> {
+                    // Not applicable to text-based analysis
+                }
             }
         }
     }

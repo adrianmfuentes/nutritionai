@@ -83,6 +83,22 @@ async function migrate() {
         category VARCHAR(100),
         confidence DOUBLE PRECISION,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );`,
+      `CREATE TABLE IF NOT EXISTS refresh_tokens (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        token_hash VARCHAR(64) NOT NULL UNIQUE,
+        expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+        revoked_at TIMESTAMP WITH TIME ZONE,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );`,
+      `CREATE TABLE IF NOT EXISTS device_tokens (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        fcm_token TEXT NOT NULL UNIQUE,
+        platform VARCHAR(20) DEFAULT 'android',
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );`
     ];
     for (const query of queries) {
@@ -96,6 +112,10 @@ async function migrate() {
       `ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_code VARCHAR(6);`,
       `ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_expires TIMESTAMP WITH TIME ZONE;`,
       `ALTER TABLE meals ADD COLUMN IF NOT EXISTS ai_metadata JSONB;`,
+      `ALTER TABLE users ADD COLUMN IF NOT EXISTS weekly_digest_enabled BOOLEAN DEFAULT TRUE;`,
+      `ALTER TABLE users ADD COLUMN IF NOT EXISTS push_reminders_enabled BOOLEAN DEFAULT TRUE;`,
+      `CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user_id ON refresh_tokens(user_id);`,
+      `CREATE INDEX IF NOT EXISTS idx_device_tokens_user_id ON device_tokens(user_id);`,
       `ALTER TABLE nutrition_goals DROP CONSTRAINT IF EXISTS nutrition_goals_user_id_key;`,
       `DO $$
          BEGIN

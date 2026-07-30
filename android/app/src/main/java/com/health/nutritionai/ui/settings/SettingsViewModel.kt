@@ -196,6 +196,7 @@ class SettingsViewModel(
         viewModelScope.launch {
             _notificationsEnabled.value = enabled
             userRepository.saveNotificationsEnabled(enabled)
+            userRepository.updateNotificationPreferences(enabled)
         }
     }
 

@@ -14,6 +14,12 @@ interface NutritionApiService {
     @POST("auth/login")
     suspend fun login(@Body request: LoginRequest): AuthResponseDto
 
+    @POST("auth/refresh")
+    suspend fun refreshToken(@Body request: RefreshTokenRequest): RefreshTokenResponseDto
+
+    @POST("auth/logout")
+    suspend fun logout(@Body request: RefreshTokenRequest): BaseResponse
+
     // Meal Analysis
     @Multipart
     @POST("meals/analyze")
@@ -26,6 +32,11 @@ interface NutritionApiService {
     @POST("meals/analyze-text")
     suspend fun analyzeTextDescription(
         @Body request: AnalyzeTextRequest
+    ): AnalyzeMealResponse
+
+    @POST("meals/barcode")
+    suspend fun scanBarcode(
+        @Body request: BarcodeRequest
     ): AnalyzeMealResponse
 
     @POST("chat")
@@ -91,6 +102,16 @@ interface NutritionApiService {
         @Header("Authorization") token: String,
         @Body request: DeleteAccountRequest
     ): BaseResponse
+
+    // Push notifications
+    @POST("notifications/register-device")
+    suspend fun registerDevice(@Body request: RegisterDeviceRequest): BaseResponse
+
+    @DELETE("notifications/device")
+    suspend fun unregisterDevice(@Body request: UnregisterDeviceRequest): BaseResponse
+
+    @PATCH("notifications/preferences")
+    suspend fun updateNotificationPreferences(@Body request: NotificationPreferencesRequest): BaseResponse
 }
 
 data class MealsListResponse(

@@ -26,6 +26,7 @@ sealed class CameraUiState {
     data object Capturing : CameraUiState()
     data object Analyzing : CameraUiState()
     data class Success(val meal: Meal, val successMessage: String) : CameraUiState()
+    data class Queued(val message: String) : CameraUiState()
     data class Error(val message: String) : CameraUiState()
 }
 
@@ -87,6 +88,11 @@ class CameraViewModel(
                 is NetworkResult.Error -> {
                     _uiState.value = CameraUiState.Error(
                         result.message ?: "Error al analizar la comida"
+                    )
+                }
+                is NetworkResult.Queued -> {
+                    _uiState.value = CameraUiState.Queued(
+                        result.message ?: "Sin conexión: se subirá automáticamente más tarde."
                     )
                 }
                 is NetworkResult.Loading -> {
