@@ -17,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -28,6 +29,7 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
+import com.health.nutritionai.R
 import org.koin.androidx.compose.koinViewModel
 import java.util.concurrent.Executors
 
@@ -60,14 +62,14 @@ fun BarcodeScanScreen(
             TopAppBar(
                 title = {
                     Text(
-                        "Escanear código de barras",
+                        stringResource(R.string.scan_barcode_title),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 }
             )
@@ -150,7 +152,7 @@ fun BarcodeScanScreen(
                 )
 
                 Text(
-                    "Apuntá al código de barras del producto",
+                    stringResource(R.string.scan_barcode_instructions),
                     color = androidx.compose.ui.graphics.Color.White,
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier
@@ -177,7 +179,7 @@ fun BarcodeScanScreen(
                             ) {
                                 CircularProgressIndicator()
                                 Spacer(modifier = Modifier.height(16.dp))
-                                Text("Registrando producto...")
+                                Text(stringResource(R.string.registering_product))
                             }
                         }
                     }
@@ -190,11 +192,11 @@ fun BarcodeScanScreen(
                     }
                     AlertDialog(
                         onDismissRequest = { viewModel.resetToScanning() },
-                        title = { Text("No se pudo registrar") },
+                        title = { Text(stringResource(R.string.barcode_register_failed_title)) },
                         text = { Text(message) },
                         confirmButton = {
                             TextButton(onClick = { viewModel.resetToScanning() }) {
-                                Text("Reintentar")
+                                Text(stringResource(R.string.retry))
                             }
                         }
                     )
@@ -213,10 +215,10 @@ fun BarcodeScanScreen(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Permiso de cámara requerido")
+                    Text(stringResource(R.string.camera_permission_required))
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(onClick = { cameraPermission.launchPermissionRequest() }) {
-                        Text("Otorgar permiso")
+                        Text(stringResource(R.string.grant_permission))
                     }
                 }
             }
@@ -235,11 +237,11 @@ private fun ConfirmGramsDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Producto escaneado") },
+        title = { Text(stringResource(R.string.scanned_product_title)) },
         text = {
             Column {
                 Text(
-                    "Código: $barcode",
+                    stringResource(R.string.barcode_code_label, barcode),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -247,7 +249,7 @@ private fun ConfirmGramsDialog(
                 OutlinedTextField(
                     value = gramsText,
                     onValueChange = { gramsText = it },
-                    label = { Text("Cantidad (gramos)") },
+                    label = { Text(stringResource(R.string.grams_quantity_label)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -258,12 +260,12 @@ private fun ConfirmGramsDialog(
                 onClick = { gramsValue?.let(onConfirm) },
                 enabled = gramsValue != null && gramsValue > 0
             ) {
-                Text("Registrar")
+                Text(stringResource(R.string.barcode_register_button))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancelar")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

@@ -527,13 +527,13 @@ fun DashboardScreen(
                             }
                             Column {
                                 Text(
-                                    "Escanear código de barras",
+                                    stringResource(R.string.scan_barcode_title),
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = OnPrimaryContainer
                                 )
                                 Text(
-                                    "Ideal para productos envasados",
+                                    stringResource(R.string.barcode_option_subtitle),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = OnPrimaryContainer.copy(alpha = 0.7f)
                                 )

@@ -85,6 +85,8 @@
 
     <string name="notifications_config">Paramètres de notification</string>
     <string name="meal_reminders">Recevoir des rappels pour enregistrer vos repas</string>
+    <string name="weekly_digest_label">Résumé hebdomadaire</string>
+    <string name="weekly_digest_description">Recevez un email chaque semaine avec votre résumé nutritionnel</string>
 
     <string name="select_language">Sélectionner la langue</string>
     <string name="language_spanish">Español</string>
@@ -104,6 +106,22 @@
     <string name="back">Retour</string>
     <string name="analyzing_food">Analyse du repas en cours…</string>
     <string name="capture">Capturer</string>
+    <string name="camera_permission_required">Autorisation d\'appareil photo requise</string>
+    <string name="grant_permission">Autoriser</string>
+
+    <!-- Barcode Scanning -->
+    <string name="scan_barcode_title">Scanner un code-barres</string>
+    <string name="scan_barcode_instructions">Visez le code-barres du produit</string>
+    <string name="registering_product">Enregistrement du produit…</string>
+    <string name="barcode_register_failed_title">Échec de l\'enregistrement</string>
+    <string name="scanned_product_title">Produit scanné</string>
+    <string name="barcode_code_label">Code : %1$s</string>
+    <string name="grams_quantity_label">Quantité (grammes)</string>
+    <string name="barcode_register_button">Enregistrer</string>
+    <string name="barcode_option_subtitle">Idéal pour les produits emballés</string>
+    <string name="offline_meal_queued_message">Pas de connexion : votre repas a été enregistré et sera envoyé automatiquement dès que vous serez de nouveau en ligne.</string>
+    <string name="offline_generic_queued_message">Pas de connexion : l\'envoi se fera automatiquement plus tard.</string>
+    <string name="offline_barcode_queued_message">Pas de connexion : le produit a été enregistré et sera envoyé automatiquement.</string>
 
     <string name="delete">Supprimer</string>
     <string name="retry">Réessayer</string>

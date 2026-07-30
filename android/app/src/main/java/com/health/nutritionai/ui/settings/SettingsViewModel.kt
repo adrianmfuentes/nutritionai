@@ -65,6 +65,9 @@ class SettingsViewModel(
     private val _notificationsEnabled = MutableStateFlow(true)
     val notificationsEnabled: StateFlow<Boolean> = _notificationsEnabled.asStateFlow()
 
+    private val _weeklyDigestEnabled = MutableStateFlow(true)
+    val weeklyDigestEnabled: StateFlow<Boolean> = _weeklyDigestEnabled.asStateFlow()
+
     private val _selectedLanguage = MutableStateFlow("Español")
     val selectedLanguage: StateFlow<String> = _selectedLanguage.asStateFlow()
 
@@ -86,6 +89,7 @@ class SettingsViewModel(
                 is NetworkResult.Success -> {
                     result.data?.let { profile ->
                         _uiState.value = SettingsUiState.Success(profile)
+                        _weeklyDigestEnabled.value = profile.weeklyDigestEnabled ?: true
                     } ?: run {
                         _uiState.value = SettingsUiState.Error("Error al cargar el perfil")
                     }
@@ -196,7 +200,14 @@ class SettingsViewModel(
         viewModelScope.launch {
             _notificationsEnabled.value = enabled
             userRepository.saveNotificationsEnabled(enabled)
-            userRepository.updateNotificationPreferences(enabled)
+            userRepository.updateNotificationPreferences(pushRemindersEnabled = enabled)
+        }
+    }
+
+    fun updateWeeklyDigest(enabled: Boolean) {
+        viewModelScope.launch {
+            _weeklyDigestEnabled.value = enabled
+            userRepository.updateNotificationPreferences(weeklyDigestEnabled = enabled)
         }
     }
 

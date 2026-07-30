@@ -107,9 +107,11 @@ class UserRepository(
                 photoUrl = userDto.photoUrl?.let { ApiClient.getFullImageUrl(it) },
                 goals = goalsDto?.let {
                     NutritionGoals(it.calories, it.protein, it.carbs, it.fat)
-                } ?: NutritionGoals(2000, 150.0, 200.0, 65.0) // Default goals if null
+                } ?: NutritionGoals(2000, 150.0, 200.0, 65.0), // Default goals if null
+                weeklyDigestEnabled = userDto.weeklyDigestEnabled,
+                pushRemindersEnabled = userDto.pushRemindersEnabled
             )
-            
+
             NetworkResult.Success(userProfile)
         } catch (e: Exception) {
             NetworkResult.Error(e.message ?: "Error al obtener el perfil")
@@ -250,10 +252,14 @@ class UserRepository(
         }
     }
 
-    suspend fun updateNotificationPreferences(pushRemindersEnabled: Boolean): NetworkResult<Unit> {
+    suspend fun updateNotificationPreferences(
+        pushRemindersEnabled: Boolean? = null,
+        weeklyDigestEnabled: Boolean? = null
+    ): NetworkResult<Unit> {
         return try {
             apiService.updateNotificationPreferences(
                 com.health.nutritionai.data.remote.dto.NotificationPreferencesRequest(
+                    weeklyDigestEnabled = weeklyDigestEnabled,
                     pushRemindersEnabled = pushRemindersEnabled
                 )
             )

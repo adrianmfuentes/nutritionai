@@ -47,9 +47,7 @@ class MealRepository(
             // No connectivity (as opposed to a server-side error): queue the photo
             // locally and retry automatically once the network is back.
             queueForLaterUpload(imageFile, mealType)
-            NetworkResult.Queued(
-                "Sin conexión: la comida se guardó y se subirá automáticamente cuando vuelvas a tener internet."
-            )
+            NetworkResult.Queued(context.getString(com.health.nutritionai.R.string.offline_meal_queued_message))
         } catch (e: Exception) {
             val userFriendlyMessage = com.health.nutritionai.util.ErrorMapper.mapErrorToMessage(
                 context,

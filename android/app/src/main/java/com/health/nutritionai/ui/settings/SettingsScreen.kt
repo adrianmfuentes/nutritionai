@@ -48,6 +48,7 @@ fun SettingsScreen(
     val showEditProfileDialog by viewModel.showEditProfileDialog.collectAsState()
     val showDeleteAccountDialog by viewModel.showDeleteAccountDialog.collectAsState()
     val notificationsEnabled by viewModel.notificationsEnabled.collectAsState()
+    val weeklyDigestEnabled by viewModel.weeklyDigestEnabled.collectAsState()
     val selectedLanguage by viewModel.selectedLanguage.collectAsState()
     val selectedUnits by viewModel.selectedUnits.collectAsState()
     val authToken = viewModel.getAuthToken()
@@ -188,9 +189,11 @@ fun SettingsScreen(
 
                 if (showNotificationsDialog) {
                     NotificationsDialog(
-                        enabled = notificationsEnabled,
+                        pushEnabled = notificationsEnabled,
+                        weeklyDigestEnabled = weeklyDigestEnabled,
                         onDismiss = { viewModel.hideNotificationsDialog() },
-                        onToggle = { viewModel.updateNotifications(it) }
+                        onTogglePush = { viewModel.updateNotifications(it) },
+                        onToggleWeeklyDigest = { viewModel.updateWeeklyDigest(it) }
                     )
                 }
 
@@ -609,28 +612,49 @@ private fun EditGoalsDialog(
 
 @Composable
 private fun NotificationsDialog(
-    enabled: Boolean,
+    pushEnabled: Boolean,
+    weeklyDigestEnabled: Boolean,
     onDismiss: () -> Unit,
-    onToggle: (Boolean) -> Unit
+    onTogglePush: (Boolean) -> Unit,
+    onToggleWeeklyDigest: (Boolean) -> Unit
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.notifications_config)) },
         text = {
             Column(
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text(stringResource(R.string.meal_reminders))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(stringResource(R.string.notifications_label))
-                    Switch(
-                        checked = enabled,
-                        onCheckedChange = onToggle
-                    )
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(stringResource(R.string.meal_reminders))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(stringResource(R.string.notifications_label))
+                        Switch(
+                            checked = pushEnabled,
+                            onCheckedChange = onTogglePush
+                        )
+                    }
+                }
+
+                HorizontalDivider()
+
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(stringResource(R.string.weekly_digest_description))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(stringResource(R.string.weekly_digest_label))
+                        Switch(
+                            checked = weeklyDigestEnabled,
+                            onCheckedChange = onToggleWeeklyDigest
+                        )
+                    }
                 }
             }
         },

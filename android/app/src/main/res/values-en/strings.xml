@@ -85,6 +85,8 @@
 
     <string name="notifications_config">Notification Settings</string>
     <string name="meal_reminders">Receive reminders to log your meals</string>
+    <string name="weekly_digest_label">Weekly digest</string>
+    <string name="weekly_digest_description">Get a weekly email with your nutrition summary</string>
 
     <string name="select_language">Select Language</string>
     <string name="language_spanish">Español</string>
@@ -104,6 +106,22 @@
     <string name="back">Back</string>
     <string name="analyzing_food">Analyzing food…</string>
     <string name="capture">Capture</string>
+    <string name="camera_permission_required">Camera permission required</string>
+    <string name="grant_permission">Grant permission</string>
+
+    <!-- Barcode Scanning -->
+    <string name="scan_barcode_title">Scan barcode</string>
+    <string name="scan_barcode_instructions">Point at the product\'s barcode</string>
+    <string name="registering_product">Registering product…</string>
+    <string name="barcode_register_failed_title">Couldn\'t register it</string>
+    <string name="scanned_product_title">Product scanned</string>
+    <string name="barcode_code_label">Code: %1$s</string>
+    <string name="grams_quantity_label">Amount (grams)</string>
+    <string name="barcode_register_button">Register</string>
+    <string name="barcode_option_subtitle">Great for packaged foods</string>
+    <string name="offline_meal_queued_message">No connection: your meal was saved and will upload automatically once you\'re back online.</string>
+    <string name="offline_generic_queued_message">No connection: it will upload automatically later.</string>
+    <string name="offline_barcode_queued_message">No connection: the product was saved and will upload automatically.</string>
 
     <string name="delete">Delete</string>
     <string name="retry">Retry</string>

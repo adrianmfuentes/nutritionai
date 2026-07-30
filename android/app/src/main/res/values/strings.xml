@@ -81,6 +81,8 @@
 
     <string name="notifications_config">Configuración de Notificaciones</string>
     <string name="meal_reminders">Recibe recordatorios para registrar tus comidas</string>
+    <string name="weekly_digest_label">Resumen semanal</string>
+    <string name="weekly_digest_description">Recibí un email cada semana con tu resumen nutricional</string>
 
     <string name="select_language">Seleccionar Idioma</string>
     <string name="language_spanish">Español</string>
@@ -101,6 +103,22 @@
     <string name="back">Volver</string>
     <string name="analyzing_food">Analizando comida…</string>
     <string name="capture">Capturar</string>
+    <string name="camera_permission_required">Permiso de cámara requerido</string>
+    <string name="grant_permission">Otorgar permiso</string>
+
+    <!-- Barcode Scanning -->
+    <string name="scan_barcode_title">Escanear código de barras</string>
+    <string name="scan_barcode_instructions">Apuntá al código de barras del producto</string>
+    <string name="registering_product">Registrando producto…</string>
+    <string name="barcode_register_failed_title">No se pudo registrar</string>
+    <string name="scanned_product_title">Producto escaneado</string>
+    <string name="barcode_code_label">Código: %1$s</string>
+    <string name="grams_quantity_label">Cantidad (gramos)</string>
+    <string name="barcode_register_button">Registrar</string>
+    <string name="barcode_option_subtitle">Ideal para productos envasados</string>
+    <string name="offline_meal_queued_message">Sin conexión: la comida se guardó y se subirá automáticamente cuando vuelvas a tener internet.</string>
+    <string name="offline_generic_queued_message">Sin conexión: se subirá automáticamente más tarde.</string>
+    <string name="offline_barcode_queued_message">Sin conexión: el producto se guardó y se subirá automáticamente.</string>
 
     <!-- History -->
     <string name="delete">Eliminar</string>

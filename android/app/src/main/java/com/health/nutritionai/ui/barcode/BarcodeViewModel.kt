@@ -53,7 +53,7 @@ class BarcodeViewModel(
                 }
                 is NetworkResult.Queued -> {
                     _uiState.value = BarcodeUiState.Error(
-                        result.message ?: "Sin conexión: el producto se guardó y se subirá automáticamente."
+                        result.message ?: application.getString(com.health.nutritionai.R.string.offline_barcode_queued_message)
                     )
                 }
                 is NetworkResult.Loading -> Unit

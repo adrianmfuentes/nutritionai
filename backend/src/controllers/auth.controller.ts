@@ -254,6 +254,7 @@ export class AuthController {
       // Obtener usuario y sus objetivos más recientes
       const result = await pool.query(
         `SELECT u.id, u.email, u.name, u.profile_photo, u.created_at,
+                u.weekly_digest_enabled, u.push_reminders_enabled,
                 ng.daily_calories, ng.daily_protein, ng.daily_carbs, ng.daily_fat
          FROM users u
          LEFT JOIN nutrition_goals ng ON u.id = ng.user_id
@@ -268,13 +269,15 @@ export class AuthController {
       }
 
       const row = result.rows[0];
-      
+
       const user = {
         id: row.id,
         email: row.email,
         name: row.name,
         profile_photo: row.profile_photo,
-        created_at: row.created_at
+        created_at: row.created_at,
+        weekly_digest_enabled: row.weekly_digest_enabled,
+        push_reminders_enabled: row.push_reminders_enabled
       };
 
       const goals = row.daily_calories ? {

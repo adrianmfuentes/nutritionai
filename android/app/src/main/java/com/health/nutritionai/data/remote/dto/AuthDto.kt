@@ -68,7 +68,11 @@ data class UserProfileDto(
     @SerializedName("profile_photo")
     val photoUrl: String? = null,
     @SerializedName("goals")
-    val goals: NutritionGoalsDto? = null
+    val goals: NutritionGoalsDto? = null,
+    @SerializedName("weekly_digest_enabled")
+    val weeklyDigestEnabled: Boolean? = null,
+    @SerializedName("push_reminders_enabled")
+    val pushRemindersEnabled: Boolean? = null
 )
 data class UpdateGoalsRequest(
     @SerializedName("dailyCalories")

@@ -5,7 +5,9 @@ data class UserProfile(
     val email: String,
     val name: String,
     val photoUrl: String? = null,
-    val goals: NutritionGoals? = null
+    val goals: NutritionGoals? = null,
+    val weeklyDigestEnabled: Boolean? = null,
+    val pushRemindersEnabled: Boolean? = null
 )
 
 data class AuthResponse(

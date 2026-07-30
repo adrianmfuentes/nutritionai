@@ -92,7 +92,7 @@ class CameraViewModel(
                 }
                 is NetworkResult.Queued -> {
                     _uiState.value = CameraUiState.Queued(
-                        result.message ?: "Sin conexión: se subirá automáticamente más tarde."
+                        result.message ?: application.getString(com.health.nutritionai.R.string.offline_generic_queued_message)
                     )
                 }
                 is NetworkResult.Loading -> {
