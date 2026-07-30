@@ -8,8 +8,8 @@ RUN apk add --no-cache libc6-compat python3 make g++
 
 WORKDIR /app
 
-# Habilitar corepack
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# Habilitar corepack (pnpm 9.x: coincide con lockfileVersion 9.0 y es compatible con Node 20)
+RUN corepack enable && corepack prepare pnpm@9 --activate
 
 # Copiar archivos de definición de dependencias
 COPY package.json pnpm-lock.yaml ./
@@ -31,8 +31,8 @@ WORKDIR /app
 # Instalar curl para el healthcheck y libc6-compat para compatibilidad ARM
 RUN apk add --no-cache curl libc6-compat
 
-# Habilitar pnpm en la etapa de producción
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# Habilitar pnpm en la etapa de producción (misma versión que en la etapa builder)
+RUN corepack enable && corepack prepare pnpm@9 --activate
 
 # Configurar entorno de producción
 ENV NODE_ENV=production
