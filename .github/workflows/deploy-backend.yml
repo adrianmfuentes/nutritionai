@@ -94,6 +94,11 @@ jobs:
             cd "$DEPLOY_PATH"
             git pull --ff-only
             cd backend
+            # The package is public, so no login is needed to pull it - but any
+            # stale/bad credentials cached in ~/.docker/config.json for ghcr.io
+            # take priority over anonymous access and cause a misleading "denied"
+            # error. Clear them unconditionally before pulling.
+            docker logout ghcr.io || true
             docker compose pull
             docker compose up -d --remove-orphans
             docker image prune -f
