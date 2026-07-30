@@ -83,6 +83,14 @@ jobs:
           script_stop: true
           script: |
             set -euo pipefail
+            if [ -z "${DEPLOY_PATH:-}" ]; then
+              echo "::error::ORACLE_PATH secret is empty. Set it to the absolute path of the repo checkout on the box (e.g. /home/ubuntu/nutritionai)."
+              exit 1
+            fi
+            if [ ! -d "$DEPLOY_PATH" ]; then
+              echo "::error::DEPLOY_PATH '$DEPLOY_PATH' does not exist on this host. One-time setup: SSH in and run 'git clone <repo-url> \"$DEPLOY_PATH\"', then 'cd \"$DEPLOY_PATH/backend\" && docker compose up -d' once so the .env and containers exist before this workflow takes over."
+              exit 1
+            fi
             cd "$DEPLOY_PATH"
             git pull --ff-only
             cd backend
