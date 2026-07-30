@@ -1,90 +1,55 @@
-# 🤖 Nutrition AI - Project Context & Agents Configuration
+# Nutrition AI - Project Context
 
-Este archivo define el contexto, roles y directrices para los Agentes de IA que interactúan con el código de **Nutrition AI**.
+Contexto, reglas y esquemas de datos que todo agente de IA debe seguir al trabajar con este código.
 
-## 🌍 Visión del Proyecto
+## Vision
 
-Una aplicación de seguimiento nutricional "End-to-End" que utiliza **LLaMA 3.2 90B Vision (vía Groq)** para analizar fotos de comida y devolver macros precisos. La arquitectura se divide en un cliente Android nativo y una API RESTful en Node.js/TypeScript.
-
----
-
-## 🏗️ Tech Stack & Constraints
-
-### Global
-
-- **Idioma del Código**: Inglés (variables, funciones, comentarios).
-- **Idioma de la UI**: Español (textos visibles para el usuario).
-- **Gestión de Configuración**: Todo secreto/clave API debe ir en `.env`.
-
-### 📱 Android
-
-- **Lenguaje**: Kotlin.
-- **UI Framework**: Jetpack Compose (Material Design 3).
-- **Arquitectura**: MVVM (Model-View-ViewModel).
-- **Networking**: Retrofit + OkHttp.
-- **Imágenes**: Coil (carga), CameraX (captura).
-- **Regla de Oro**: Manejar elegantemente los estados de carga y error. Si la API devuelve `is_food: false`, mostrar un mensaje amigable al usuario.
-
-### 🔙 Backend (API)
-
-- **Runtime**: Node.js 20 + TypeScript (Strict Mode).
-- **Framework**: Express.js.
-- **AI Provider**: Groq SDK (LLaMA 3.2 90B Vision).
-- **Validación**: Zod.
-- **Regla de Oro**: NUNCA confiar en la salida cruda del LLM. Validar siempre contra el esquema JSON definido abajo antes de guardar en DB.
+App de seguimiento nutricional: el usuario saca una foto de su plato, la API la manda a LLaMA 3.2 90B Vision (Groq), y devuelve los macros. Arquitectura: Android nativo (Kotlin/Compose) + API REST (Node/TypeScript).
 
 ---
 
-## 👥 Agentes Especializados
+## Reglas globales
 
-### 1. `@Agent_Android_Dev`
+- **Código**: inglés (variables, funciones, comentarios).
+- **UI**: español (textos visibles al usuario).
+- **Secretos**: todo en `.env`, nunca hardcodeado.
 
-**Rol**: Experto en Desarrollo Móvil Moderno.
-**Contexto**: Carpeta `/android`.
+## Android
 
-- **Directrices**:
-  - Al mostrar los resultados de la comida, busca el campo `detected_ingredients` para mostrar chips o etiquetas detalladas.
-  - Muestra el campo `reasoning` (Razonamiento de la IA) en un desplegable o tooltip para dar transparencia al usuario.
-  - Gestiona la compresión de imagen antes de subirla (máx 1MB) para no saturar la red.
+- Kotlin + Jetpack Compose (Material Design 3).
+- Arquitectura MVVM.
+- Retrofit + OkHttp para red. Coil para imágenes. CameraX para captura.
+- Comprimir imágenes antes de subir (max 1MB).
+- Si la API devuelve `is_food: false`, mostrar mensaje claro al usuario.
+- Mostrar `detected_ingredients` como chips/etiquetas en los resultados.
+- Mostrar `reasoning` en un tooltip o desplegable.
 
-### 2. `@Agent_Backend_Architect`
+## Backend
 
-**Rol**: Ingeniero de Backend y AI Integration.
-**Contexto**: Carpeta `/backend`.
-
-- **Directrices**:
-  - Implementar el **Vision System Prompt V2** (definido en Data Contracts).
-  - En el servicio de IA, verificar `if (!response.is_food)` antes de guardar nada en la base de datos.
-  - Si la IA falla al generar JSON válido, implementar un mecanismo de "retry" (máximo 1 reintento).
-  - Calcular los totales nutricionales sumando los `items` individuales en el servidor, no confiar ciegamente en el total que da la IA.
-
-### 3. `@Agent_Database_Admin`
-
-**Rol**: Administrador de PostgreSQL.
-
-- **Directrices**:
-  - La tabla `meals` debe almacenar el JSON crudo del análisis en una columna `ai_metadata` (tipo JSONB) para futuros re-entrenamientos o depuración.
+- Node.js 20 + TypeScript (strict mode) + Express.
+- Groq SDK para IA. Zod para validación.
+- Nunca confiar en lo que devuelve el LLM sin validar contra el schema de abajo.
+- Si el JSON es inválido, reintentar 1 vez.
+- Verificar `if (!response.is_food)` antes de guardar en DB.
+- Calcular totales sumando los `items`, no usar el total que da la IA.
+- Guardar el JSON crudo del análisis en `meals.ai_metadata` (JSONB).
 
 ---
 
-## 📜 Data Contracts & Schemas (Fuente de la Verdad)
+## Schema de respuesta de la IA
 
-Cualquier interacción entre el Backend y el servicio de IA (Groq) **DEBE** adherirse estrictamente a este esquema.
-
-### Vision AI Response Schema (JSON)
-
-El Agente de Backend debe forzar este esquema en el System Prompt, y el Agente de Android debe estar listo para renderizarlo.
+El backend debe forzar este schema en el system prompt. Android debe poder renderizarlo.
 
 ```json
 {
-  "is_food": true, // Booleano crítico. Si es false, mostrar error.
-  "error": null, // String si is_food es false (ej: "No food detected")
-  "reasoning": "Texto explicativo sobre cómo la IA calculó el tamaño",
+  "is_food": true,
+  "error": null,
+  "reasoning": "Explicacion de como estimo porciones y macros",
   "foods": [
     {
-      "name": "Nombre en Español (ej: Arroz con Pollo)",
+      "name": "Nombre en espanol (ej: Arroz con Pollo)",
       "detected_ingredients": ["Arroz", "Pollo", "Guisantes"],
-      "portion_display": "ej: 1 taza (200g)",
+      "portion_display": "1 taza (200g)",
       "portion_grams": 200,
       "nutrition": {
         "calories": 250,
@@ -93,14 +58,16 @@ El Agente de Backend debe forzar este esquema en el System Prompt, y el Agente d
         "fat": 5,
         "fiber": 2
       },
-      "category": "mixed", // protein, carb, vegetable, fruit, dairy, fat, mixed
+      "category": "mixed",
       "confidence": 0.95
     }
   ],
   "meal_analysis": {
-    "health_score": 85, // Escala 0-100
-    "health_feedback": "Buen balance de proteínas y carbos.",
+    "health_score": 85,
+    "health_feedback": "Buen balance de proteinas y carbos.",
     "dominant_macro": "carbs"
   }
 }
 ```
+
+Categorías válidas: `protein`, `carb`, `vegetable`, `fruit`, `dairy`, `fat`, `mixed`.

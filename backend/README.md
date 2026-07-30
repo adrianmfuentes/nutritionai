@@ -1,233 +1,125 @@
-# Nutrition AI Backend
+# Nutrition AI - Backend
 
-Backend para aplicación de seguimiento nutricional con IA que analiza imágenes de comidas usando **LLaMA 3.2 90B Vision via Groq**.
+API REST en Node.js + TypeScript que recibe fotos de comida, las pasa por LLaMA 3.2 90B Vision (Groq) y devuelve los macros.
 
-## 🚀 Características
+## Requisitos
 
-- 🤖 Análisis de imágenes de comidas con IA (**LLaMA 3.2 90B Vision via Groq - 100% GRATIS**)
-- 📊 Seguimiento nutricional completo (calorías, proteínas, carbos, grasas)
-- 👤 Autenticación JWT
-- 🗄️ PostgreSQL para almacenamiento
-- 🐳 Completamente containerizado con Docker
-- 🔒 Seguro (SSL/TLS, rate limiting, helmet)
-- 📈 APIs RESTful bien estructuradas
+- Docker + Docker Compose
+- Node.js 20+ (si corrés sin Docker)
+- API key de Groq (https://console.groq.com, es gratis)
 
-## 📋 Requisitos Previos
-
-- Docker y Docker Compose
-- Node.js 20+ (para desarrollo local)
-- API Key de Groq (100% GRATIS - https://console.groq.com/)
-
-## 🛠️ Instalación y Configuración
-
-### 1. Clonar Repositorio
+## Setup
 
 ```bash
-git clone <tu-repo>
-cd nutrition-app/backend
+cd backend
+cp .env.example .env   # editá con tus valores
 ```
 
-### 2. Configurar Variables de Entorno
-
-```bash
-cp .env.example .env
-nano .env
-```
-
-Edita `.env` con tus valores:
+Variables necesarias en `.env`:
 
 ```env
-# Database
-DB_PASSWORD=tu_password_seguro_aqui
-
-# Authentication
-JWT_SECRET=tu_jwt_secret_super_seguro
-
-# AI Service
-GROQ_API_KEY=gsk-tu-api-key-aqui
+DB_PASSWORD=...
+JWT_SECRET=...
+GROQ_API_KEY=gsk-...
 ```
 
-### 3. Desplegar con Docker
-
 ```bash
-# Construir y levantar todos los servicios
 docker-compose up -d --build
-
-# Ver logs
-docker-compose logs -f api
-
-# Verificar salud
 curl http://localhost/health
 ```
 
-## 📁 Estructura del Proyecto
+## Endpoints
+
+```
+POST   /v1/auth/register
+POST   /v1/auth/login
+GET    /v1/profile
+
+POST   /v1/meals/analyze       # multipart: image + mealType
+GET    /v1/meals
+GET    /v1/meals/:id
+PATCH  /v1/meals/:id
+DELETE /v1/meals/:id
+
+GET    /v1/nutrition/daily?date=...
+GET    /v1/nutrition/weekly?startDate=...
+PUT    /v1/nutrition/goals
+```
+
+## Ejemplos
+
+```bash
+# registrar
+curl -X POST http://localhost/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@test.com","password":"123456","name":"Test"}'
+
+# analizar foto
+curl -X POST http://localhost/v1/meals/analyze \
+  -H "Authorization: Bearer TOKEN" \
+  -F "image=@plato.jpg" \
+  -F "mealType=lunch"
+
+# resumen del dia
+curl http://localhost/v1/nutrition/daily?date=2024-01-15 \
+  -H "Authorization: Bearer TOKEN"
+```
+
+## Estructura
 
 ```
 backend/
-├── docker-compose.yml       # Configuración Docker
-├── Dockerfile              # Imagen de la aplicación
-├── init.sql               # Schema de base de datos
-├── nginx/
-│   └── nginx.conf         # Configuración reverse proxy
-├── src/
-│   ├── config/           # Configuración (DB, env)
-│   ├── middleware/       # Auth, upload, errores
-│   ├── routes/          # Rutas API
-│   ├── controllers/     # Lógica de negocio
-│   ├── services/        # Servicios (Vision AI, Storage)
-│   ├── models/          # Modelos de datos
-│   ├── types/           # TypeScript types
-│   └── utils/           # Utilidades (JWT, logger)
+├── docker-compose.yml
+├── Dockerfile
+├── init.sql
+├── nginx/nginx.conf
+└── src/
+    ├── config/        # DB, env
+    ├── middleware/    # auth, upload, rate limit, errores
+    ├── routes/        # definicion de endpoints
+    ├── controllers/   # logica por ruta
+    ├── services/      # Groq Vision, storage
+    ├── models/        # consultas SQL
+    ├── types/         # tipos TypeScript
+    └── utils/         # JWT, logger, helpers
 ```
 
-## 🔌 API Endpoints
+## Seguridad
 
-### Autenticación
+bcrypt (12 rounds), JWT, rate limiting por IP, Helmet, CORS, Zod para validar inputs, prepared statements, validacion de archivos subidos.
 
-```
-POST /v1/auth/register
-POST /v1/auth/login
-GET  /v1/profile
-```
+## Base de datos
 
-### Comidas
+Tablas: `users`, `nutrition_goals`, `meals`, `detected_foods`. El schema completo está en `init.sql`.
 
-```
-POST   /v1/meals/analyze       # Analizar imagen de comida
-GET    /v1/meals               # Listar comidas
-GET    /v1/meals/:id          # Obtener comida específica
-PATCH  /v1/meals/:id          # Actualizar notas
-DELETE /v1/meals/:id          # Eliminar comida
-```
-
-### Nutrición
-
-```
-GET /v1/nutrition/daily        # Resumen diario
-GET /v1/nutrition/weekly       # Resumen semanal
-PUT /v1/nutrition/goals        # Actualizar objetivos
-```
-
-## 📝 Ejemplos de Uso
-
-### Registrar Usuario
+## Docker
 
 ```bash
-curl -X POST http://localhost/v1/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "user@example.com",
-    "password": "password123",
-    "name": "Usuario Test"
-  }'
-```
-
-### Analizar Comida
-
-```bash
-curl -X POST http://localhost/v1/meals/analyze \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -F "image=@meal.jpg" \
-  -F "mealType=lunch"
-```
-
-### Obtener Resumen Diario
-
-```bash
-curl http://localhost/v1/nutrition/daily?date=2024-01-15 \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
-```
-
-## 🐳 Comandos Docker Útiles
-
-```bash
-# Ver estado de servicios
-docker-compose ps
-
-# Logs de base de datos
-docker-compose logs -f postgres
-
-# Reiniciar API
-docker-compose restart api
-
-# Detener todos los servicios
-docker-compose down
-
-# Recrear contenedor API
-docker-compose up -d --force-recreate api
-
-# Ejecutar comando en contenedor
+docker-compose ps                  # estado
+docker-compose logs -f api         # logs del backend
+docker-compose restart api         # reiniciar
+docker-compose down                # frenar todo
+docker-compose up -d --force-recreate api   # recrear solo api
 docker-compose exec api npm run migrate
 ```
 
-## 🔧 Desarrollo Local
+## Desarrollo sin Docker
 
 ```bash
-# Instalar dependencias
 npm install
-
-# Ejecutar en modo desarrollo
-npm run dev
-
-# Build
-npm run build
-
-# Ejecutar producción
-npm start
+npm run dev       # modo dev
+npm run build     # compilar
+npm start         # produccion
 ```
 
-## 🔒 Seguridad
+## Problemas comunes
 
-- Contraseñas hasheadas con bcrypt (12 rounds)
-- JWT para autenticación
-- Rate limiting en todos los endpoints
-- Helmet para headers de seguridad
-- CORS configurado
-- Validación de inputs con Zod
-- SQL injection protection (prepared statements)
-- File upload validation
+**No conecta a DB**: `docker-compose ps postgres`, revisar que esté `Up`.
 
-## 📊 Base de Datos
+**Error de API key**: verificar `GROQ_API_KEY` en `.env`.
 
-El schema incluye:
+**Falla el upload**: revisar que exista `uploads/temp` y tenga permisos de escritura.
 
-- `users` - Usuarios del sistema
-- `nutrition_goals` - Objetivos nutricionales
-- `meals` - Comidas registradas
-- `detected_foods` - Alimentos detectados por IA
-
-Ver `init.sql` para el schema completo.
-
-## 🚨 Troubleshooting
-
-### Error de conexión a base de datos
-
-```bash
-# Verificar que PostgreSQL está corriendo
-docker-compose ps postgres
-
-# Ver logs
-docker-compose logs postgres
-```
-
-### Error de API Key
-
-Verifica que `GROQ_API_KEY` esté configurada correctamente en `.env`.
-
-### Problemas con uploads
-
-```bash
-# Verificar permisos del directorio
-ls -la uploads/
-
-# Crear directorio si no existe
-mkdir -p uploads/temp
-```
-
-## 📄 Licencia
+## Licencia
 
 MIT
-
-## 👥 Autor
-
-Tu Nombre

@@ -1,275 +1,111 @@
 # Nutrition AI - Android
 
-Aplicación Android nativa para análisis nutricional con IA, construida con Kotlin y Jetpack Compose.
+App Android en Kotlin con Jetpack Compose. Saca fotos de comida, las manda al backend y muestra los macros que detecta la IA.
 
-## 🏗️ Arquitectura
+## Arquitectura
 
-La aplicación sigue la arquitectura MVVM (Model-View-ViewModel) con las siguientes capas:
+MVVM con estas capas:
 
-- **UI Layer**: Jetpack Compose con Material Design 3
-- **ViewModel Layer**: ViewModels con StateFlow para manejo de estado
-- **Repository Layer**: Patrón Repository para abstracción de datos
-- **Data Layer**:
-  - Remote: Retrofit para comunicación con API REST
-  - Local: Room Database para cache offline
+- **UI**: Jetpack Compose + Material Design 3
+- **ViewModel**: StateFlow para estado
+- **Repository**: abstrae remote (Retrofit) y local (Room)
+- **DI**: Hilt
 
-## 🛠️ Stack Tecnológico
+## Stack
 
-### Core
+Kotlin, Jetpack Compose, Material 3, Hilt, Coroutines/Flow, Room, DataStore, Retrofit, OkHttp, Gson, CameraX, Coil, Navigation Compose, Accompanist Permissions.
 
-- **Kotlin**: Lenguaje de programación
-- **Jetpack Compose**: UI moderna y declarativa
-- **Material Design 3**: Sistema de diseño
+## Lo que ya está andando
 
-### Arquitectura & DI
+- **Dashboard**: calorías y macros del día, progreso contra objetivos, lista de comidas, navegación entre días.
+- **Cámara**: captura, envío al backend, resultado del análisis con estados de carga/error.
+- **Historial**: lista de comidas, swipe para borrar, detalle por comida.
+- **Cache local**: Room con relaciones Meals/Foods, acceso offline.
 
-- **Hilt**: Inyección de dependencias
-- **Coroutines & Flow**: Programación asíncrona
-- **ViewModel & LiveData**: Manejo de estado
+## Setup
 
-### Persistencia
-
-- **Room**: Base de datos local SQLite
-- **DataStore**: Almacenamiento de preferencias
-
-### Red
-
-- **Retrofit**: Cliente HTTP
-- **OkHttp**: Interceptores y logging
-- **Gson**: Serialización JSON
-
-### Media
-
-- **CameraX**: Captura de imágenes
-- **Coil**: Carga de imágenes
-
-### Navegación
-
-- **Navigation Compose**: Navegación entre pantallas
-
-### Permisos
-
-- **Accompanist Permissions**: Manejo de permisos
-
-## 📱 Características Implementadas
-
-### ✅ Dashboard (Pantalla Principal)
-
-- Visualización de calorías y macronutrientes del día
-- Progreso hacia objetivos nutricionales
-- Lista de comidas del día
-- Navegación entre días
-- Actualización en tiempo real
-
-### ✅ Cámara
-
-- Captura de fotos de comidas
-- Análisis con IA en tiempo real
-- Detección automática de alimentos
-- Cálculo de macronutrientes
-- Estados de carga y error
-
-### ✅ Historial
-
-- Lista de todas las comidas registradas
-- Swipe para eliminar
-- Información detallada por comida
-
-### 🔄 Sistema de Base de Datos Local
-
-- Cache de comidas para acceso offline
-- Sincronización con backend
-- Relaciones entre entidades (Meals y Foods)
-
-## 🚀 Configuración del Proyecto
-
-### Requisitos Previos
-
-- Android Studio Hedgehog (2023.1.1) o superior
-- JDK 17
-- Android SDK 26+ (Oreo o superior)
-- Gradle 8.13.2+
-
-### 1. Clonar el repositorio
+Requisitos: Android Studio Hedgehog+, JDK 17, SDK 26+, Gradle 8.13.2+.
 
 ```bash
-git clone <repository-url>
-cd nutrition-app/android
+cd android
 ```
 
-### 2. Configurar la URL de la API
-
-Edita `app/build.gradle.kts` y cambia la URL del backend:
+Configurá la URL en `app/build.gradle.kts`:
 
 ```kotlin
-buildConfigField("String", "API_BASE_URL", "\"https://tu-api-url.com/v1\"")
-```
+// producción
+buildConfigField("String", "API_BASE_URL", "\"https://tu-api.com/v1\"")
 
-O para desarrollo local:
-
-```kotlin
+// emulador (10.0.2.2 = localhost del host)
 buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:3000/v1\"")
-// 10.0.2.2 es localhost para el emulador de Android
 ```
-
-### 3. Sincronizar dependencias
 
 ```bash
-./gradlew build
+./gradlew build      # sincronizar
+./gradlew installDebug   # instalar en dispositivo/emulador
 ```
 
-### 4. Ejecutar la aplicación
-
-```bash
-./gradlew installDebug
-```
-
-O desde Android Studio: **Run > Run 'app'**
-
-## 📂 Estructura del Proyecto
+## Estructura
 
 ```
 app/src/main/java/com/health/nutritionai/
 ├── data/
 │   ├── local/
-│   │   ├── dao/              # Data Access Objects
-│   │   ├── database/         # Room Database
-│   │   └── entity/           # Entidades de Room
+│   │   ├── dao/
+│   │   ├── database/
+│   │   └── entity/
 │   ├── remote/
-│   │   ├── api/              # Definición de API (Retrofit)
-│   │   ├── dto/              # Data Transfer Objects
-│   │   └── interceptor/      # Interceptores HTTP
-│   ├── repository/           # Repositorios
-│   └── model/                # Modelos de dominio
-├── di/                       # Módulos de Hilt
+│   │   ├── api/
+│   │   ├── dto/
+│   │   └── interceptor/
+│   ├── repository/
+│   └── model/
+├── di/
 ├── ui/
-│   ├── camera/               # Pantalla de cámara
-│   ├── dashboard/            # Dashboard principal
-│   │   └── components/       # Componentes reutilizables
-│   ├── history/              # Historial de comidas
-│   ├── navigation/           # Configuración de navegación
-│   └── theme/                # Tema de la app
-├── util/                     # Utilidades
-├── MainActivity.kt           # Actividad principal
-└── NutritionApp.kt           # Clase Application
+│   ├── camera/
+│   ├── dashboard/components/
+│   ├── history/
+│   ├── navigation/
+│   └── theme/
+├── util/
+├── MainActivity.kt
+└── NutritionApp.kt
 ```
 
-## 🔧 Configuración Adicional
+## Permisos
 
-### Permisos Requeridos
+`CAMERA`, `INTERNET`, `ACCESS_NETWORK_STATE`, `WRITE_EXTERNAL_STORAGE` (API <= 28), `READ_EXTERNAL_STORAGE` (API <= 32). Ya están en el manifest.
 
-La aplicación requiere los siguientes permisos (ya configurados en AndroidManifest.xml):
+## Consume estos endpoints
 
-- `CAMERA`: Para capturar fotos de comidas
-- `INTERNET`: Para comunicación con la API
-- `ACCESS_NETWORK_STATE`: Para verificar conectividad
-- `WRITE_EXTERNAL_STORAGE` (API ≤28): Para guardar imágenes
-- `READ_EXTERNAL_STORAGE` (API ≤32): Para leer imágenes
+```
+POST   /v1/auth/register
+POST   /v1/auth/login
+POST   /v1/meals/analyze
+GET    /v1/meals
+GET    /v1/meals/{id}
+DELETE /v1/meals/{id}
+GET    /v1/nutrition/daily?date={date}
+GET    /v1/nutrition/weekly?startDate={date}
+GET    /v1/profile
+PATCH  /v1/profile/goals
+```
 
-### Configuración de Red
-
-Para desarrollo local con emulador:
-
-- Backend en `localhost:3000` → usar `http://10.0.2.2:3000/v1`
-- Para dispositivo físico → usar IP de tu máquina en la red local
-
-### ProGuard (Release)
-
-El archivo `proguard-rules.pro` ya está configurado. Para builds de producción:
+## Tests
 
 ```bash
-./gradlew assembleRelease
+./gradlew test                  # unit tests
+./gradlew connectedAndroidTest  # UI tests
 ```
 
-## 🧪 Testing
+## Problemas comunes
 
-### Unit Tests
+**BuildConfig no resuelve**: `./gradlew clean && ./gradlew build`
 
-```bash
-./gradlew test
-```
+**No conecta a la API**: revisá que el backend esté corriendo y que uses `10.0.2.2` en vez de `localhost` si estás en emulador. Para HTTP en dev, asegurate de tener `android:usesCleartextTraffic="true"` en el manifest.
 
-### UI Tests
+**CameraX no funciona**: verificá permisos en runtime. En emulador, activá la cámara virtual en AVD Manager.
 
-```bash
-./gradlew connectedAndroidTest
-```
+## Licencia
 
-## 📝 API Endpoints Utilizados
-
-La app consume los siguientes endpoints del backend:
-
-### Autenticación
-
-- `POST /v1/auth/register` - Registro de usuario
-- `POST /v1/auth/login` - Inicio de sesión
-
-### Análisis de Comidas
-
-- `POST /v1/meals/analyze` - Analizar foto de comida
-- `GET /v1/meals` - Obtener lista de comidas
-- `GET /v1/meals/{id}` - Obtener detalle de comida
-- `DELETE /v1/meals/{id}` - Eliminar comida
-
-### Nutrición
-
-- `GET /v1/nutrition/daily?date={date}` - Nutrición diaria
-- `GET /v1/nutrition/weekly?startDate={date}` - Nutrición semanal
-
-### Perfil
-
-- `GET /v1/profile` - Obtener perfil
-- `PATCH /v1/profile/goals` - Actualizar objetivos
-
-## 🎨 Personalización
-
-### Colores del Tema
-
-Edita `ui/theme/Color.kt` para cambiar los colores:
-
-```kotlin
-val Primary = Color(0xFF6750A4)
-val Secondary = Color(0xFF625B71)
-// ... más colores
-```
-
-### Tipografía
-
-Edita `ui/theme/Type.kt` para cambiar fuentes.
-
-## 🐛 Troubleshooting
-
-### Error: "Cannot resolve symbol 'BuildConfig'"
-
-```bash
-./gradlew clean
-./gradlew build
-```
-
-### Error de conexión a la API
-
-- Verifica que el backend esté corriendo
-- Revisa la URL en `BuildConfig.API_BASE_URL`
-- Para emulador usa `10.0.2.2` en lugar de `localhost`
-- Verifica que `android:usesCleartextTraffic="true"` esté en AndroidManifest (solo para desarrollo)
-
-### CameraX no funciona
-
-- Verifica permisos en tiempo de ejecución
-- Asegúrate de que el dispositivo/emulador tenga cámara
-- Para emulador, habilita cámara virtual en AVD Manager
-
-## 📄 Licencia
-
-[Especificar licencia]
-
-## 👥 Contribuciones
-
-[Instrucciones para contribuir]
-
-## 🔗 Enlaces
-
-- [Documentación de Jetpack Compose](https://developer.android.com/jetpack/compose)
-- [Hilt Documentation](https://dagger.dev/hilt/)
-- [CameraX Guide](https://developer.android.com/training/camerax)
-- [Material Design 3](https://m3.material.io/)
+MIT
