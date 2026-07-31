@@ -102,3 +102,11 @@ jobs:
             docker compose pull
             docker compose up -d --remove-orphans
             docker image prune -f
+
+            # Apply schema (idempotent, CREATE ... IF NOT EXISTS throughout).
+            # The postgres_data_prod volume was created before init.sql was
+            # remounted into docker-entrypoint-initdb.d, so Postgres never ran
+            # it on first boot. Running it explicitly here keeps the schema in
+            # sync on every deploy regardless of when the volume was created.
+            set -a; source .env; set +a
+            docker exec -i nutrition_db_prod psql -U "$DB_USER" -d "$DB_NAME" < init.sql
