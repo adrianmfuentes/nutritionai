@@ -108,5 +108,6 @@ jobs:
             # remounted into docker-entrypoint-initdb.d, so Postgres never ran
             # it on first boot. Running it explicitly here keeps the schema in
             # sync on every deploy regardless of when the volume was created.
-            set -a; source .env; set +a
-            docker exec -i nutrition_db_prod psql -U "$DB_USER" -d "$DB_NAME" < init.sql
+            DB_USER_VAL=$(grep -E '^DB_USER=' .env | tail -1 | cut -d '=' -f2-)
+            DB_NAME_VAL=$(grep -E '^DB_NAME=' .env | tail -1 | cut -d '=' -f2-)
+            docker exec -i nutrition_db_prod psql -U "$DB_USER_VAL" -d "$DB_NAME_VAL" < init.sql
