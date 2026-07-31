@@ -28,11 +28,10 @@ FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-# Instalar curl para el healthcheck y libc6-compat para compatibilidad ARM
-RUN apk add --no-cache curl libc6-compat
-
-# Habilitar pnpm en la etapa de producción (misma versión que en la etapa builder)
-RUN corepack enable && corepack prepare pnpm@9 --activate
+# Instalar curl para el healthcheck y libc6-compat para compatibilidad ARM,
+# y habilitar pnpm en la etapa de producción (misma versión que en la etapa builder)
+RUN apk add --no-cache curl libc6-compat && \
+    corepack enable && corepack prepare pnpm@9 --activate
 
 # Configurar entorno de producción
 ENV NODE_ENV=production
