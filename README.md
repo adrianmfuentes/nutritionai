@@ -1,6 +1,6 @@
 # Nutrition AI
 
-App de seguimiento nutricional que analiza fotos de comida con IA y te dice los macros al instante. Usa LLaMA 3.2 90B Vision (via Groq) para identificar alimentos, estimar porciones y calcular valores nutricionales.
+App de seguimiento nutricional que analiza fotos de comida con IA y te dice los macros al instante. Usa Google Gemini (vision) para identificar alimentos en fotos, y Groq (Llama 3.3) para el análisis por texto y el chat nutricional.
 
 ## Arquitectura
 
@@ -9,7 +9,7 @@ App de seguimiento nutricional que analiza fotos de comida con IA y te dice los 
 | **Frontend** | Android nativo - Kotlin + Jetpack Compose |
 | **Backend** | Node.js 20 + TypeScript + Express |
 | **Base de Datos** | PostgreSQL |
-| **IA** | Groq API (LLaMA 3.2 90B Vision) - gratis |
+| **IA** | Google Gemini (fotos) + Groq API, Llama 3.3 (texto y chat) - gratis |
 | **Infra** | Docker + Docker Compose, Oracle Ampere |
 
 ## Qué hace
@@ -23,7 +23,8 @@ App de seguimiento nutricional que analiza fotos de comida con IA y te dice los 
 Necesitás:
 - Docker + Docker Compose
 - Android Studio
-- API Key de Groq (sacala gratis en https://console.groq.com)
+- API Key de Google Gemini (sacala gratis en https://aistudio.google.com/app/apikey) - para análisis de fotos
+- API Key de Groq (sacala gratis en https://console.groq.com) - para análisis por texto y el chat
 
 ```bash
 # 1. Conseguí tu IP local
@@ -34,7 +35,7 @@ chmod +x get-local-ip.sh && ./get-local-ip.sh
 
 # 2. Configurá el backend
 cd backend
-# Editá .env y poné tu GROQ_API_KEY
+# Editá .env y poné tu GEMINI_API_KEY y GROQ_API_KEY
 
 # 3. Levantá los servicios
 docker-compose up -d --build
@@ -91,7 +92,7 @@ nutritionai/
     │   ├── middleware/       # Auth, rate limit, uploads, errores
     │   ├── models/          # Esquemas DB (raw SQL)
     │   ├── routes/          # Definición de rutas
-    │   ├── services/        # Groq Vision, storage de imágenes
+    │   ├── services/        # Gemini/Groq (IA), storage de imágenes
     │   └── utils/           # Helpers
     ├── nginx/               # Config reverse proxy
     ├── docker-compose.yml
@@ -102,7 +103,7 @@ nutritionai/
 
 **Android:** Kotlin, Jetpack Compose, CameraX, Retrofit, Room, Coil, Material Design 3
 
-**Backend:** Node.js 20, TypeScript, Express, PostgreSQL, Groq SDK, Docker, Nginx, JWT, bcrypt, Multer, Sharp, Zod
+**Backend:** Node.js 20, TypeScript, Express, PostgreSQL, Google Generative AI SDK, Groq API, Docker, Nginx, JWT, bcrypt, Multer, Sharp, Zod
 
 ## Seguridad
 

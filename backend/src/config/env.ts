@@ -22,7 +22,10 @@ export const config = {
   },
   
   ai: {
+    // Gemini powers photo analysis (vision); Groq powers text-description
+    // analysis and the nutrition chat assistant.
     geminiApiKey: process.env.GEMINI_API_KEY || '',
+    groqApiKey: process.env.GROQ_API_KEY || '',
   },
   
   storage: {
@@ -51,7 +54,10 @@ export function validateConfig() {
   const errors: string[] = [];
 
   if (!config.ai.geminiApiKey) {
-    errors.push('Falta GEMINI_API_KEY o ANTHROPIC_API_KEY');
+    errors.push('Falta GEMINI_API_KEY (necesaria para el análisis de fotos de comida)');
+  }
+  if (!config.ai.groqApiKey) {
+    errors.push('Falta GROQ_API_KEY (necesaria para el análisis por texto y el chat nutricional)');
   }
 
   if (!config.database.host) errors.push('Falta DB_HOST');
@@ -66,6 +72,6 @@ export function validateConfig() {
   }
 
   logger.info('✅ Configuración validada correctamente');
-  logger.info(`🤖 Proveedor de IA: ${config.ai.geminiApiKey ? 'Google Gemini' : 'Anthropic Claude'}`);
-  // No se loguea ninguna parte de la API Key por seguridad
+  logger.info('🤖 Proveedores de IA: Google Gemini (fotos) + Groq (texto y chat)');
+  // No se loguea ninguna parte de las API Keys por seguridad
 }

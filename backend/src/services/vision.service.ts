@@ -68,11 +68,46 @@ ESTRUCTURA DE RESPUESTA ESPERADA (JSON):
 }
 `;
 
+const GROQ_TEXT_MODEL = 'llama-3.3-70b-versatile';
+
 export class VisionService {
   private genAI: GoogleGenerativeAI;
 
   constructor() {
     this.genAI = new GoogleGenerativeAI(config.ai.geminiApiKey);
+  }
+
+  /** Text-only completions (description analysis, chat) go through Groq; photo analysis stays on Gemini. */
+  private async callGroq(prompt: string, timeoutMs: number): Promise<string> {
+    const response = await Promise.race([
+      fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${config.ai.groqApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: GROQ_TEXT_MODEL,
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0.3,
+          max_tokens: 4096,
+          response_format: { type: 'json_object' },
+        }),
+      }),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Timeout del modelo LLM')), timeoutMs)),
+    ]);
+
+    if (!response.ok) {
+      const errorBody = await response.text().catch(() => '');
+      throw new Error(`Groq API error ${response.status}: ${errorBody}`);
+    }
+
+    const data: any = await response.json();
+    const content = data.choices?.[0]?.message?.content;
+    if (!content) {
+      throw new Error('No se recibió respuesta del modelo');
+    }
+    return content;
   }
 
   async analyzeMealImage(imagePath: string): Promise<VisionAnalysisResult> {
@@ -172,14 +207,7 @@ export class VisionService {
 DESCRIPCIÓN DE COMIDA: "${description}"
 
 Analiza esta descripción de comida y proporciona información nutricional siguiendo el formato especificado. Estima cantidades razonables basándote en porciones típicas.`;
-        const model = this.genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
-        const geminiResult = await Promise.race([
-          model.generateContent(TEXT_ANALYSIS_PROMPT),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout del modelo LLM')), TIMEOUT_MS))
-        ]);
-        // @ts-ignore
-        const response = geminiResult.response;
-        const responseText = response.text();
+        const responseText = await this.callGroq(TEXT_ANALYSIS_PROMPT, TIMEOUT_MS);
         logger.info(`[Vision] Respuesta del modelo recibida (texto, longitud: ${responseText?.length || 0})`);
         if (!responseText) {
           throw new Error('No se recibió respuesta del modelo');
@@ -222,8 +250,6 @@ Analiza esta descripción de comida y proporciona información nutricional sigui
       // Obtener prompt del sistema según el idioma
       const CHAT_SYSTEM_PROMPT = this.getChatSystemPrompt(language);
 
-      const model = this.genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
-
       // Construir historial de conversación
       let conversationContext = '';
       if (conversationHistory && conversationHistory.length > 0) {
@@ -235,10 +261,8 @@ Analiza esta descripción de comida y proporciona información nutricional sigui
 
       const fullPrompt = `${CHAT_SYSTEM_PROMPT}${conversationContext}\n\nMensaje del usuario: "${message}"\n\nResponde solo con un JSON: { "message": "respuesta" }.`;
 
-      const geminiResult = await model.generateContent(fullPrompt);
-      const response = await geminiResult.response;
-      const responseText = response.text();
-      
+      const responseText = await this.callGroq(fullPrompt, 20000);
+
       if (!responseText) {
         throw new Error('No se recibió respuesta del modelo');
       }
