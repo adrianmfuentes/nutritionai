@@ -19,7 +19,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "API_BASE_URL", "\"https://api-nutricion.amfserver.duckdns.org/v1\"")
+        buildConfigField("String", "API_BASE_URL", "\"https://api-nutricion.adrianmf.dev/v1\"")
     }
 
     val releaseKeystorePath = System.getenv("KEYSTORE_PATH")
@@ -38,13 +38,13 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField("String", "API_BASE_URL", "\"https://api-nutricion.amfserver.duckdns.org/v1\"")
+            buildConfigField("String", "API_BASE_URL", "\"https://api-nutricion.adrianmf.dev/v1\"")
         }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            buildConfigField("String", "API_BASE_URL", "\"https://api-nutricion.amfserver.duckdns.org/v1\"")
+            buildConfigField("String", "API_BASE_URL", "\"https://api-nutricion.adrianmf.dev/v1\"")
             if (hasReleaseSigning) {
                 signingConfig = signingConfigs.getByName("release")
             }

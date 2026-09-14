@@ -14,8 +14,8 @@
 
     <!-- Production API with HTTPS -->
     <domain-config cleartextTrafficPermitted="false">
-        <domain includeSubdomains="true">amfserver.duckdns.org</domain>
-        <domain includeSubdomains="true">api-nutricion.amfserver.duckdns.org</domain>
+        <domain includeSubdomains="true">adrianmf.dev</domain>
+        <domain includeSubdomains="true">api-nutricion.adrianmf.dev</domain>
     </domain-config>
 
     <!-- Default: HTTPS only for all other domains -->
